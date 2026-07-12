@@ -23,6 +23,8 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayTag_Damage);
 
 
 DECLARE_MULTICAST_DELEGATE_FourParams(FFPSAttributeHealthEvent, AActor* /*EffectInstigator*/, const FGameplayEffectSpec* /*EffectSpec*/, float /*OldValue*/, float /*NewValue*/);
+DECLARE_MULTICAST_DELEGATE(FFPSAttributeStaminaEvent);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FFPSAttributeStaminaChangedEvent, float /*OldValue*/, float /*NewValue*/);
 
 /**
  * 
@@ -36,10 +38,13 @@ public:
 	UFPSCombatAttributeSet();
 
 	mutable FFPSAttributeHealthEvent OnHealthChanged;
-	
 	mutable FFPSAttributeHealthEvent OnMaxHealthChanged;
-	
 	mutable FFPSAttributeHealthEvent OnOutOfHealthChanged;
+	
+	mutable FFPSAttributeStaminaEvent OnStaminaDepleted;
+	mutable FFPSAttributeStaminaEvent OnStaminaRestored;
+	mutable FFPSAttributeStaminaChangedEvent OnStaminaChanged;
+	mutable FFPSAttributeStaminaChangedEvent OnMaxStaminaChanged;
 	
 	
 	ATTRIBUTE_ACCESSORS(UFPSCombatAttributeSet, Health);
@@ -47,6 +52,12 @@ public:
 	ATTRIBUTE_ACCESSORS(UFPSCombatAttributeSet, Heal);
 	ATTRIBUTE_ACCESSORS(UFPSCombatAttributeSet, Damage);
 
+	ATTRIBUTE_ACCESSORS(UFPSCombatAttributeSet, Stamina);
+	ATTRIBUTE_ACCESSORS(UFPSCombatAttributeSet, MaxStamina);
+
+	ATTRIBUTE_ACCESSORS(UFPSCombatAttributeSet, MoveSpeed);
+
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	
@@ -56,16 +67,31 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealthChanged, Category = "Attributes|Health", meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData MaxHealth;
-	
-	bool bOutOfHealth = false;
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaChanged, Category = "Attributes|Stamina", meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData Stamina;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxStaminaChanged, Category = "Attributes|Stamina", meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData MaxStamina;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing= OnRep_MoveSpeedChanged, Category = "Attributes|Speed" , meta = (AllowPrivateAccess = true))
+	FGameplayAttributeData MoveSpeed;
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes|Health", meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Heal;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Attributes|Health", Meta = (HideFromModifiers, AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes|Damage", Meta = (HideFromModifiers, AllowPrivateAccess = true))
 	FGameplayAttributeData Damage;
 	
-		
+	FORCEINLINE float GetClampToMax(float Value, float MaxValue) const { return FMath::Clamp(Value, 0.f, MaxValue); }
+
+	void HandleStaminaChange(float OldValue, float NewValue);
+
+	bool bOutOfHealth = false;
+
+	bool bOutOfStamina = false;
+
+	float StaminaBeforeChange = 0.f;
 	
 protected:
 	UFUNCTION()
@@ -74,7 +100,17 @@ protected:
 	UFUNCTION()
 	void OnRep_MaxHealthChanged(const FGameplayAttributeData& OldValue);
 
+	UFUNCTION()
+	void OnRep_StaminaChanged(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	void OnRep_MaxStaminaChanged(const FGameplayAttributeData& OldValue);
+
+	UFUNCTION()
+	void OnRep_MoveSpeedChanged(const FGameplayAttributeData& OldValue);
+
 public:
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
 };

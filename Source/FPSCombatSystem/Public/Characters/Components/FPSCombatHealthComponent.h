@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "FPSCombatBaseComponent.h"
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
 #include "Components/ActorComponent.h"
@@ -23,7 +23,7 @@ enum class EDeathState : uint8
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class FPSCOMBATSYSTEM_API UFPSCombatHealthComponent : public UActorComponent
+class FPSCOMBATSYSTEM_API UFPSCombatHealthComponent : public UFPSCombatBaseComponent
 {
 	GENERATED_BODY()
 
@@ -34,12 +34,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION(BlueprintCallable, Category = "Components|Health")
-	void InitializeWithAbilitySystem(UFPSCombatAbilitySystemComponent* ASC);
-
-
-	UFUNCTION(BlueprintCallable, Category = "Components|Health")
-	void UninitializeFromAbilitySystem();
+	
 	
 	UFUNCTION(BlueprintCallable, Category = "Components|Health")
 	float GetHealth() const;
@@ -88,16 +83,13 @@ protected:
 	virtual void HandleHealthChanged(AActor* EffectInstigator, const FGameplayEffectSpec* EffectSpec, float OldValue, float NewValue);
 	virtual void HandleMaxHealthChanged(AActor* EffectInstigator, const FGameplayEffectSpec* EffectSpec, float OldValue, float NewValue);
 	virtual void HandleOutOfHealthChanged(AActor* EffectInstigator, const FGameplayEffectSpec* EffectSpec, float OldValue, float NewValue);
-	
+	virtual void BindAttributeDelegate() override;
+	virtual void UnBindAttributeDelegate() override;
+	virtual float GetMerged() override { return GetMergedHealth(); };
 
-protected:
-	UPROPERTY()
-	TObjectPtr<UFPSCombatAbilitySystemComponent> AbilitySystem;
 
 	UPROPERTY(ReplicatedUsing= OnRep_DeathStateChange)
 	EDeathState DeathState;
 	
-	UPROPERTY()
-	TObjectPtr<const UFPSCombatAttributeSet> HealthSet;
 	
 };

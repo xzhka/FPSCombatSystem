@@ -11,7 +11,9 @@
 			"AdditionalDependencies": [
 				"Engine",
 				"GameplayAbilities",
-				"UMG"
+				"UMG",
+				"ModularGameplay",
+				"EnhancedInput"
 			]
 		}
 	],
@@ -25,6 +27,10 @@
 		},
 		{
 			"Name": "GameplayAbilities",
+			"Enabled": true
+		},
+		{
+			"Name": "ModularGameplay",
 			"Enabled": true
 		}
 	]

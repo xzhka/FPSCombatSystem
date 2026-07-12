@@ -1,8 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "FPSCombatSystem/Public/Characters/FPSCombatCharacter.h"
-
+#include "Characters/FPSCombatMovementComp.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/FPSCombatPlayerState.h"
@@ -34,11 +32,19 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
+	/* Default components initialize*/
+	PawnComponent = CreateDefaultSubobject<UFPSCombatCharacterPawnComp>(TEXT("PawnComponent"));
 	HealthComponent = CreateDefaultSubobject<UFPSCombatHealthComponent>(TEXT("HealthComp"));
-	
-	
+	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComp"));
+	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComp>(TEXT("MovementComponent"));
 }
 
+void AFPSCombatCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PawnComponent->InitializeInputComponents(PlayerInputComponent);
+
+}
 
 
 void AFPSCombatCharacter::PossessedBy(AController* NewController)
@@ -46,25 +52,53 @@ void AFPSCombatCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	
 	SetOwner(NewController);
+	
+	InitializeAbilitySystem();
+}
+
+void AFPSCombatCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
 
 	InitializeAbilitySystem();
-	
+}
+
+void AFPSCombatCharacter::UnPossessed()
+{
+	Super::UnPossessed();
 }
 
 
 void AFPSCombatCharacter::InitializeAbilitySystem()
 {
-	AFPSCombatPlayerState* APlayerState = GetPlayerState<AFPSCombatPlayerState>();
-	if (APlayerState)
+	if (AFPSCombatPlayerState* APlayerState = GetPlayerState<AFPSCombatPlayerState>())
 	{
-		UFPSCombatAbilitySystemComponent* AbilitySystem = Cast<UFPSCombatAbilitySystemComponent>(APlayerState->GetAbilitySystemComponent());
+		if (UFPSCombatAbilitySystemComponent* AbilitySystem = Cast<UFPSCombatAbilitySystemComponent>(APlayerState->GetAbilitySystemComponent()))
+		{
+			AbilitySystem->InitAbilityActorInfo(APlayerState, this);
 		
-		AbilitySystem->InitAbilityActorInfo(APlayerState, this);
-		
-		HealthComponent->InitializeWithAbilitySystem(AbilitySystem);
+			HealthComponent->InitializeWithAbilitySystem(AbilitySystem);
+			StaminaComponent->InitializeWithAbilitySystem(AbilitySystem);
+			MovementComponent->InitializeWithAbilitySystem(AbilitySystem);
 
-		AbilitySystem->InitializeDefaultAttributes();
+			if (HasAuthority())
+			{
+				AbilitySystem->InitializeDefaultAttributes();
+
+				if (AbilitySet)
+				{
+					AbilitySet->GiveAbility(AbilitySystem, &GrantedHandles);
+				}
+			}
+		}
 	}
 }
 
-
+UAbilitySystemComponent* AFPSCombatCharacter::GetAbilitySystemComponent() const
+{
+	if (const AFPSCombatPlayerState* PS = GetPlayerState<AFPSCombatPlayerState>())
+	{
+		return PS->GetAbilitySystemComponent();
+	}
+	return nullptr;
+}

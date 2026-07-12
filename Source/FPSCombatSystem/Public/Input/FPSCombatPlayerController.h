@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "FPSCombatInputConfig.h"
-#include "UI/FPSCombatHeathBarWidget.h"
+#include "UI/FPSCombatHUDWidget.h"
 #include "FPSCombatPlayerController.generated.h"
 
 struct FInputActionValue;
@@ -20,36 +19,18 @@ class FPSCOMBATSYSTEM_API AFPSCombatPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* JumpAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* LookAction;
-
-
-public:
-	virtual void AcknowledgePossession(APawn* P) override;
 	
 protected:
-	virtual void SetupInputComponent() override;
 	virtual void BeginPlay() override;
 
-	void Move(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
+public:
+	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
 
-	void Jump();
-	void StopJump();
-	
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UFPSCombatInputConfig> InputConfig;
-
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UFPSCombatHeathBarWidget> HealthWidgetClass;
+	TSubclassOf<UFPSCombatHUDWidget> HealthWidgetClass;
 
 	UPROPERTY()
-	TObjectPtr<UFPSCombatHeathBarWidget> HealthWidget;
+	TObjectPtr<UFPSCombatHUDWidget> HealthWidget;
 	
 };

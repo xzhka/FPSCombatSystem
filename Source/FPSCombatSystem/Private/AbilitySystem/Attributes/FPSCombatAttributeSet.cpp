@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
 #include "GameplayEffectExtension.h"
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
 UE_DEFINE_GAMEPLAY_TAG(GameplayTag_Damage, "Gameplay.Damage");
@@ -10,9 +11,13 @@ UE_DEFINE_GAMEPLAY_TAG(GameplayTag_Damage, "Gameplay.Damage");
 
 UFPSCombatAttributeSet::UFPSCombatAttributeSet()
 	: Health(100.0f),
-	  MaxHealth(100.0f)
+	  MaxHealth(100.0f),
+	  Stamina(100.0f),
+	  MaxStamina(100.0f),
+	  MoveSpeed(1.f)
 {
 	bOutOfHealth = false;
+	bOutOfStamina = false;
 }
 
 void UFPSCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -21,6 +26,31 @@ void UFPSCombatAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 
 	DOREPLIFETIME_CONDITION_NOTIFY(UFPSCombatAttributeSet, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UFPSCombatAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UFPSCombatAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UFPSCombatAttributeSet, MaxStamina, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UFPSCombatAttributeSet, MoveSpeed, COND_None, REPNOTIFY_Always);
+}
+
+
+void UFPSCombatAttributeSet::HandleStaminaChange(float OldValue, float NewValue)
+{
+	if (FMath::IsNearlyEqual(OldValue, NewValue))
+	{
+		return;
+	}
+	
+	OnStaminaChanged.Broadcast(OldValue, NewValue);
+
+	const bool bIsNowOutOfStamina = (NewValue <= 0.0f);
+	if (bIsNowOutOfStamina && !bOutOfStamina)
+	{
+		OnStaminaDepleted.Broadcast();
+	}
+	if (!bIsNowOutOfStamina && bOutOfStamina)
+	{
+		OnStaminaRestored.Broadcast();
+	}
+	bOutOfStamina = bIsNowOutOfStamina;
 }
 
 void UFPSCombatAttributeSet::OnRep_HealthChanged(const FGameplayAttributeData& OldValue)
@@ -28,11 +58,14 @@ void UFPSCombatAttributeSet::OnRep_HealthChanged(const FGameplayAttributeData& O
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UFPSCombatAttributeSet, Health, OldValue);
 
 	const float CurrentHealth = GetHealth(); 
+
+	UE_LOG(LogTemp, Warning, TEXT("You in OnRep_HealthChanged"));	
 	
 	OnHealthChanged.Broadcast(nullptr, nullptr, OldValue.GetCurrentValue(), CurrentHealth);
 
 	if (!bOutOfHealth && CurrentHealth <= 0.0f)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Your Health is %f"), CurrentHealth);
 		OnOutOfHealthChanged.Broadcast(nullptr, nullptr, OldValue.GetCurrentValue(), CurrentHealth);
 	}
 
@@ -45,6 +78,26 @@ void UFPSCombatAttributeSet::OnRep_MaxHealthChanged(const FGameplayAttributeData
 
 	OnMaxHealthChanged.Broadcast(nullptr, nullptr, OldValue.GetCurrentValue(), GetMaxHealth());
 }
+
+void UFPSCombatAttributeSet::OnRep_StaminaChanged(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UFPSCombatAttributeSet, Stamina, OldValue);
+	
+	HandleStaminaChange(OldValue.GetCurrentValue(), GetStamina());
+}
+
+void UFPSCombatAttributeSet::OnRep_MaxStaminaChanged(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UFPSCombatAttributeSet, MaxStamina, OldValue);
+
+	OnMaxStaminaChanged.Broadcast(GetMaxStamina(), OldValue.GetCurrentValue());
+}
+
+void UFPSCombatAttributeSet::OnRep_MoveSpeedChanged(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UFPSCombatAttributeSet, MoveSpeed, OldValue);
+}
+
 
 void UFPSCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
@@ -79,7 +132,7 @@ void UFPSCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 	{
 		const float OldHealthValue = GetHealth();
 		const float HealDone = GetHeal();
-		SetDamage(0.0f);
+		SetHeal(0.0f);
 		
 		if (HealDone > 0.0f)
 		{
@@ -105,6 +158,22 @@ void UFPSCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 			OnHealthChanged.Broadcast(InstigatorActor, Spec, OldHealthValue, ClampedValue);
 		}
 	}
+	else if (Data.EvaluatedData.Attribute == GetStaminaAttribute())
+	{
+		HandleStaminaChange(StaminaBeforeChange, GetStamina());
+	}
+	else if (Data.EvaluatedData.Attribute == GetMaxStaminaAttribute())
+	{
+		OnMaxStaminaChanged.Broadcast(0.0f, GetMaxStamina());
+
+		const float OldStamina = GetStamina();
+		const float ClampStamina = FMath::Clamp(OldStamina, 0.0f, GetMaxStamina());
+		if (OldStamina != ClampStamina)
+		{
+			SetStamina(ClampStamina);
+			OnStaminaChanged.Broadcast(OldStamina, ClampStamina);
+		}
+	}
 }
 
 void UFPSCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -113,11 +182,40 @@ void UFPSCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attrib
 
 	if (Attribute == GetHealthAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
+		NewValue = GetClampToMax(NewValue, GetMaxHealth());
 	}
 	else if (Attribute == GetMaxHealthAttribute())
 	{
-		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
+		NewValue = GetClampToMax(NewValue, GetMaxHealth());
+	}
+
+	if (Attribute == GetStaminaAttribute())
+	{
+		StaminaBeforeChange = GetStamina();
+		NewValue = GetClampToMax(NewValue, GetMaxStamina());
+	}
+	else if (Attribute == GetMaxStaminaAttribute())
+	{
+		NewValue = GetClampToMax(NewValue, GetMaxStamina());
+	}
+
+	if (Attribute == GetMoveSpeedAttribute())
+	{
+		constexpr float MaxValue = 3.f;
+		NewValue = GetClampToMax(NewValue, MaxValue);
 	}
 }
 
+void UFPSCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
+{
+	Super::PreAttributeBaseChange(Attribute, NewValue);
+
+	if (Attribute == GetHealthAttribute())
+	{
+		NewValue = GetClampToMax(NewValue, GetMaxHealth());
+	}
+	else if (Attribute == GetStaminaAttribute())
+	{
+		NewValue = GetClampToMax(NewValue, GetMaxStamina());
+	}
+}

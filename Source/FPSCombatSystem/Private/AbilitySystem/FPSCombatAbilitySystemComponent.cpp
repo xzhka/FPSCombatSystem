@@ -44,11 +44,13 @@ void UFPSCombatAbilitySystemComponent::InitializeDefaultAttributes()
 {
 	FGameplayEffectContextHandle Context = MakeEffectContext();
 	Context.AddSourceObject(GetOwnerActor());
-	
-	const FGameplayEffectSpecHandle& Spec = MakeOutgoingSpec(DefaultGameplayEffect, 1.0f, Context);
-	if (Spec.IsValid())
+	for (const TSubclassOf<UGameplayEffect>& GameplayEffectSpec : DefaultGameplayEffect)
 	{
-		ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+		const FGameplayEffectSpecHandle& Spec = MakeOutgoingSpec(GameplayEffectSpec, 1.0f, Context);
+		if (Spec.IsValid())
+		{
+			ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+		}
 	}
 }
 

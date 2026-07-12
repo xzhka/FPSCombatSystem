@@ -8,7 +8,7 @@ AFPSCombatPlayerState::AFPSCombatPlayerState()
 	ASC = CreateDefaultSubobject<UFPSCombatAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 
 	ASC->SetIsReplicated(true);
-	SetNetUpdateFrequency(70.f);
+	SetNetUpdateFrequency(100.f);
 	ASC->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	
 	AttributeSet = CreateDefaultSubobject<UFPSCombatAttributeSet>(TEXT("AttributeSet"));

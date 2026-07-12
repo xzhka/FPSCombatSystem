@@ -11,7 +11,7 @@ UFPSCombatHealthComponent::UFPSCombatHealthComponent()
 	SetIsReplicatedByDefault(true);
 
 	AbilitySystem = nullptr;
-	HealthSet = nullptr;
+	AttributeSet = nullptr;
 	DeathState = EDeathState::NotDead;
 }
 
@@ -22,70 +22,23 @@ void UFPSCombatHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME(UFPSCombatHealthComponent, DeathState);
 }
 
-void UFPSCombatHealthComponent::InitializeWithAbilitySystem(UFPSCombatAbilitySystemComponent* ASC)
-{
-	AActor* OwningActor = GetOwner();
-
-	check(OwningActor);
-
-	AbilitySystem = ASC;
-
-	if (!AbilitySystem)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cannot initialize health component for owner %s"), *GetNameSafe(OwningActor));
-		return;
-	}
-
-	HealthSet = AbilitySystem->GetSet<UFPSCombatAttributeSet>();
-
-	if (!HealthSet)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cannot initialize health set for owner %s"), *GetNameSafe(OwningActor));
-		return;
-	}
-
-	HealthSet->OnHealthChanged.AddUObject(this, &ThisClass::HandleHealthChanged);
-	HealthSet->OnMaxHealthChanged.AddUObject(this, &ThisClass::HandleMaxHealthChanged);
-	HealthSet->OnOutOfHealthChanged.AddUObject(this, &ThisClass::HandleOutOfHealthChanged);
-
-	AbilitySystem->SetNumericAttributeBase(UFPSCombatAttributeSet::GetHealthAttribute(), HealthSet->GetMaxHealth());
-
-	ClearASCGameplayTags();
-
-	OnHealthChanged.Broadcast(nullptr, HealthSet->GetHealth(), HealthSet->GetHealth(), this);
-	OnMaxHealthChanged.Broadcast(nullptr, HealthSet->GetHealth(), HealthSet->GetHealth(), this);
-}
-
-void UFPSCombatHealthComponent::UninitializeFromAbilitySystem()
-{
-	ClearASCGameplayTags();
-	if (HealthSet)
-	{
-		HealthSet->OnHealthChanged.RemoveAll(this);
-		HealthSet->OnMaxHealthChanged.RemoveAll(this);
-		HealthSet->OnOutOfHealthChanged.RemoveAll(this);
-	}
-
-	HealthSet = nullptr;
-	AbilitySystem = nullptr;
-}
 
 float UFPSCombatHealthComponent::GetHealth() const
 {
-	return (HealthSet ? HealthSet->GetHealth() : 0.f);
+	return (AttributeSet ? AttributeSet->GetHealth() : 0.f);
 }
 
 float UFPSCombatHealthComponent::GetMaxHealth() const
 {
-	return (HealthSet ? HealthSet->GetMaxHealth() : 0.f);
+	return (AttributeSet ? AttributeSet->GetMaxHealth() : 0.f);
 }
 
 float UFPSCombatHealthComponent::GetMergedHealth() const
 {
-	if (HealthSet)
+	if (AttributeSet)
 	{
-		const float Health = HealthSet->GetHealth();
-		const float MaxHealth = HealthSet->GetMaxHealth();
+		const float Health = AttributeSet->GetHealth();
+		const float MaxHealth = AttributeSet->GetMaxHealth();
 
 		return ((MaxHealth > 0.f) ? (Health / MaxHealth) : 0.f);
 	}
@@ -135,6 +88,8 @@ void UFPSCombatHealthComponent::DeathEnded()
 
 	check(OwningActor);
 
+	UE_LOG(LogTemp, Warning, TEXT("Death Ended, Player Dead"));
+	
 	OnDeathEnded.Broadcast(OwningActor);
 
 	OwningActor->ForceNetUpdate();
@@ -196,6 +151,7 @@ void UFPSCombatHealthComponent::HandleHealthChanged(AActor* EffectInstigator, co
                                                     float OldValue, float NewValue)
 {
 	OnHealthChanged.Broadcast(EffectInstigator, OldValue, NewValue, this);
+	OnPercentChanged.Broadcast(GetMerged());
 }
 
 void UFPSCombatHealthComponent::HandleMaxHealthChanged(AActor* EffectInstigator, const FGameplayEffectSpec* EffectSpec,
@@ -223,9 +179,26 @@ void UFPSCombatHealthComponent::HandleOutOfHealthChanged(AActor* EffectInstigato
 	}
 }
 
+void UFPSCombatHealthComponent::BindAttributeDelegate()
+{
+	AttributeSet->OnHealthChanged.AddUObject(this, &ThisClass::HandleHealthChanged);
+	AttributeSet->OnMaxHealthChanged.AddUObject(this, &ThisClass::HandleMaxHealthChanged);
+	AttributeSet->OnOutOfHealthChanged.AddUObject(this, &ThisClass::HandleOutOfHealthChanged);
 
+	AbilitySystem->SetNumericAttributeBase(UFPSCombatAttributeSet::GetHealthAttribute(), AttributeSet->GetMaxHealth());
 
+	ClearASCGameplayTags();
 
+	HandleHealthChanged(nullptr, nullptr, AttributeSet->GetHealth(), AttributeSet->GetHealth());
+	HandleMaxHealthChanged(nullptr, nullptr, AttributeSet->GetMaxHealth(), AttributeSet->GetMaxHealth());
+}
 
+void UFPSCombatHealthComponent::UnBindAttributeDelegate()
+{
+	ClearASCGameplayTags();
 
-
+	AttributeSet->OnHealthChanged.RemoveAll(this);
+	AttributeSet->OnMaxHealthChanged.RemoveAll(this);
+	AttributeSet->OnOutOfHealthChanged.RemoveAll(this);
+	
+}
