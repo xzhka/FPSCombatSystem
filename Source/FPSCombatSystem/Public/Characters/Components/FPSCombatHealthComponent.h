@@ -34,7 +34,8 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	
+	UFUNCTION(BlueprintPure)
+	static UFPSCombatHealthComponent* GetHealthComp(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UFPSCombatHealthComponent>() : nullptr); }
 	
 	UFUNCTION(BlueprintCallable, Category = "Components|Health")
 	float GetHealth() const;

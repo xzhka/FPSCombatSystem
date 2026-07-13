@@ -68,7 +68,6 @@ void AFPSCombatCharacter::UnPossessed()
 	Super::UnPossessed();
 }
 
-
 void AFPSCombatCharacter::InitializeAbilitySystem()
 {
 	if (AFPSCombatPlayerState* APlayerState = GetPlayerState<AFPSCombatPlayerState>())

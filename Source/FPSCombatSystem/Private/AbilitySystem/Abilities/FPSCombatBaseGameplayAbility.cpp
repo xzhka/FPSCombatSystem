@@ -6,6 +6,16 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayTag.h"
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "AbilitySystem/Tasks/AbilityTask_WaitCancelTags.h"
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
+
+UFPSCombatBaseGameplayAbility::UFPSCombatBaseGameplayAbility()
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	ActivationBlockedTags.AddTag(FPSCombatGameplayTags::State_Death);
+	
+}
 
 const FGameplayTagContainer* UFPSCombatBaseGameplayAbility::GetCooldownTags() const
 {
