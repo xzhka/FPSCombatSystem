@@ -13,12 +13,12 @@ namespace FPSCombatGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Moving_MovingForward, "State.Moving.MovingForward");
 
 	
-	UE_DEFINE_GAMEPLAY_TAG(State_Moving_Sprinting, "State.Moving.Sprinting");
-	UE_DEFINE_GAMEPLAY_TAG(State_Moving_Dash, "State.Moving.Dash");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Sprinting, "Ability.Moving.Sprinting");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Dash, "Ability.Moving.Dash");
 
-	UE_DEFINE_GAMEPLAY_TAG(State_Moving_Airborne, "State.Moving.Airborne");
-	UE_DEFINE_GAMEPLAY_TAG(State_Moving_AirborneSource, "State.Moving.AirborneSource");
-	UE_DEFINE_GAMEPLAY_TAG(State_Moving_AirborneSource_Updraft, "State.Moving.AirborneSource.Updraft");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Airborne, "Ability.Moving.Airborne");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource, "Ability.Moving.AirborneSource");
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource_Updraft, "Ability.Moving.AirborneSource.Updraft");
 	
 	UE_DEFINE_GAMEPLAY_TAG(State_Stamina_SprintExhausted, "State.Stamina.SprintExhausted");
 	UE_DEFINE_GAMEPLAY_TAG(State_Stamina_DashExhausted, "State.Stamina.DashExhausted");
@@ -27,6 +27,8 @@ namespace FPSCombatGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Cooldown_Duration, "SetByCaller.Cooldown.Duration");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Dash_Duration, "SetByCaller.Dash.Duration");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Data_Damage, "SetByCaller.Data.Damage");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Data_Heal, "SetByCaller.Data.Heal");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_RequiresStamina, "Ability.RequiresStamina");
 }

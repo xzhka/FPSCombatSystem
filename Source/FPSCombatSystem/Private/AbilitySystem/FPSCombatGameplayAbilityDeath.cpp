@@ -21,7 +21,6 @@ UFPSCombatGameplayAbilityDeath::UFPSCombatGameplayAbilityDeath()
 		
 		AbilityTriggers.Add(TriggerData);
 	}
-	
 }
 
 
@@ -36,12 +35,8 @@ void UFPSCombatGameplayAbilityDeath::ActivateAbility(const FGameplayAbilitySpecH
 	ASC->CancelAbilities();
 
 	SetCanBeCanceled(false);
-
 	
 	StartDeath();
-
-
-	
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 }

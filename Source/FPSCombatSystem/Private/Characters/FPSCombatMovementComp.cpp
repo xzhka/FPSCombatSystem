@@ -69,10 +69,10 @@ void UFPSCombatMovementComp::SetMovementState(EFPSCombatMoveState NewState)
 	CurrentMoveState = NewState;
 
 	const bool bAirborne = (NewState == EFPSCombatMoveState::Airborne);
-	CachedASC->SetLooseGameplayTagCount(FPSCombatGameplayTags::State_Moving_Airborne, bAirborne ? 1 : 0);
+	CachedASC->SetLooseGameplayTagCount(FPSCombatGameplayTags::Ability_Moving_Airborne, bAirborne ? 1 : 0);
 	if (!bAirborne && OwnerCharacter->HasAuthority())
 	{
-		CachedASC->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(FPSCombatGameplayTags::State_Moving_AirborneSource));
+		CachedASC->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(FPSCombatGameplayTags::Ability_Moving_AirborneSource));
 	}
 }
 
@@ -146,5 +146,4 @@ void UFPSCombatMovementComp::Updraft(float Distance)
 	 const FVector LaunchVelocity(0.f,0.f,Distance);
 	
 	OwnerCharacter->LaunchCharacter(LaunchVelocity, false, true);
-	
 }

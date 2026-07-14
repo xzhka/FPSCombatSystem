@@ -11,6 +11,11 @@ UFPSCombatGameplayAbilityDash::UFPSCombatGameplayAbilityDash()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 
 	SetByCallerTag = FPSCombatGameplayTags::SetByCaller_Cooldown_Duration;
+
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FPSCombatGameplayTags::Ability_Moving_Dash);
+	SetAssetTags(Tags);
+	
 }
 
 void UFPSCombatGameplayAbilityDash::CommitExecute(const FGameplayAbilitySpecHandle Handle,

@@ -113,7 +113,6 @@ void UFPSCombatAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool
 
 	PressedAbilitySpecHandles.Reset();
 	ReleasedAbilitySpecHandles.Reset();
-	
 }
 
 void UFPSCombatAbilitySystemComponent::ClearAbilityInput()
@@ -121,4 +120,21 @@ void UFPSCombatAbilitySystemComponent::ClearAbilityInput()
 	PressedAbilitySpecHandles.Reset();
 	ReleasedAbilitySpecHandles.Reset();
 	HeldAbilitySpecHandles.Reset();
+}
+
+void UFPSCombatAbilitySystemComponent::ApplyAbilityBlockAndCancelTags(const FGameplayTagContainer& AbilityTags,
+	UGameplayAbility* RequestingAbility, bool bEnableBlockTags, const FGameplayTagContainer& BlockTags,
+	bool bExecuteCancelTags, const FGameplayTagContainer& CancelTags)
+{
+	UE_LOG(LogTemp, Display, TEXT("ApplyAbilityBlockAndCancelTags"));
+	FGameplayTagContainer MergedBlock = BlockTags;
+	FGameplayTagContainer MergedCancel = CancelTags;
+
+	if (RelationshipMapping)
+	{
+		RelationshipMapping->GetAbilityTagsToBlockAndCancel(AbilityTags, &MergedBlock, &MergedCancel);
+	}
+	
+	Super::ApplyAbilityBlockAndCancelTags(AbilityTags, RequestingAbility, bEnableBlockTags, MergedBlock,
+	                                      bExecuteCancelTags, MergedCancel);
 }

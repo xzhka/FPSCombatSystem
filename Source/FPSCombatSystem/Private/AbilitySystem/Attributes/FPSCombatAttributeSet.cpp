@@ -90,7 +90,7 @@ void UFPSCombatAttributeSet::OnRep_MaxStaminaChanged(const FGameplayAttributeDat
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UFPSCombatAttributeSet, MaxStamina, OldValue);
 
-	OnMaxStaminaChanged.Broadcast(GetMaxStamina(), OldValue.GetCurrentValue());
+	OnMaxStaminaChanged.Broadcast(OldValue.GetCurrentValue(), GetMaxStamina());
 }
 
 void UFPSCombatAttributeSet::OnRep_MoveSpeedChanged(const FGameplayAttributeData& OldValue)

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
+#include "FPSCombatTagsRelationshipMapping.h"
 #include "FPSCombatAbilitySystemComponent.generated.h"
 
 /**
@@ -15,6 +16,11 @@ class FPSCOMBATSYSTEM_API UFPSCombatAbilitySystemComponent : public UAbilitySyst
 	GENERATED_BODY()
 
 public:
+
+	FORCEINLINE UFPSCombatTagsRelationshipMapping* GetRelationshipMapping() const { return RelationshipMapping; }
+
+
+	
 	UFPSCombatAbilitySystemComponent();
 	
 	/*Adding abilities by InputTag inside SpecHandles*/
@@ -27,7 +33,10 @@ public:
 	void ProcessAbilityInput(float DeltaTime, bool bGamePaused);
 	
 	void ClearAbilityInput();
-
+	virtual void ApplyAbilityBlockAndCancelTags(const FGameplayTagContainer& AbilityTags,
+		UGameplayAbility* RequestingAbility, bool bEnableBlockTags, const FGameplayTagContainer& BlockTags,
+		bool bExecuteCancelTags, const FGameplayTagContainer& CancelTags) override;
+	
 protected:
 	/*Array`s of SpecHandles*/
 	TArray<FGameplayAbilitySpecHandle> PressedAbilitySpecHandles;
@@ -36,4 +45,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "DefaultEffects")
 	TArray<TSubclassOf<UGameplayEffect>> DefaultGameplayEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TagMapping")
+	TObjectPtr<UFPSCombatTagsRelationshipMapping> RelationshipMapping;
+	
+	
 };

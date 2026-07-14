@@ -45,6 +45,8 @@ void UFPSCombatHealExecCalc::Execute_Implementation(const FGameplayEffectCustomE
 	
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude( HealStatics().BaseHealStaticsDef, EvaluateParams, BaseHeal);
 
+	BaseHeal += FMath::Max(Spec.GetSetByCallerMagnitude(FName("SetByCaller.Data.Heal"), false, 0.f), 0.f);
+	
 	const float HealDone = FMath::Max(BaseHeal, 0.f);
 
 	if (HealDone > 0.f)

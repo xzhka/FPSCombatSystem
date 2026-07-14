@@ -12,9 +12,6 @@ UFPSCombatBaseGameplayAbility::UFPSCombatBaseGameplayAbility()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-
-	ActivationBlockedTags.AddTag(FPSCombatGameplayTags::State_Death);
-	
 }
 
 const FGameplayTagContainer* UFPSCombatBaseGameplayAbility::GetCooldownTags() const
@@ -65,6 +62,31 @@ bool UFPSCombatBaseGameplayAbility::CanActivateAbility(const FGameplayAbilitySpe
 			return false;
 		}
 	}
+	return true;
+}
+
+bool UFPSCombatBaseGameplayAbility::DoesAbilitySatisfyTagRequirements(
+	const UAbilitySystemComponent& AbilitySystemComponent, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::DoesAbilitySatisfyTagRequirements(AbilitySystemComponent, SourceTags, TargetTags,
+	                                                OptionalRelevantTags))
+	{
+		return false;
+	}
+
+	const UFPSCombatAbilitySystemComponent* ASC = CastChecked<UFPSCombatAbilitySystemComponent>(&AbilitySystemComponent);
+	UFPSCombatTagsRelationshipMapping* Mapping = ASC ? ASC->GetRelationshipMapping() : nullptr;
+
+	if (!Mapping) return true;
+
+	FGameplayTagContainer Required, Blocked;
+
+	Mapping->GetRequiredAndBlockedTags(GetAssetTags(), &Required, &Blocked);
+
+	if (Blocked.Num() && ASC->HasAnyMatchingGameplayTags(Blocked)) return false;
+	if (Required.Num() && !(ASC->HasAnyMatchingGameplayTags(Required))) return false;
+	
 	return true;
 }
 

@@ -42,6 +42,8 @@ void UFPSCombatDamageExecCalc::Execute_Implementation(const FGameplayEffectCusto
 	
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BaseDamageStaticsDef, EvaluateParams, BaseDamage);
 
+	BaseDamage += FMath::Max(Spec.GetSetByCallerMagnitude(FName("SetByCaller.Data.Damage"), false, 0.f), 0.f);
+	
 	const float DamageDone = FMath::Max(BaseDamage, 0.f);
 
 	if (DamageDone > 0.f)

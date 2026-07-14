@@ -9,6 +9,10 @@ UFPSCombatGameplayAbilityUpdraft::UFPSCombatGameplayAbilityUpdraft()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FPSCombatGameplayTags::Ability_Moving_AirborneSource_Updraft);
+	SetAssetTags(Tags);
 }
 
 void UFPSCombatGameplayAbilityUpdraft::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

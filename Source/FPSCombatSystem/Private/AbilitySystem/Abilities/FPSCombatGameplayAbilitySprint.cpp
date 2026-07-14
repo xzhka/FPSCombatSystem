@@ -13,7 +13,10 @@ UFPSCombatGameplayAbilitySprint::UFPSCombatGameplayAbilitySprint()
 
 	RemovedOnTags.AddTag(FPSCombatGameplayTags::State_Moving_MovingForward);
 	RemovedOnTags.AddTag(FPSCombatGameplayTags::State_Moving_Walking);
-	
+
+	FGameplayTagContainer Tags;
+	Tags.AddTag(FPSCombatGameplayTags::Ability_Moving_Sprinting);
+	SetAssetTags(Tags);
 }
 
 void UFPSCombatGameplayAbilitySprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
