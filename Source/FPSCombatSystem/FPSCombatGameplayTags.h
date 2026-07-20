@@ -24,6 +24,9 @@ namespace FPSCombatGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Stamina_DashExhausted);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Stamina_UpdraftExhausted);
 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_Fire);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_Aiming);
+	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Cooldown_Duration);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Dash_Duration);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Data_Damage);

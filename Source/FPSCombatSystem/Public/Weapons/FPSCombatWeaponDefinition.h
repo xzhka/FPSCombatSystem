@@ -13,18 +13,31 @@ enum class EWeaponFireType : uint8
 	Hitscan
 };
 
+UENUM(BlueprintType)
+enum class EWeaponShotType : uint8
+{
+	Semi,
+	FullAuto,
+	Burst
+};
 
 
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatWeaponDefinition : public UFPSCombatEquipmentDefinition
 {
 	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	float BaseDamage = 0.f;
+	
 	/* Ammo global parameters */
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
-	int32 MaxAmmo = 20;
+	int32 ReserveAmmo = 120;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
-	int32 MaxMagazine = 120;
+	int32 ClipSize = 20;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	float ReloadDuration = 4.f;
@@ -34,17 +47,29 @@ class FPSCOMBATSYSTEM_API UFPSCombatWeaponDefinition : public UFPSCombatEquipmen
 	EWeaponFireType WeaponFireType = EWeaponFireType::Hitscan;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	EWeaponShotType ShotFireType = EWeaponShotType::FullAuto;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float TraceRange = 10000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float HipFireSpread = 2.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Fire")
-	float AimedSpread = 0.f;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float DurationBetweenShoot = 0.2f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	TArray<FVector2D> RecoilPattern;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	float RecoilResetDelay = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	float MovementHipFireMultiplier = 1.1f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Fire")
+	float AimedMovingSpread = 0.3f;
+	
 	// TODO: Create a Projectile Base class and add it in here
 	// UPROPERTY(EditDefaultsOnly, Category = "Fire", meta = (EditCondition="WeaponFireType==EWeaponFireType::Projectile"))
 	// TSoftClassPtr<AFPSCombatProjectileBase> ProjectileClass;

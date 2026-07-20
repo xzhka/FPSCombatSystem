@@ -10,20 +10,28 @@
 #include "Net/Serialization/FastArraySerializer.h"
 #include "FPSCombatEquipmentManager.generated.h"
 
+class UFPSCombatEquipmentManager;
+struct FFPSCombatEquipmentList;
+
 USTRUCT(BlueprintType)
-struct FFPSCombatAppliedEquipmentList : public FFastArraySerializer
+struct FFPSCombatAppliedEquipmentEntry : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
-	FFPSCombatAppliedEquipmentList() {}
+	FFPSCombatAppliedEquipmentEntry() {}
+
+	FString GetDebugString() const;
 
 	
-protected:
+private:
 
+	friend UFPSCombatEquipmentManager;
+	friend FFPSCombatEquipmentList;
+	
 	UPROPERTY()
 	TObjectPtr<UFPSCombatEquipmentInstance> Instance = nullptr; 
 
 	UPROPERTY()
-	TSoftObjectPtr<UFPSCombatEquipmentDefinition> Definition;
+	TSubclassOf<UFPSCombatEquipmentDefinition> Definition;
 
 	UPROPERTY(NotReplicated)
 	FCombatAbilitySet_GrantedHandles GrantedHandles;
@@ -39,20 +47,38 @@ struct FFPSCombatEquipmentList : public FFastArraySerializer
 
 public:
 
-	UFPSCombatEquipmentInstance* AddEntry(TSoftObjectPtr<UFPSCombatEquipmentDefinition> Definition);
-	void RemoveEntry(UFPSCombatEquipmentInstance* EquipmentInstance);
 	
+	void PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize);
+	void PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize);
+	
+	UFPSCombatEquipmentInstance* AddEntry(TSubclassOf<UFPSCombatEquipmentDefinition> EntryDefinition);
+	void RemoveEntry(UFPSCombatEquipmentInstance* EquipmentInstance);
+
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParams)
+	{
+		return FFastArraySerializer::FastArrayDeltaSerialize<FFPSCombatAppliedEquipmentEntry, FFPSCombatEquipmentList>(EntryList, DeltaParams, *this);
+	}
 	
 private:
 
+	UFPSCombatAbilitySystemComponent* GetASC() const;
+
+	
+	friend UFPSCombatEquipmentManager;
+	
 	UPROPERTY()
-	TArray<FFPSCombatAppliedEquipmentList> EquipmentList;
+	TArray<FFPSCombatAppliedEquipmentEntry> EntryList;
 	
 	UPROPERTY(NotReplicated)
 	TObjectPtr<UActorComponent> OwnerComponent;
 };
 
-
+template<>
+struct TStructOpsTypeTraits<FFPSCombatEquipmentList> : public TStructOpsTypeTraitsBase2<FFPSCombatEquipmentList>
+{
+	enum
+	{ WithNetDeltaSerialize = true };
+};
 
 
 UCLASS()
@@ -60,10 +86,33 @@ class FPSCOMBATSYSTEM_API UFPSCombatEquipmentManager : public UPawnComponent
 {
 	GENERATED_BODY()
 
+	UFPSCombatEquipmentManager ( const FObjectInitializer& ObjectInitializer);
 
+	
+public:
 
+	UFUNCTION(BlueprintCallable)
+	UFPSCombatEquipmentInstance* OnEquipItem(TSubclassOf<UFPSCombatEquipmentDefinition> EquipDefinition);
 
+	UFUNCTION(BlueprintCallable)
+	void OnUnequipItem(UFPSCombatEquipmentInstance* ItemInstance);
 
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	virtual void InitializeComponent() override;
+	virtual void ReadyForReplication() override;
+	virtual void UninitializeComponent() override;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UFPSCombatEquipmentInstance* GetFirstInstanceOfType(TSubclassOf<UFPSCombatEquipmentInstance> InstanceType);
+
+	template <typename T>
+	T* GetFirstInstanceOfType()
+	{
+		return (T*)GetFirstInstanceOfType(T::StaticClass());
+	}
+	
 private:
 	UPROPERTY(Replicated)
 	FFPSCombatEquipmentList EquipmentList;

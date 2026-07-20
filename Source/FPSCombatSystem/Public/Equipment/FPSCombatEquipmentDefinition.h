@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPSCombatEquipmentInstance.h"
+#include "AbilitySystem/FPSCombatAbilitySet.h"
 #include "Engine/DataAsset.h"
 #include "FPSCombatEquipmentDefinition.generated.h"
+
+class UFPSCombatEquipmentInstance;
 
 USTRUCT()
 struct FFPSCombatEquipmentSpawnActor
@@ -23,15 +25,16 @@ struct FFPSCombatEquipmentSpawnActor
 
 
 UCLASS()
-class FPSCOMBATSYSTEM_API UFPSCombatEquipmentDefinition : public UPrimaryDataAsset
+class FPSCOMBATSYSTEM_API UFPSCombatEquipmentDefinition : public UObject
 {
 	GENERATED_BODY()
 
+public:
 	UPROPERTY(EditDefaultsOnly, Category="Equipment")
 	TSubclassOf<UFPSCombatEquipmentInstance> ActorEquipmentClass;
 
 	UPROPERTY(EditDefaultsOnly, Category="Equipment")
-	TObjectPtr<class UFPSCombatAbilitySet> AbilitySet;
+	TArray<TObjectPtr<const UFPSCombatAbilitySet>> AbilitySet;
 
 	UPROPERTY(EditDefaultsOnly, Category="Equipment")
 	TArray<FFPSCombatEquipmentSpawnActor> SpawnActors;

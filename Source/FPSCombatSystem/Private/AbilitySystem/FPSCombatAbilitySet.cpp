@@ -55,7 +55,7 @@ void FCombatAbilitySet_GrantedHandles::ClearAbilitySystem(UFPSCombatAbilitySyste
 }
 
 void UFPSCombatAbilitySet::GiveAbility(UFPSCombatAbilitySystemComponent* ASC,
-	FCombatAbilitySet_GrantedHandles* GrantedHandles, UObject* SpecObject)
+	FCombatAbilitySet_GrantedHandles* GrantedHandles, UObject* SpecObject) const
 {
 	if (!ASC->IsOwnerActorAuthoritative()) return;
 

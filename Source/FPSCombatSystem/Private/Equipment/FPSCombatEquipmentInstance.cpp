@@ -7,7 +7,7 @@
 #include "Net/UnrealNetwork.h"
 
 
-void UFPSCombatEquipmentInstance::SpawnedActors(const TArray<FFPSCombatEquipmentSpawnActor>& SpawnActors)
+void UFPSCombatEquipmentInstance::SpawnEquipmentActors(const TArray<FFPSCombatEquipmentSpawnActor>& SpawnActors)
 {
 	if (APawn* OwningPawn = GetPawn())
 	{
@@ -31,7 +31,7 @@ void UFPSCombatEquipmentInstance::SpawnedActors(const TArray<FFPSCombatEquipment
 	}
 }
 
-void UFPSCombatEquipmentInstance::ClearActors()
+void UFPSCombatEquipmentInstance::ClearEquipmentActors()
 {	
 	for (AActor* Actor : ActorsToSpawn)
 	{

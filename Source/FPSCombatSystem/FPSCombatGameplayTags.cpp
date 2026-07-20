@@ -23,7 +23,9 @@ namespace FPSCombatGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(State_Stamina_SprintExhausted, "State.Stamina.SprintExhausted");
 	UE_DEFINE_GAMEPLAY_TAG(State_Stamina_DashExhausted, "State.Stamina.DashExhausted");
 	UE_DEFINE_GAMEPLAY_TAG(State_Stamina_UpdraftExhausted, "State.Stamina.UpdraftExhausted");
-	
+
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_Fire, "Weapon.Fire");
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_Aiming, "Weapon.Aiming");
 	
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Cooldown_Duration, "SetByCaller.Cooldown.Duration");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Dash_Duration, "SetByCaller.Dash.Duration");

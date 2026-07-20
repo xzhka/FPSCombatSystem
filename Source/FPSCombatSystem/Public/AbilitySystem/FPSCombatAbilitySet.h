@@ -87,7 +87,7 @@ class FPSCOMBATSYSTEM_API UFPSCombatAbilitySet : public UDataAsset
 	
 public:
 	
-	void GiveAbility(UFPSCombatAbilitySystemComponent* ASC, FCombatAbilitySet_GrantedHandles* GrantedHandles,UObject* SpecObject = nullptr);
+	void GiveAbility(UFPSCombatAbilitySystemComponent* ASC, FCombatAbilitySet_GrantedHandles* GrantedHandles,UObject* SpecObject = nullptr) const;
 	
 protected:
 		
