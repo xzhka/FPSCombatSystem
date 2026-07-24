@@ -26,11 +26,16 @@ namespace FPSCombatGameplayTags
 
 	UE_DEFINE_GAMEPLAY_TAG(Weapon_Fire, "Weapon.Fire");
 	UE_DEFINE_GAMEPLAY_TAG(Weapon_Aiming, "Weapon.Aiming");
+	UE_DEFINE_GAMEPLAY_TAG(Weapon_Reload, "Weapon.Reload");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Data_Tags_OutOfAmmo, "Data.Tags.OutOfAmmo");
 	
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Cooldown_Duration, "SetByCaller.Cooldown.Duration");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Dash_Duration, "SetByCaller.Dash.Duration");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Data_Damage, "SetByCaller.Data.Damage");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Data_Heal, "SetByCaller.Data.Heal");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Message_Ammo_Change, "Message.Ammo.Change");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_RequiresStamina, "Ability.RequiresStamina");
 }

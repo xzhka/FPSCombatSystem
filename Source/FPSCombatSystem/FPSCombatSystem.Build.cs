@@ -8,7 +8,7 @@ public class FPSCombatSystem : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "GameplayTasks", "GameplayTags", "ModularGameplay", "NetCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "GameplayTasks", "GameplayTags", "ModularGameplay", "NetCore", "IrisCore", "GameplayMessageRuntime" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

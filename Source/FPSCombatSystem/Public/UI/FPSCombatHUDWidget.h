@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Characters/Components/FPSCombatHealthComponent.h"
-#include "Characters/Components/FPSCombatStaminaComponent.h"
+#include "Characters/Components/FPSCombatBaseComponent.h"
 #include "FPSCombatHUDWidget.generated.h"
 
 /**

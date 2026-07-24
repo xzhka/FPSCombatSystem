@@ -19,7 +19,6 @@ class FPSCOMBATSYSTEM_API AFPSCombatPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-	
 protected:
 	virtual void BeginPlay() override;
 
@@ -28,9 +27,9 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UFPSCombatHUDWidget> HealthWidgetClass;
+	TSubclassOf<UUserWidget> HUDWidgetClass;
 
 	UPROPERTY()
-	TObjectPtr<UFPSCombatHUDWidget> HealthWidget;
+	TObjectPtr<UUserWidget> HUDWidgetInstance;
 	
 };

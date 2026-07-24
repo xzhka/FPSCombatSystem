@@ -1,0 +1,29 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UI/Attributes/FPSCombatHUDElementWidget.h"
+#include "FPSCombatHealthWidget.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class FPSCOMBATSYSTEM_API UFPSCombatHealthWidget : public UFPSCombatHUDElementWidget
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(BlueprintReadOnly, Category = "Health")
+	TWeakObjectPtr<UFPSCombatBaseComponent> HealthComponent;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnHealthUpdated(float Percent);
+	
+	UFUNCTION()
+	void HandleHealthPercentUpdated(const float Percent) { OnHealthUpdated(Percent); }
+	
+	virtual void NativeDestruct() override;
+	virtual void HandlePawnChanged(APawn* OldPawn, APawn* NewPawn) override;
+};

@@ -2,7 +2,6 @@
 
 
 #include "UI/FPSCombatHUDWidget.h"
-
 #include "Characters/FPSCombatCharacter.h"
 
 void UFPSCombatHUDWidget::RebindComp(TWeakObjectPtr<UFPSCombatBaseComponent>& BaseComp,

@@ -5,16 +5,18 @@
 
 #include "GameModes/FPSCombatPlayerState.h"
 
-
 void AFPSCombatPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
 
-	if (HealthWidgetClass && IsLocalController())
+	if (HUDWidgetClass && IsLocalController())
 	{
-		HealthWidget = CreateWidget<UFPSCombatHUDWidget>(this, HealthWidgetClass);
-		HealthWidget->AddToViewport();
+		HUDWidgetInstance = CreateWidget<UUserWidget>(this, HUDWidgetClass);
+		if (HUDWidgetInstance)
+		{
+			HUDWidgetInstance->AddToViewport();
+		}
 	}
 }
 

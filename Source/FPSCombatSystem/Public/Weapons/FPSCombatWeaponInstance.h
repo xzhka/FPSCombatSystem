@@ -11,7 +11,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class FPSCOMBATSYSTEM_API UFPSCombatWeaponInstance : public UFPSCombatEquipmentInstance
 {
 	GENERATED_BODY()

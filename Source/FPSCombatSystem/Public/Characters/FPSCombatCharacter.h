@@ -10,6 +10,8 @@
 #include "GameFramework/Character.h"
 #include "Components/FPSCombatHealthComponent.h"
 #include "Components/FPSCombatStaminaComponent.h"
+#include "Equipment/FPSCombatEquipmentManager.h"
+#include "Weapons/FPSCombatWeaponDefinition.h"
 #include "FPSCombatCharacter.generated.h"
 
 class UFPSCombatMovementComp;
@@ -53,8 +55,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
 	TObjectPtr<UFPSCombatMovementComp> MovementComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
+	TObjectPtr<UFPSCombatEquipmentManager> EquipmentComponent;
+	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UFPSCombatAbilitySet> AbilitySet;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Definition")
+	TSubclassOf<UFPSCombatWeaponDefinition> WeaponDefinition;
+	
 	FCombatAbilitySet_GrantedHandles GrantedHandles;
 };

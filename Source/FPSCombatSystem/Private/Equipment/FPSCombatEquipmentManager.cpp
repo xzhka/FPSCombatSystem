@@ -29,6 +29,7 @@ void FFPSCombatEquipmentList::PostReplicatedAdd(const TArrayView<int32> AddedInd
 		FFPSCombatAppliedEquipmentEntry& Entry = EntryList[Index];
 		if (Entry.Instance != nullptr)
 		{
+			Entry.Instance->SetDefinition(GetMutableDefault<UFPSCombatEquipmentDefinition>(Entry.Definition));
 			Entry.Instance->OnEquipped();
 		}
 	}
@@ -36,9 +37,13 @@ void FFPSCombatEquipmentList::PostReplicatedAdd(const TArrayView<int32> AddedInd
 
 UFPSCombatEquipmentInstance* FFPSCombatEquipmentList::AddEntry(TSubclassOf<UFPSCombatEquipmentDefinition> EntryDefinition)
 {
+	UE_LOG(LogTemp, Warning, TEXT("AddEntry called"));
 	UFPSCombatEquipmentInstance* ResultInstance = nullptr;
 
 	check(EntryDefinition != nullptr);
+	check(OwnerComponent);
+	check(OwnerComponent->GetOwner()->HasAuthority());
+
 	
 	const UFPSCombatEquipmentDefinition* DefinitionCDO = GetDefault<UFPSCombatEquipmentDefinition>(EntryDefinition);
 	
@@ -58,10 +63,18 @@ UFPSCombatEquipmentInstance* FFPSCombatEquipmentList::AddEntry(TSubclassOf<UFPSC
 	}
 	ResultInstance = NewEntry.Instance;
 
+	if (ResultInstance)
+	{
+		ResultInstance->SetDefinition(GetMutableDefault<UFPSCombatEquipmentDefinition>(EntryDefinition));
+	}
+
+	
+	UE_LOG(LogTemp, Warning, TEXT("AddEntry Before Ability called"));
 	if (UFPSCombatAbilitySystemComponent* ASC = GetASC())
 	{
 		for (const TObjectPtr<const UFPSCombatAbilitySet>& AbilitySet : DefinitionCDO->AbilitySet)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("AddEntry Ability called"));
 			AbilitySet->GiveAbility(ASC, &NewEntry.GrantedHandles, ResultInstance);
 		}
 	}
@@ -106,6 +119,7 @@ UFPSCombatEquipmentManager::UFPSCombatEquipmentManager(const FObjectInitializer&
 	SetIsReplicatedByDefault(true);
 	
 	bReplicateUsingRegisteredSubObjectList = true;
+	bWantsInitializeComponent = true;
 	EquipmentList.OwnerComponent = this;
 }
 
@@ -115,23 +129,27 @@ UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::OnEquipItem(
 	UFPSCombatEquipmentInstance* Result = nullptr;
 	if (EquipDefinition != nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("On Equip Item, EquipmentExist"));
 		Result = EquipmentList.AddEntry(EquipDefinition);
 		if (Result != nullptr)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("On Equip Item, Result Not Null"));
 			Result->OnEquipped();
 
 			if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
 			{
+				UE_LOG(LogTemp, Warning, TEXT("On Equip Item, Object Ready For Replication"));
 				AddReplicatedSubObject(Result);
 			}
 		}
 	}
+	UE_LOG(LogTemp, Warning, TEXT("On Equip Item, End of Result"));
 	return Result;
 }
 
 void UFPSCombatEquipmentManager::OnUnequipItem(UFPSCombatEquipmentInstance* ItemInstance)
 {
-	if (ItemInstance)
+	if (ItemInstance != nullptr)
 	{
 		if (IsUsingRegisteredSubObjectList())
 		{

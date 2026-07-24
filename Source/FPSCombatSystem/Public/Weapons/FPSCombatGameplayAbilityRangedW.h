@@ -22,6 +22,11 @@ public:
 		const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
 		FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 
+	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo) override;
+
+	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo) override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	UFPSCombatRangedWeaponInstance* GetWeaponInstance() const;
@@ -38,7 +43,38 @@ protected:
 
 	void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ApplicationTag);
 
+	virtual ECollisionChannel DetermineTraceChannel() const;
+	
+	bool IsHitResultValid(const FHitResult& HitResult) const;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Validation", meta = (ClampMin = "0.0", Units = "cm"))
+	float HitValidationRangeSlack = 60.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Validation", meta = (ClampMin = "0.0", Units = "cm"))
+	float HitValidationTolerance = 20.f;
+
+	UFUNCTION()
+	void OnInputReleased(float TimeHeld);
+
+	void HandleFireInput();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTag OnOutOfAmmo;
+
+	void HandleNextShot();
+
+	UFUNCTION()
+	void OnShotDelayFinished();
+	
+	UPROPERTY(Transient)
+	TObjectPtr<class UAbilityTask_WaitInputRelease> WaitInputReleaseTask;
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UAbilityTask_WaitDelay> WaitDelayTask;
+	
+	bool bWantsToFire = false;
 	
 };

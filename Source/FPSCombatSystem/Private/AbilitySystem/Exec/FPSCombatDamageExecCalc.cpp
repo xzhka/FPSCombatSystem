@@ -4,6 +4,7 @@
 #include "AbilitySystem/Exec/FPSCombatDamageExecCalc.h"
 
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
 struct FFPSCombatDamageStatics
 {
@@ -13,7 +14,6 @@ struct FFPSCombatDamageStatics
 	{
 		BaseDamageStaticsDef = FGameplayEffectAttributeCaptureDefinition(UFPSCombatAttributeSet::GetDamageAttribute(), EGameplayEffectAttributeCaptureSource::Source, true);
 	}
-	
 };
 
 static const FFPSCombatDamageStatics& DamageStatics()

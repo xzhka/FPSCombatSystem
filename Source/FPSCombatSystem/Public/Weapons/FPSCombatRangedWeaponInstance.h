@@ -7,7 +7,13 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "FPSCombatRangedWeaponInstance.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnAmmoChanged, int32, int32);
+
+USTRUCT()
+struct FFPSCombatRecoilState
+{
+	GENERATED_BODY()
+	FVector2D TargetRecoilOffset = FVector2D::ZeroVector;
+};
 
 
 struct FFPSCombatShotContext
@@ -17,21 +23,18 @@ struct FFPSCombatShotContext
 	bool bIsIdle = false;
 };
 
-
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatRangedWeaponInstance : public UFPSCombatWeaponInstance
 {
 	GENERATED_BODY()
 
 public:
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentAmmoInMag)
-	int32 CurrentAmmoInMag = -1;
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetCurrentAmmo() const { return CurrentAmmoInMag; }
 
-	UPROPERTY(Replicated)
-	int32 ReserveAmmo = -1;
-
-	int32 CurrentBurstShotIndex = -1;
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE int32 GetReserveAmmo() const { return ReserveAmmo; }
 	
 	bool HasAmmoInMag() const { return CurrentAmmoInMag>0;}
 	bool CanReload() const;
@@ -41,20 +44,18 @@ public:
 
 	bool CanFire() const;
 
-	void ApplyRecoilForShot(APlayerController* PC);
+	void ApplyRecoilForShot();
 
 
 	FVector CalculateFireDirection(const FFPSCombatShotContext& ShotContext, FVector& AimDirection) const;
 	
-	void RegisterShotFired(const FFPSCombatShotContext& ShotContext, APlayerController* Controller);
+	void RegisterShotFired(const FFPSCombatShotContext& ShotContext);
 
 	FFPSCombatShotContext MakeShotContext() const;
 
 	UFPSCombatWeaponDefinition* GetWeaponDefinition() const;
 	
 protected:
-	
-	FOnAmmoChanged OnAmmoChanged;
 	
 	UFUNCTION()
 	void OnRep_CurrentAmmoInMag();
@@ -64,6 +65,21 @@ protected:
 	bool IsPawnMoving() const;
 	bool WasIdleBeforeThisShot() const;
 	bool IsAiming() const;
+
+private:
+
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentAmmoInMag)
+	int32 CurrentAmmoInMag = -1;
+
+	UPROPERTY(Replicated)
+	int32 ReserveAmmo = -1;
+	
+	void BroadcastAmmoChanged() const;
+
+	
+	int32 CurrentBurstShotIndex = 0;
+	
+	FFPSCombatRecoilState RecoilState;
 	
 public:
 	virtual void OnEquipped() override;

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
-#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "Components/ActorComponent.h"
 #include "FPSCombatBaseComponent.generated.h"
 

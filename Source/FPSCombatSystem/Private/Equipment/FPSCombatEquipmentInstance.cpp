@@ -3,7 +3,9 @@
 
 #include "Equipment/FPSCombatEquipmentInstance.h"
 #include "Equipment/FPSCombatEquipmentDefinition.h"
+#include "Iris/ReplicationSystem/ReplicationFragmentUtil.h"
 #include "GameFramework/Character.h"
+
 #include "Net/UnrealNetwork.h"
 
 
@@ -47,11 +49,20 @@ APawn* UFPSCombatEquipmentInstance::GetPawn() const
 	return Cast<APawn>(GetOuter());
 }
 
+void UFPSCombatEquipmentInstance::RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context,
+	UE::Net::EFragmentRegistrationFlags RegistrationFlags)
+{
+	using namespace UE::Net;
+
+	FReplicationFragmentUtil::CreateAndRegisterFragmentsForObject(this, Context, RegistrationFlags);
+}
+
 void UFPSCombatEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	UObject::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UFPSCombatEquipmentInstance, ActorsToSpawn);
+	DOREPLIFETIME(UFPSCombatEquipmentInstance, InstanceDefinition);
 }
 
 void UFPSCombatEquipmentInstance::OnEquipped()

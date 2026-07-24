@@ -34,9 +34,10 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 
 	/* Default components initialize*/
 	PawnComponent = CreateDefaultSubobject<UFPSCombatCharacterPawnComp>(TEXT("PawnComponent"));
-	HealthComponent = CreateDefaultSubobject<UFPSCombatHealthComponent>(TEXT("HealthComp"));
-	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComp"));
+	HealthComponent = CreateDefaultSubobject<UFPSCombatHealthComponent>(TEXT("HealthComponent"));
+	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComponent"));
 	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComp>(TEXT("MovementComponent"));
+	EquipmentComponent = CreateDefaultSubobject<UFPSCombatEquipmentManager>(TEXT("EquipmentManager"));
 }
 
 void AFPSCombatCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -46,7 +47,6 @@ void AFPSCombatCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 
 }
 
-
 void AFPSCombatCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -54,6 +54,7 @@ void AFPSCombatCharacter::PossessedBy(AController* NewController)
 	SetOwner(NewController);
 	
 	InitializeAbilitySystem();
+	EquipmentComponent->OnEquipItem(WeaponDefinition);
 }
 
 void AFPSCombatCharacter::OnRep_PlayerState()
@@ -95,9 +96,5 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 
 UAbilitySystemComponent* AFPSCombatCharacter::GetAbilitySystemComponent() const
 {
-	if (const AFPSCombatPlayerState* PS = GetPlayerState<AFPSCombatPlayerState>())
-	{
-		return PS->GetAbilitySystemComponent();
-	}
-	return nullptr;
+	return GetPlayerState<AFPSCombatPlayerState>() ? GetPlayerState<AFPSCombatPlayerState>()->GetAbilitySystemComponent() : nullptr;
 }

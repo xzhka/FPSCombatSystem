@@ -31,16 +31,22 @@ public:
 	UFUNCTION(BlueprintPure)
 	APawn* GetPawn() const;
 
-
+	void SetDefinition(UFPSCombatEquipmentDefinition* InDefinition) { InstanceDefinition = InDefinition; }
+	
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FORCEINLINE UFPSCombatEquipmentDefinition* GetDefinition() const { return InstanceDefinition; }
 	
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE TArray<AActor*> GetActorsToSpawn() const { return ActorsToSpawn; }
+
+	virtual bool IsSupportedForNetworking() const override { return true; }
+
+	virtual void RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context, UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
 	
+
 private:
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	TObjectPtr<class UFPSCombatEquipmentDefinition> InstanceDefinition;
 	
 	UPROPERTY(Replicated)
