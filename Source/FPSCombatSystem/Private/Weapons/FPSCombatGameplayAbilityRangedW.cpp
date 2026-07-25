@@ -101,7 +101,7 @@ void UFPSCombatGameplayAbilityRangedW::EndAbility(const FGameplayAbilitySpecHand
 void UFPSCombatGameplayAbilityRangedW::StartRangedWeaponTargeting()
 {
 	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
-	check(ASC);
+	if (!ASC) return;
 	
 	const bool bIsControlled = CurrentActorInfo->IsLocallyControlled();
 	const bool bIsAuthority = CurrentActorInfo->IsNetAuthority();
@@ -149,15 +149,15 @@ void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(TArray<FHitResult>&
 	Controller->GetPlayerViewPoint(LocDir, LocRot);
 
 	FVector AimDir = LocRot.Vector();
-	FFPSCombatShotContext ShotContext = WeaponInstance->MakeShotContext();
-	FVector ShotDir = WeaponInstance->CalculateFireDirection(ShotContext, AimDir);
+	const FFPSCombatShotContext ShotContext = WeaponInstance->MakeShotContext();
+	const FVector ShotDir = WeaponInstance->CalculateFireDirection(ShotContext, AimDir);
 
-	FVector EndDir = LocDir + ShotDir * WeaponInstance->GetWeaponDefinition()->TraceRange;
+	const FVector EndDir = LocDir + ShotDir * WeaponInstance->GetWeaponDefinition()->TraceRange;
 
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(WeaponTrace), true, Pawn);
 	Params.AddIgnoredActor(Pawn);
 
-	ECollisionChannel TraceChannel = DetermineTraceChannel();
+	const ECollisionChannel TraceChannel = DetermineTraceChannel();
 	
 	
 	FHitResult Hit;

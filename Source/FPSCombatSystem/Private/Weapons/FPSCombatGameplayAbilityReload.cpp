@@ -12,19 +12,40 @@ UFPSCombatGameplayAbilityReload::UFPSCombatGameplayAbilityReload()
 }
 
 bool UFPSCombatGameplayAbilityReload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                                         const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
-                                                         const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+    const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
 	{
 		return false;
 	}
-
-	if (const UFPSCombatRangedWeaponInstance* RangedWeapon = GetWeaponInstance())
+	
+	if (const FGameplayAbilitySpec* Spec = ActorInfo->AbilitySystemComponent->FindAbilitySpecFromHandle(Handle))
 	{
-		return RangedWeapon->CanReload();
+		if (const UFPSCombatRangedWeaponInstance* RangedWeapon = Cast<UFPSCombatRangedWeaponInstance>(Spec->SourceObject.Get()))
+		{
+			const bool bCanReload = RangedWeapon->CanReload();
+			return bCanReload;
+		}
 	}
 	return false;
+}
+
+void UFPSCombatGameplayAbilityReload::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	const FGameplayEventData* TriggerEventData)
+{
+	UFPSCombatRangedWeaponInstance* WeaponData = GetWeaponInstance();
+	if (!WeaponData || !WeaponData->CanReload())
+	{
+		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
+		return;
+	}
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+	WaitDelayTask = UAbilityTask_WaitDelay::WaitDelay(this, WeaponData->GetWeaponDefinition()->ReloadDuration);
+	WaitDelayTask->OnFinish.AddDynamic(this, &UFPSCombatGameplayAbilityReload::OnReloadFinished);
+	WaitDelayTask->ReadyForActivation();
 }
 
 UFPSCombatRangedWeaponInstance* UFPSCombatGameplayAbilityReload::GetWeaponInstance() const
@@ -48,31 +69,21 @@ void UFPSCombatGameplayAbilityReload::EndAbility(const FGameplayAbilitySpecHandl
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UFPSCombatGameplayAbilityReload::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
-{
-	UFPSCombatRangedWeaponInstance* WeaponData = GetWeaponInstance();
-	if (!WeaponData || !WeaponData->CanReload())
-	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
-		return;
-	}
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-	WaitDelayTask = UAbilityTask_WaitDelay::WaitDelay(this, WeaponData->GetWeaponDefinition()->ReloadDuration);
-	WaitDelayTask->OnFinish.AddDynamic(this, &UFPSCombatGameplayAbilityReload::OnReloadFinished);
-	WaitDelayTask->ReadyForActivation();
-	
-}
-
 void UFPSCombatGameplayAbilityReload::OnReloadFinished()
 {
-	UFPSCombatRangedWeaponInstance* WeaponInstance = GetWeaponInstance();
-	if (CurrentActorInfo->IsNetAuthority() && WeaponInstance)
+	if (CurrentActorInfo->IsNetAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ReloadAmmo(OnReloadFinished)"));
-		WeaponInstance->ReloadAmmo();
+		UFPSCombatRangedWeaponInstance* WeaponInstance = GetWeaponInstance();
+		if (WeaponInstance)
+		{
+			WeaponInstance->ReloadAmmo();
+		}
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 	}
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+	else
+	{
+		// Client don`t end the ability by itself.
+		// We let the server to authoritative and replicate down ability instead.
+		WaitDelayTask = nullptr;
+	}
 }

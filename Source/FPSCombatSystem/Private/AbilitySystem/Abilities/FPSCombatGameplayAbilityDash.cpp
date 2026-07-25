@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/FPSCombatGameplayAbilityDash.h"
 
 #include "Characters/FPSCombatMovementComp.h"
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
 UFPSCombatGameplayAbilityDash::UFPSCombatGameplayAbilityDash()
 {

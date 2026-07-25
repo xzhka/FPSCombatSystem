@@ -15,15 +15,15 @@ void UFPSCombatRangedWeaponInstance::ConsumeRound()
 {
 	APawn* Pawn = GetPawn();
 	if (!Pawn || !Pawn->HasAuthority()) return;
-
-
-	CurrentAmmoInMag = FMath::Max(0, CurrentAmmoInMag-1);
+	
+	CurrentAmmoInMag = FMath::Max(0, CurrentAmmoInMag - 1);
 	BroadcastAmmoChanged();
 }
 
 int32 UFPSCombatRangedWeaponInstance::ReloadAmmo()
 {
 	APawn* Pawn = GetPawn();
+	UE_LOG(LogTemp, Warning, TEXT("ReloadAmmo called, Authority=%d"), Pawn ? Pawn->HasAuthority() : -1);
 	if (!Pawn || !Pawn->HasAuthority()) return 0;
 
 	const int32 NeededAmmo = GetWeaponDefinition()->ClipSize - CurrentAmmoInMag;
@@ -164,6 +164,7 @@ bool UFPSCombatRangedWeaponInstance::IsPawnMoving() const
 
 void UFPSCombatRangedWeaponInstance::OnRep_CurrentAmmoInMag()
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_CurrentAmmoInMag fired, NewAmmo=%d"), CurrentAmmoInMag);
 	BroadcastAmmoChanged();
 }
 
