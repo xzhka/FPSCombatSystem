@@ -11,6 +11,7 @@
 
 void UFPSCombatCharacterPawnComp::InitializeInputComponents(UInputComponent* PlayerInputComponent)
 {
+	UE_LOG(LogTemp, Warning, TEXT("InitializeInputComponents called, this=%p"), this);
 	if (APlayerController* PC = Cast<APlayerController>(GetController<APlayerController>()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))

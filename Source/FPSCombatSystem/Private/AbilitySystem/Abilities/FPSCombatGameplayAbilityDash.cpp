@@ -64,8 +64,11 @@ void UFPSCombatGameplayAbilityDash::Dash()
 		MovementComp->Dash(Strength, Duration);
 	}
 
-	EffectSpecRemove(DashGrantedEffectHandle);
-	DashGrantedEffectHandle.Reset();
+	if (CurrentActorInfo->IsNetAuthority())
+	{
+		EffectSpecRemove(DashGrantedEffectHandle);
+		DashGrantedEffectHandle.Reset();
+	}
 
 	EffectSpecApply({DashGrantedEffectsClass}, DashGrantedEffectHandle, FPSCombatGameplayTags::SetByCaller_Dash_Duration, Duration);
 	

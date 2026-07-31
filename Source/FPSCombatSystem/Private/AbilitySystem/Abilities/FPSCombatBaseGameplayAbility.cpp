@@ -12,6 +12,8 @@ UFPSCombatBaseGameplayAbility::UFPSCombatBaseGameplayAbility()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	ActivationPolicy = EFPSCombatAbilityActivationPolicy::OnInputTriggered;
 }
 
 const FGameplayTagContainer* UFPSCombatBaseGameplayAbility::GetCooldownTags() const
@@ -88,6 +90,41 @@ bool UFPSCombatBaseGameplayAbility::DoesAbilitySatisfyTagRequirements(
 	if (Required.Num() && !(ASC->HasAnyMatchingGameplayTags(Required))) return false;
 	
 	return true;
+}
+
+void UFPSCombatBaseGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilitySpec& Spec)
+{
+	Super::OnGiveAbility(ActorInfo, Spec);
+
+	TryActivateAbilityOnSpawn(ActorInfo, Spec);
+}
+
+void UFPSCombatBaseGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilitySpec& Spec) const
+{
+	if (ActorInfo && !Spec.IsActive() && (ActivationPolicy == EFPSCombatAbilityActivationPolicy::OnSpawn))
+	{
+		UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get();
+		AActor* AvatarActor = ActorInfo->AvatarActor.Get();
+		if (ASC && AvatarActor && !AvatarActor->GetTearOff() && (AvatarActor->GetLifeSpan() <= 0.f))
+		{
+			const bool bIsLocalExecution = (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalPredicted) || (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalOnly);
+			const bool bIsServerExecution = (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::ServerInitiated) || (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::ServerOnly);
+
+			const bool bClientShouldActivate = bIsLocalExecution && ActorInfo->IsLocallyControlled();
+			const bool bServerShouldActivate = bIsServerExecution && ActorInfo->IsNetAuthority();
+			if (bClientShouldActivate || bServerShouldActivate)
+			{
+				ASC->TryActivateAbility(Spec.Handle);
+			}
+		}
+	}
+}
+
+void UFPSCombatBaseGameplayAbility::OnPawnAvatarSet()
+{
+	K2_OnPawnAvatarSet();
 }
 
 void UFPSCombatBaseGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

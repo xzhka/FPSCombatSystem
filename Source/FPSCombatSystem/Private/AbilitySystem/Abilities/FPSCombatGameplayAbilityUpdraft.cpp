@@ -4,6 +4,7 @@
 #include "AbilitySystem/Abilities/FPSCombatGameplayAbilityUpdraft.h"
 
 #include "Characters/FPSCombatMovementComp.h"
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
 UFPSCombatGameplayAbilityUpdraft::UFPSCombatGameplayAbilityUpdraft()
 {

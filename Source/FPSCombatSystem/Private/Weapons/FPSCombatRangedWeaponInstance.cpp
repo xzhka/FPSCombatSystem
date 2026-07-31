@@ -14,7 +14,7 @@ bool UFPSCombatRangedWeaponInstance::CanReload() const
 void UFPSCombatRangedWeaponInstance::ConsumeRound()
 {
 	APawn* Pawn = GetPawn();
-	if (!Pawn || !Pawn->HasAuthority()) return;
+	if (!Pawn) return;
 	
 	CurrentAmmoInMag = FMath::Max(0, CurrentAmmoInMag - 1);
 	BroadcastAmmoChanged();
@@ -36,6 +36,12 @@ int32 UFPSCombatRangedWeaponInstance::ReloadAmmo()
 	return Transferred;
 }
 
+bool UFPSCombatRangedWeaponInstance::WantsAnotherShot()
+{
+	UFPSCombatFireMode* FireM = GetFireMode();
+	return FireM && FireM->WantAttackNextShot(this);
+}
+
 bool UFPSCombatRangedWeaponInstance::CanFire() const
 {
 	const double TimeSinceFired = GetTimeSinceLastFire();
@@ -49,7 +55,7 @@ bool UFPSCombatRangedWeaponInstance::CanFire() const
 
 bool UFPSCombatRangedWeaponInstance::WasIdleBeforeThisShot() const
 {
-	return	GetTimeFromLastInteraction() > GetWeaponDefinition()->RecoilResetDelay;
+	return GetTimeFromLastInteraction() > GetWeaponDefinition()->RecoilResetDelay;
 }
 
 bool UFPSCombatRangedWeaponInstance::IsAiming() const
@@ -76,13 +82,27 @@ void UFPSCombatRangedWeaponInstance::ApplyRecoilForShot()
 	const TArray<FVector2D>& RecoilPattern = GetWeaponDefinition()->RecoilPattern; 
 	if (RecoilPattern.Num() == 0) return;
 
-	const int32 Index = FMath::Clamp(CurrentBurstShotIndex, 0, RecoilPattern.Num() - 1);
+	const int32 Index = FMath::Clamp(CurrentRecoilShotIndex, 0, RecoilPattern.Num() - 1);
 
 	RecoilState.TargetRecoilOffset += RecoilPattern[Index];
 }
 
+UFPSCombatFireMode* UFPSCombatRangedWeaponInstance::GetFireMode() const
+{
+	if (!FireMode && GetWeaponDefinition() && GetWeaponDefinition()->FireModeClass)
+	{
+		const_cast<UFPSCombatRangedWeaponInstance*>(this)->FireMode = NewObject<UFPSCombatFireMode>(const_cast<UFPSCombatRangedWeaponInstance*>(this), GetWeaponDefinition()->FireModeClass);
+	}
+	return FireMode;
+}
+
 FVector UFPSCombatRangedWeaponInstance::CalculateFireDirection(const FFPSCombatShotContext& ShotContext, FVector& AimDirection) const
 {	
+	if (ShotContext.bIsFreshSequence && ShotContext.bStationary)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CalculateFireDirection. Idle, Stationary"));
+		return AimDirection;
+	}
 	
 	if (ShotContext.bIsAiming && ShotContext.bStationary)
 	{
@@ -92,24 +112,15 @@ FVector UFPSCombatRangedWeaponInstance::CalculateFireDirection(const FFPSCombatS
 		return RecoilRotation.Vector();
 	}
 
-	if (ShotContext.bIsIdle && ShotContext.bStationary)
-	{
-		return AimDirection;
-	}
-
 	float Spread = ShotContext.bIsAiming ? GetWeaponDefinition()->AimedMovingSpread : GetWeaponDefinition()->HipFireSpread;
-	
 	if (!ShotContext.bIsAiming && !ShotContext.bStationary)
 	{
 		Spread *= GetWeaponDefinition()->MovementHipFireMultiplier;
 	}
-
 	Spread = FMath::Min(Spread, GetWeaponDefinition()->MaxSpreadDegrees);
 
 	const float Azimuth = FMath::FRandRange(0.f, 360.f);
-
 	const float T = FMath::FRand();
-
 	const float Radius = Spread * FMath::Pow(T, GetWeaponDefinition()->SpreadBiasExponent);
 	
 	FRotator SpreadRotation = AimDirection.Rotation();
@@ -121,31 +132,29 @@ FVector UFPSCombatRangedWeaponInstance::CalculateFireDirection(const FFPSCombatS
 		
 }
 
-void UFPSCombatRangedWeaponInstance::RegisterShotFired(const FFPSCombatShotContext& ShotContext)
+void UFPSCombatRangedWeaponInstance::ApplyRecoilShotIfNeeded(const FFPSCombatShotContext& ShotContext)
 {
-	if (ShotContext.bIsIdle)
-	{
-		CurrentBurstShotIndex = 0;
-		RecoilState.TargetRecoilOffset = FVector2D::ZeroVector;
-	}
-	
 	if (ShotContext.bIsAiming && ShotContext.bStationary)
 	{
 		ApplyRecoilForShot();
+		CurrentRecoilShotIndex++;
 	}
-	CurrentBurstShotIndex++;
-	
-	UpdateLastFireTime();
 }
 
-FFPSCombatShotContext UFPSCombatRangedWeaponInstance::MakeShotContext() const
+FFPSCombatShotContext UFPSCombatRangedWeaponInstance::MakeShotContext()
 {
 	FFPSCombatShotContext Context;
 
 	Context.bIsAiming = IsAiming();
-	Context.bIsIdle = WasIdleBeforeThisShot();
+	Context.bIsFreshSequence = WasIdleBeforeThisShot();
 	Context.bStationary = !IsPawnMoving();
-
+	
+	if (Context.bIsFreshSequence)
+	{
+		CurrentRecoilShotIndex = 0;
+		RecoilState.TargetRecoilOffset = FVector2D::ZeroVector;
+	}
+	
 	return Context;
 }
 
@@ -183,14 +192,19 @@ UAbilitySystemComponent* UFPSCombatRangedWeaponInstance::GetPawnASC() const
 void UFPSCombatRangedWeaponInstance::OnEquipped()
 {
 	Super::OnEquipped();
-		
+
+	if (!FireMode && GetWeaponDefinition()->FireModeClass)
+	{
+		FireMode = NewObject<UFPSCombatFireMode>(this, GetWeaponDefinition()->FireModeClass);
+	}
+	
 	if (CurrentAmmoInMag < 0)
 	{
 		CurrentAmmoInMag = GetWeaponDefinition()->ClipSize;
 		ReserveAmmo = GetWeaponDefinition()->ReserveAmmo;
 		BroadcastAmmoChanged();
 	}
-	CurrentBurstShotIndex = 0;
+	CurrentRecoilShotIndex = 0;
 	RecoilState = FFPSCombatRecoilState();
 }
 

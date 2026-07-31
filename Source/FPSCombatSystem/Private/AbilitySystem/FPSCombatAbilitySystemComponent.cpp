@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 
+#include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
+
 UFPSCombatAbilitySystemComponent::UFPSCombatAbilitySystemComponent()
 {
 	PressedAbilitySpecHandles.Reset();
@@ -14,7 +16,7 @@ void UFPSCombatAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag
 {
 	if (InputTag.IsValid())
 	{
-		for (const FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+		for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
 		{
 			if (Spec.Ability && (Spec.GetDynamicSpecSourceTags().HasTagExact(InputTag)))
 			{
@@ -29,12 +31,17 @@ void UFPSCombatAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTa
 {
 	if (InputTag.IsValid())
 	{
-		for (const FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+		for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
 		{
 			if (Spec.Ability && (Spec.GetDynamicSpecSourceTags().HasTagExact(InputTag)))
 			{
 				ReleasedAbilitySpecHandles.AddUnique(Spec.Handle);
 				HeldAbilitySpecHandles.Remove(Spec.Handle);
+
+				if (UFPSCombatBaseGameplayAbility* CombatAbility = Cast<UFPSCombatBaseGameplayAbility>(Spec.Ability))
+				{
+					CombatAbility->NotifyInputReleased(Spec);
+				}
 			}
 		}
 	}
@@ -65,26 +72,34 @@ void UFPSCombatAbilitySystemComponent::ProcessAbilityInput(float DeltaTime, bool
 		{
 			if (AbilitySpec->Ability && !AbilitySpec->IsActive())
 			{
-				AbilitiesToActivate.AddUnique(SpecHandle);
+				const UFPSCombatBaseGameplayAbility* AbilityCDO = Cast<UFPSCombatBaseGameplayAbility>(AbilitySpec->Ability);
+				if (AbilityCDO && AbilityCDO->GetActivationPolicy(*AbilitySpec) == EFPSCombatAbilityActivationPolicy::WhileInputActive)
+				{
+					AbilitiesToActivate.AddUnique(SpecHandle);
+				}
 			}
 		}
 	}
 
 	for (const FGameplayAbilitySpecHandle& SpecHandle : PressedAbilitySpecHandles)
 	{
-		if ( FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(SpecHandle))
+		if ( FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromHandle(SpecHandle))
 		{
-			if (Spec->Ability)
+			if (AbilitySpec->Ability)
 			{
-				Spec->InputPressed = true;
+				AbilitySpec->InputPressed = true;
 
-				if (Spec->IsActive())
+				if (AbilitySpec->IsActive())
 				{
-					AbilitySpecInputPressed(*Spec);
+					AbilitySpecInputPressed(*AbilitySpec);
 				}
 				else
 				{
-					AbilitiesToActivate.AddUnique(SpecHandle);
+					const UFPSCombatBaseGameplayAbility* AbilityCDO = Cast<UFPSCombatBaseGameplayAbility>(AbilitySpec->Ability);
+					if (AbilityCDO && AbilityCDO->GetActivationPolicy(*AbilitySpec) == EFPSCombatAbilityActivationPolicy::OnInputTriggered)
+					{
+						AbilitiesToActivate.AddUnique(SpecHandle);
+					}
 				}
 			}
 		}
@@ -137,4 +152,44 @@ void UFPSCombatAbilitySystemComponent::ApplyAbilityBlockAndCancelTags(const FGam
 	
 	Super::ApplyAbilityBlockAndCancelTags(AbilityTags, RequestingAbility, bEnableBlockTags, MergedBlock,
 	                                      bExecuteCancelTags, MergedCancel);
+}
+
+void UFPSCombatAbilitySystemComponent::TryActivateAbilityOnSpawn()
+{
+	for (const FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+	{
+		if (const UFPSCombatBaseGameplayAbility* AbilityCDO = Cast<UFPSCombatBaseGameplayAbility>(Spec.Ability))
+		{
+			AbilityCDO->TryActivateAbilityOnSpawn(AbilityActorInfo.Get(), Spec);
+		}
+	}
+}
+
+void UFPSCombatAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
+{
+	FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get();
+	check(InOwnerActor);
+	check(ActorInfo);
+
+	const bool bIsNewPawnAvatar = Cast<APawn>(InAvatarActor) && (InAvatarActor != ActorInfo->AvatarActor);
+	
+	Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
+
+	if (bIsNewPawnAvatar)
+	{
+		for (const FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+		{
+			TArray<UGameplayAbility*> Instances = Spec.GetAbilityInstances();
+			for (UGameplayAbility* AbilityInstances : Instances)
+			{
+				UFPSCombatBaseGameplayAbility* FPSCombatAbilityInstances = Cast<UFPSCombatBaseGameplayAbility>(AbilityInstances);
+				if (FPSCombatAbilityInstances)
+				{
+					FPSCombatAbilityInstances->OnPawnAvatarSet();
+				}
+			}
+		}
+
+		TryActivateAbilityOnSpawn();
+	}
 }

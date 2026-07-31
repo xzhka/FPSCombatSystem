@@ -3,8 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPSCombatWeaponDefinition.h"
-
 #include "Equipment/FPSCombatEquipmentInstance.h"
 #include "FPSCombatWeaponInstance.generated.h"
 

@@ -6,19 +6,13 @@
 #include "Equipment/FPSCombatEquipmentDefinition.h"
 #include "FPSCombatWeaponDefinition.generated.h"
 
+class UFPSCombatFireMode;
+
 UENUM(BlueprintType)
 enum class EWeaponFireType : uint8
 {
 	Projectile,
 	Hitscan
-};
-
-UENUM(BlueprintType)
-enum class EWeaponShotType : uint8
-{
-	Semi,
-	FullAuto,
-	Burst
 };
 
 
@@ -45,9 +39,9 @@ public:
 	/* Fire characteristics */
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	EWeaponFireType WeaponFireType = EWeaponFireType::Hitscan;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
-	EWeaponShotType ShotFireType = EWeaponShotType::FullAuto;
+	TSubclassOf<UFPSCombatFireMode> FireModeClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float TraceRange = 10000.f;

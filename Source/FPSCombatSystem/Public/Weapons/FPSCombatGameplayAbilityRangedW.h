@@ -21,12 +21,10 @@ public:
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
 		FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 
-	virtual void InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo) override;
-
-	virtual void InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo) override;
+	virtual EFPSCombatAbilityActivationPolicy GetActivationPolicy(const FGameplayAbilitySpec& Spec) const override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	UFPSCombatRangedWeaponInstance* GetWeaponInstance() const;
@@ -37,13 +35,18 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-	void StartRangedWeaponTargeting();
+	virtual void NotifyInputReleased(const FGameplayAbilitySpec& Spec) override;
 	
+	void StartRangedWeaponTargeting();
 	void PerformLocalTargeting(OUT TArray<FHitResult>& OutHits);
-
+	
 	void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ApplicationTag);
-
+	void OnTargetDataCancelledCallback();
+	
 	virtual ECollisionChannel DetermineTraceChannel() const;
+
+	UFUNCTION()
+	void TryFireNextShot();
 	
 	bool IsHitResultValid(const FHitResult& HitResult) const;
 	
@@ -57,24 +60,14 @@ protected:
 	float HitValidationTolerance = 20.f;
 
 	UFUNCTION()
-	void OnInputReleased(float TimeHeld);
-
 	void HandleFireInput();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTag OnOutOfAmmo;
 
-	void HandleNextShot();
-
-	UFUNCTION()
-	void OnShotDelayFinished();
+private:
+	FDelegateHandle OnTargetDataReadyCallbackHandle;
+	FDelegateHandle OnTargetDataCancelledCallbackHandle;
 	
-	UPROPERTY(Transient)
-	TObjectPtr<class UAbilityTask_WaitInputRelease> WaitInputReleaseTask;
-
-	UPROPERTY(Transient)
-	TObjectPtr<class UAbilityTask_WaitDelay> WaitDelayTask;
-	
-	bool bWantsToFire = false;
-	
+	bool bHasTargetDataSent = false;
 };

@@ -36,7 +36,11 @@ public:
 	virtual void ApplyAbilityBlockAndCancelTags(const FGameplayTagContainer& AbilityTags,
 		UGameplayAbility* RequestingAbility, bool bEnableBlockTags, const FGameplayTagContainer& BlockTags,
 		bool bExecuteCancelTags, const FGameplayTagContainer& CancelTags) override;
-	
+
+
+	void TryActivateAbilityOnSpawn();
+	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
+
 protected:
 	/*Array`s of SpecHandles*/
 	TArray<FGameplayAbilitySpecHandle> PressedAbilitySpecHandles;
@@ -48,6 +52,4 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "TagMapping")
 	TObjectPtr<UFPSCombatTagsRelationshipMapping> RelationshipMapping;
-	
-	
 };

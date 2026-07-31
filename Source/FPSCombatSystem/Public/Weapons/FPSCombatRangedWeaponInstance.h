@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "Weapons/FPSCombatWeaponInstance.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "FPSCombatWeaponDefinition.h"
+#include "Fire/FPSCombatFireMode.h"
 #include "FPSCombatRangedWeaponInstance.generated.h"
+
 
 
 USTRUCT()
@@ -20,7 +23,7 @@ struct FFPSCombatShotContext
 {
 	bool bIsAiming = false;
 	bool bStationary = false;
-	bool bIsIdle = false;
+	bool bIsFreshSequence = false;
 };
 
 UCLASS(Blueprintable, BlueprintType)
@@ -35,26 +38,30 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GetReserveAmmo() const { return ReserveAmmo; }
+
+	UFUNCTION(BlueprintPure)
+	UFPSCombatFireMode* GetFireMode() const;
 	
 	bool HasAmmoInMag() const { return CurrentAmmoInMag>0;}
 	bool CanReload() const;
 	void ConsumeRound();
 	int32 ReloadAmmo();
 
-
+	void HandleInputPressed() { if (UFPSCombatFireMode* FireM = GetFireMode()) FireM->OnInputPressed(this); }
+	void HandleInputReleased() { if (UFPSCombatFireMode* FireM = GetFireMode()) FireM->OnInputReleased(this); }
+	void NotifyShotHappens() { if (UFPSCombatFireMode* FireM = GetFireMode()) FireM->NotifyFireShot(this); }
+	
+	bool WantsAnotherShot();
+	
 	bool CanFire() const;
-
 	void ApplyRecoilForShot();
-
-
 	FVector CalculateFireDirection(const FFPSCombatShotContext& ShotContext, FVector& AimDirection) const;
 	
-	void RegisterShotFired(const FFPSCombatShotContext& ShotContext);
+	void ApplyRecoilShotIfNeeded(const FFPSCombatShotContext& ShotContext);
 
-	FFPSCombatShotContext MakeShotContext() const;
+	FFPSCombatShotContext MakeShotContext();
 
 	UFPSCombatWeaponDefinition* GetWeaponDefinition() const;
-	
 protected:
 	
 	UFUNCTION()
@@ -73,14 +80,15 @@ private:
 
 	UPROPERTY(Replicated)
 	int32 ReserveAmmo = -1;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UFPSCombatFireMode> FireMode;
 	
 	void BroadcastAmmoChanged() const;
-
 	
-	int32 CurrentBurstShotIndex = 0;
+	int32 CurrentRecoilShotIndex = 0;
 	
 	FFPSCombatRecoilState RecoilState;
-	
 public:
 	virtual void OnEquipped() override;
 	virtual void OnUnequipped() override;
