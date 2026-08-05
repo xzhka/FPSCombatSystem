@@ -4,17 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Equipment/FPSCombatEquipmentDefinition.h"
+#include "Projectile/FPSCombatProjectileBase.h"
 #include "FPSCombatWeaponDefinition.generated.h"
 
 class UFPSCombatFireMode;
-
-UENUM(BlueprintType)
-enum class EWeaponFireType : uint8
-{
-	Projectile,
-	Hitscan
-};
-
 
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatWeaponDefinition : public UFPSCombatEquipmentDefinition
@@ -37,8 +30,9 @@ public:
 	float ReloadDuration = 2.f;
 
 	/* Fire characteristics */
-	UPROPERTY(EditDefaultsOnly, Category = "Fire")
-	EWeaponFireType WeaponFireType = EWeaponFireType::Hitscan;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	TSubclassOf<UFPSCombatFireMode> FireModeClass;
@@ -69,18 +63,17 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float MaxSpreadDegrees = 40.f;
+
+	/* UI Visual */
 	
-	// TODO: Create a Projectile Base class and add it in here
-	// UPROPERTY(EditDefaultsOnly, Category = "Fire", meta = (EditCondition="WeaponFireType==EWeaponFireType::Projectile"))
-	// TSoftClassPtr<AFPSCombatProjectileBase> ProjectileClass;
-
-
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSoftObjectPtr<UTexture2D> WeaponIcon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	FText WeaponName;
 
+	/* Montages */
+		
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> FireMontage;
 	

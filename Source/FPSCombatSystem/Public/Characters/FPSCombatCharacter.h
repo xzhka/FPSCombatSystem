@@ -11,6 +11,7 @@
 #include "Components/FPSCombatHealthComponent.h"
 #include "Components/FPSCombatStaminaComponent.h"
 #include "Equipment/FPSCombatEquipmentManager.h"
+#include "Weapons/FPSCombatThrowableDefinition.h"
 #include "Weapons/FPSCombatWeaponDefinition.h"
 #include "FPSCombatCharacter.generated.h"
 
@@ -63,6 +64,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Definition")
 	TSubclassOf<UFPSCombatWeaponDefinition> WeaponDefinition;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Definition")
+	TSubclassOf<UFPSCombatThrowableDefinition> ThrowableDefinition;
 	
 	FCombatAbilitySet_GrantedHandles GrantedHandles;
 };

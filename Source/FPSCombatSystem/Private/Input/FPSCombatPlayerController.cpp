@@ -2,7 +2,6 @@
 
 
 #include "Input/FPSCombatPlayerController.h"
-
 #include "GameModes/FPSCombatPlayerState.h"
 
 void AFPSCombatPlayerController::BeginPlay()

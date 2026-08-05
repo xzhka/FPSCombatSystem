@@ -44,14 +44,12 @@ protected:
 	void OnTargetDataCancelledCallback();
 	
 	virtual ECollisionChannel DetermineTraceChannel() const;
-
+	
 	UFUNCTION()
 	void TryFireNextShot();
 	
 	bool IsHitResultValid(const FHitResult& HitResult) const;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Validation", meta = (ClampMin = "0.0", Units = "cm"))
 	float HitValidationRangeSlack = 60.f;
@@ -68,6 +66,11 @@ protected:
 private:
 	FDelegateHandle OnTargetDataReadyCallbackHandle;
 	FDelegateHandle OnTargetDataCancelledCallbackHandle;
+
+	int32 PendingShotTargetDataCount = 0;
+	bool bBurstFinishedFiring = false;
+
+	void TryEndAbilityIfBurstComplete();
 	
 	bool bHasTargetDataSent = false;
 };

@@ -20,6 +20,10 @@ namespace FPSCombatGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource, "Ability.Moving.AirborneSource");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource_Updraft, "Ability.Moving.AirborneSource.Updraft");
 	
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Throwable_Release, "Ability.Throwable.Release");
+	
+	UE_DEFINE_GAMEPLAY_TAG(Ability_Projectile_Throw, "Ability.Projectile.Throw");
+	
 	UE_DEFINE_GAMEPLAY_TAG(State_Stamina_SprintExhausted, "State.Stamina.SprintExhausted");
 	UE_DEFINE_GAMEPLAY_TAG(State_Stamina_DashExhausted, "State.Stamina.DashExhausted");
 	UE_DEFINE_GAMEPLAY_TAG(State_Stamina_UpdraftExhausted, "State.Stamina.UpdraftExhausted");

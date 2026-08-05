@@ -50,11 +50,13 @@ void AFPSCombatCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 void AFPSCombatCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	
+
+	UE_LOG(LogTemp, Warning, TEXT("PossessedBy AFPSCombatCharacter"));
 	SetOwner(NewController);
 	
 	InitializeAbilitySystem();
 	EquipmentComponent->OnEquipItem(WeaponDefinition);
+	EquipmentComponent->OnEquipItem(ThrowableDefinition);
 }
 
 void AFPSCombatCharacter::OnRep_PlayerState()

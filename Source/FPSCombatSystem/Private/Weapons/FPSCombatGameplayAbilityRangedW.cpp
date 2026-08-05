@@ -86,13 +86,15 @@ void UFPSCombatGameplayAbilityRangedW::ActivateAbility(const FGameplayAbilitySpe
 	}
 	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
+	
 	WeaponData->HandleInputPressed();
 	
 	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
 	check(ASC);
 
 	bHasTargetDataSent = false;
+	PendingShotTargetDataCount = 0;
+	bBurstFinishedFiring = false;
 	OnTargetDataReadyCallbackHandle = ASC->AbilityTargetDataSetDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).AddUObject(this, &ThisClass::OnTargetDataReadyCallback);
 	OnTargetDataCancelledCallbackHandle = ASC->AbilityTargetDataCancelledDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).AddUObject(this, &ThisClass::OnTargetDataCancelledCallback);
 	
@@ -204,9 +206,9 @@ void UFPSCombatGameplayAbilityRangedW::OnTargetDataReadyCallback(const FGameplay
 	
 	UFPSCombatRangedWeaponInstance* WeaponInstance = GetWeaponInstance();
 	
-	if (ASC && WeaponInstance && CurrentActorInfo->IsNetAuthority() && DamageEffectClass)
+	if (ASC && WeaponInstance && CurrentActorInfo->IsNetAuthority() && WeaponInstance->GetWeaponDefinition()->DamageEffectClass)
 	{
-		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass, GetAbilityLevel());
+		FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(WeaponInstance->GetWeaponDefinition()->DamageEffectClass, GetAbilityLevel());
 		SpecHandle.Data->SetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Damage,
 		WeaponInstance->GetWeaponDefinition()->BaseDamage);
 		for (auto It = LocalDataHandle.Data.CreateConstIterator(); It; ++It)
@@ -225,6 +227,12 @@ void UFPSCombatGameplayAbilityRangedW::OnTargetDataReadyCallback(const FGameplay
 		}
 	}
 	ASC->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
+
+	--PendingShotTargetDataCount;
+	if (bBurstFinishedFiring && PendingShotTargetDataCount <= 0)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, CurrentActorInfo->IsNetAuthority(), false);
+	}
 }
 
 void UFPSCombatGameplayAbilityRangedW::OnTargetDataCancelledCallback()
@@ -248,7 +256,7 @@ void UFPSCombatGameplayAbilityRangedW::TryFireNextShot()
 	}
 	else
 	{
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, CurrentActorInfo->IsNetAuthority(), false);
+		TryEndAbilityIfBurstComplete();
 	}
 }
 
@@ -311,6 +319,8 @@ void UFPSCombatGameplayAbilityRangedW::HandleFireInput()
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
+
+	++PendingShotTargetDataCount;
 	
 	StartRangedWeaponTargeting();
 
@@ -326,6 +336,16 @@ void UFPSCombatGameplayAbilityRangedW::HandleFireInput()
 		WaitDelayTask->ReadyForActivation();
 	}
 	else
+	{
+		TryEndAbilityIfBurstComplete();
+	}
+}
+
+void UFPSCombatGameplayAbilityRangedW::TryEndAbilityIfBurstComplete()
+{
+	bBurstFinishedFiring = true;
+
+	if (PendingShotTargetDataCount <= 0)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, CurrentActorInfo->IsNetAuthority(), false);
 	}

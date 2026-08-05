@@ -2,6 +2,8 @@
 
 
 #include "Characters/FPSCombatMovementComp.h"
+
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/FPSCombatPlayerState.h"
 

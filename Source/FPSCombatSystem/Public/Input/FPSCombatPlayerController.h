@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "UI/FPSCombatHUDWidget.h"
+#include "Blueprint/UserWidget.h"
 #include "FPSCombatPlayerController.generated.h"
 
 struct FInputActionValue;

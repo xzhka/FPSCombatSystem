@@ -19,6 +19,10 @@ namespace FPSCombatGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_Airborne);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_AirborneSource);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_AirborneSource_Updraft);
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Projectile_Throw);
+	
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Throwable_Release);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Stamina_SprintExhausted);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Stamina_DashExhausted);
