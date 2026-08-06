@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FPSCombatRangedWeaponInstance.h"
 #include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
+#include "Fire/FPSCombatShotTracker.h"
 #include "FPSCombatGameplayAbilityRangedW.generated.h"
 
 /**
@@ -13,64 +14,62 @@
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatGameplayAbilityRangedW : public UFPSCombatBaseGameplayAbility
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UFPSCombatGameplayAbilityRangedW();
-	
+    UFPSCombatGameplayAbilityRangedW();
+    
 public:
-	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
-		FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-	virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
+    virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+       const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
+       FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+    virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+       const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
 
-	virtual EFPSCombatAbilityActivationPolicy GetActivationPolicy(const FGameplayAbilitySpec& Spec) const override;
-	
-	UFUNCTION(BlueprintCallable, Category = "Ability")
-	UFPSCombatRangedWeaponInstance* GetWeaponInstance() const;
-	
+    virtual EFPSCombatAbilityActivationPolicy GetActivationPolicy(const FGameplayAbilitySpec& Spec) const override;
+    
+    UFUNCTION(BlueprintCallable, Category = "Ability")
+    UFPSCombatRangedWeaponInstance* GetWeaponInstance() const;
+    
 protected:
-	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
-	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+    virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+       const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+    virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+       const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
-	virtual void NotifyInputReleased(const FGameplayAbilitySpec& Spec) override;
-	
-	void StartRangedWeaponTargeting();
-	void PerformLocalTargeting(OUT TArray<FHitResult>& OutHits);
-	
-	void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ApplicationTag);
-	void OnTargetDataCancelledCallback();
-	
-	virtual ECollisionChannel DetermineTraceChannel() const;
-	
-	UFUNCTION()
-	void TryFireNextShot();
-	
-	bool IsHitResultValid(const FHitResult& HitResult) const;
-	
+    virtual void NotifyInputReleased(const FGameplayAbilitySpec& Spec) override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Validation", meta = (ClampMin = "0.0", Units = "cm"))
-	float HitValidationRangeSlack = 60.f;
+    virtual ECollisionChannel DetermineTraceChannel() const;
+    
 
-	UPROPERTY(EditDefaultsOnly, Category = "Validation", meta = (ClampMin = "0.0", Units = "cm"))
-	float HitValidationTolerance = 20.f;
+    UPROPERTY(EditDefaultsOnly, Category = "Validation", meta = (ClampMin = "0.0", Units = "cm"))
+    float HitValidationRangeSlack = 60.f;
 
-	UFUNCTION()
-	void HandleFireInput();
+    UPROPERTY(EditDefaultsOnly, Category = "Validation", meta = (ClampMin = "0.0", Units = "cm"))
+    float HitValidationTolerance = 20.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Tags")
-	FGameplayTag OnOutOfAmmo;
+    UPROPERTY(EditDefaultsOnly, Category = "Tags")
+    FGameplayTag OnOutOfAmmo;
 
 private:
-	FDelegateHandle OnTargetDataReadyCallbackHandle;
-	FDelegateHandle OnTargetDataCancelledCallbackHandle;
+    
+    void FireShot();
 
-	int32 PendingShotTargetDataCount = 0;
-	bool bBurstFinishedFiring = false;
+    void ApplyDamageForShot(const FGameplayAbilityTargetDataHandle& DataHandle) const;
+    
+    void StartRangedWeaponTargeting();
+    void PerformLocalTargeting(OUT TArray<FHitResult>& OutHits);
+    
+    void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ApplicationTag);
+    void OnTargetDataCancelledCallback();
+    
+    bool IsHitResultValid(const FHitResult& HitResult) const;
 
-	void TryEndAbilityIfBurstComplete();
-	
-	bool bHasTargetDataSent = false;
+    void EndActivationIfComplete();
+
+    FPSCombatShotTracker ShotTracker;
+    
+    FDelegateHandle OnTargetDataReadyCallbackHandle;
+    FDelegateHandle OnTargetDataCancelledCallbackHandle;
+    
+    bool bHasTargetDataSent = false;
 };

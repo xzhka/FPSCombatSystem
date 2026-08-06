@@ -1,9 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Weapons/FPSCombatGameplayAbilityReload.h"
+#include "Weapons/Fire/FPSCombatGameplayAbilityReload.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
+#include "Weapons/FPSCombatRangedWeaponInstance.h"
 
 UFPSCombatGameplayAbilityReload::UFPSCombatGameplayAbilityReload()
 {

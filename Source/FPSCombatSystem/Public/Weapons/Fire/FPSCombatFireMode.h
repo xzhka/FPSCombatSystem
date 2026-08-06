@@ -22,7 +22,9 @@ public:
 
 	virtual void NotifyFireShot(UFPSCombatRangedWeaponInstance* Instance) {}
 
-	virtual bool WantAttackNextShot(UFPSCombatRangedWeaponInstance* Instance) const { return false; }
+	virtual bool WantsAnotherShotThisActivation(const UFPSCombatRangedWeaponInstance* Instance) const { return false; }
+
+	virtual void ResetSequence() {};
 	
 	virtual EFPSCombatAbilityActivationPolicy GetActivationPolicy() const
 	{
@@ -38,7 +40,10 @@ class UFPSCombatFireMode_Burst : public UFPSCombatFireMode
 public:
 	virtual void OnInputPressed(UFPSCombatRangedWeaponInstance* Instance) override { CurrentBurst=0; }
 	virtual void NotifyFireShot(UFPSCombatRangedWeaponInstance* Instance) override { ++CurrentBurst; }
-	virtual bool WantAttackNextShot(UFPSCombatRangedWeaponInstance* Instance) const override { return CurrentBurst < BurstSize; }
+	virtual bool WantsAnotherShotThisActivation(const UFPSCombatRangedWeaponInstance* Instance) const override { return CurrentBurst < BurstSize; }
+	virtual void ResetSequence() override { CurrentBurst = 0; }
+
+	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	int32 BurstSize = 3;

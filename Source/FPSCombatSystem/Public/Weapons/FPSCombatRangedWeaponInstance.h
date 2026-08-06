@@ -10,6 +10,12 @@
 #include "FPSCombatRangedWeaponInstance.generated.h"
 
 
+enum class EFPSCombatFireSequenceState : uint8
+{
+	Idle,
+	PendingReactivation
+};
+
 
 USTRUCT()
 struct FFPSCombatRecoilState
@@ -50,8 +56,15 @@ public:
 	void HandleInputPressed() { if (UFPSCombatFireMode* FireM = GetFireMode()) FireM->OnInputPressed(this); }
 	void HandleInputReleased() { if (UFPSCombatFireMode* FireM = GetFireMode()) FireM->OnInputReleased(this); }
 	void NotifyShotHappens() { if (UFPSCombatFireMode* FireM = GetFireMode()) FireM->NotifyFireShot(this); }
+
+	bool WantsAnotherShotThisActivation() const;
+
+	FORCEINLINE bool IsContinuationPending() const { return SequenceState == EFPSCombatFireSequenceState::PendingReactivation; }
 	
-	bool WantsAnotherShot();
+	void ScheduleNextShotActivation(const FGameplayAbilitySpecHandle& SpecHandle, float Delay);
+	void CancelScheduledActivation();
+
+	bool ConsumeContinuationFlag();
 	
 	bool CanFire() const;
 	void ApplyRecoilForShot();
@@ -85,10 +98,17 @@ private:
 	TObjectPtr<UFPSCombatFireMode> FireMode;
 	
 	void BroadcastAmmoChanged() const;
+
+	void AbortFireSequence();
 	
 	int32 CurrentRecoilShotIndex = 0;
 	
 	FFPSCombatRecoilState RecoilState;
+
+	EFPSCombatFireSequenceState SequenceState = EFPSCombatFireSequenceState::Idle;
+	
+	FTimerHandle NextActivationTimerHandle;
+	
 public:
 	virtual void OnEquipped() override;
 	virtual void OnUnequipped() override;

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPSCombatRangedWeaponInstance.h"
+#include "Weapons/FPSCombatRangedWeaponInstance.h"
 #include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
 #include "FPSCombatGameplayAbilityReload.generated.h"
 

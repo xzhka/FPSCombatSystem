@@ -36,10 +36,68 @@ int32 UFPSCombatRangedWeaponInstance::ReloadAmmo()
 	return Transferred;
 }
 
-bool UFPSCombatRangedWeaponInstance::WantsAnotherShot()
+bool UFPSCombatRangedWeaponInstance::WantsAnotherShotThisActivation() const
 {
 	UFPSCombatFireMode* FireM = GetFireMode();
-	return FireM && FireM->WantAttackNextShot(this);
+	return FireM && HasAmmoInMag() && FireM->WantsAnotherShotThisActivation(this);
+}
+
+void UFPSCombatRangedWeaponInstance::ScheduleNextShotActivation(const FGameplayAbilitySpecHandle& SpecHandle,
+	float Delay)
+{
+	UFPSCombatFireMode* FireM = GetFireMode();
+	if (!FireM) return;
+
+	const bool bBurstWantsNextShot = WantsAnotherShotThisActivation();
+	const bool bIsFullAuto = FireM->GetActivationPolicy() == EFPSCombatAbilityActivationPolicy::WhileInputActive;
+
+	if (!bBurstWantsNextShot && !bIsFullAuto)
+	{
+		return;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("ScheduleNextShotActivation. bWantsNextShot: %d, bIsFullAuto: %d"), bBurstWantsNextShot, bIsFullAuto);
+
+	
+	APawn* Pawn = GetPawn();
+	UAbilitySystemComponent* ASC = GetPawnASC();
+	if (!Pawn || !ASC) return;
+
+	SequenceState = EFPSCombatFireSequenceState::PendingReactivation;
+
+	const TWeakObjectPtr<UAbilitySystemComponent> WeakASC = ASC;
+	const TWeakObjectPtr<UFPSCombatRangedWeaponInstance> WeakInstance = this;
+
+	Pawn->GetWorldTimerManager().SetTimer(NextActivationTimerHandle, FTimerDelegate::CreateWeakLambda(this,
+		[WeakASC, WeakInstance,SpecHandle, bBurstWantsNextShot]()
+	{
+		UAbilitySystemComponent* StrongASC = WeakASC.Get();
+		UFPSCombatRangedWeaponInstance* StrongInstance = WeakInstance.Get();
+		if (!StrongASC || !StrongInstance) return;
+
+		const FGameplayAbilitySpec* Spec = StrongASC->FindAbilitySpecFromHandle(SpecHandle);
+		const bool bStillWantsToFire = bBurstWantsNextShot || (Spec && Spec->InputPressed);
+		
+		if (!bStillWantsToFire || !StrongASC->TryActivateAbility(SpecHandle))
+		{
+			StrongInstance->AbortFireSequence();
+		}
+	}), Delay, false);
+	
+}
+
+void UFPSCombatRangedWeaponInstance::CancelScheduledActivation()
+{
+	if (APawn* Pawn = GetPawn())
+	{
+		Pawn->GetWorldTimerManager().ClearTimer(NextActivationTimerHandle);
+	}
+}
+
+bool UFPSCombatRangedWeaponInstance::ConsumeContinuationFlag()
+{
+	const bool bWasContinuation = (SequenceState == EFPSCombatFireSequenceState::PendingReactivation);
+	SequenceState = EFPSCombatFireSequenceState::Idle;
+	return bWasContinuation;
 }
 
 bool UFPSCombatRangedWeaponInstance::CanFire() const
@@ -77,14 +135,27 @@ void UFPSCombatRangedWeaponInstance::BroadcastAmmoChanged() const
 	UGameplayMessageSubsystem::Get(this).BroadcastMessage(FPSCombatGameplayTags::Message_Ammo_Change, Message);
 }
 
+void UFPSCombatRangedWeaponInstance::AbortFireSequence()
+{
+	CancelScheduledActivation();
+	SequenceState = EFPSCombatFireSequenceState::Idle;
+	if (UFPSCombatFireMode* FireM = GetFireMode())
+	{
+		FireM->ResetSequence();
+	}
+}
+
 void UFPSCombatRangedWeaponInstance::ApplyRecoilForShot()
 {
 	const TArray<FVector2D>& RecoilPattern = GetWeaponDefinition()->RecoilPattern; 
 	if (RecoilPattern.Num() == 0) return;
 
-	const int32 Index = FMath::Clamp(CurrentRecoilShotIndex, 0, RecoilPattern.Num() - 1);
+	if (CurrentRecoilShotIndex >= RecoilPattern.Num())
+	{
+		return;
+	}
 
-	RecoilState.TargetRecoilOffset += RecoilPattern[Index];
+	RecoilState.TargetRecoilOffset += RecoilPattern[CurrentRecoilShotIndex];
 }
 
 UFPSCombatFireMode* UFPSCombatRangedWeaponInstance::GetFireMode() const
@@ -146,7 +217,7 @@ FFPSCombatShotContext UFPSCombatRangedWeaponInstance::MakeShotContext()
 	FFPSCombatShotContext Context;
 
 	Context.bIsAiming = IsAiming();
-	Context.bIsFreshSequence = WasIdleBeforeThisShot();
+	Context.bIsFreshSequence = !ConsumeContinuationFlag();
 	Context.bStationary = !IsPawnMoving();
 	
 	if (Context.bIsFreshSequence)
@@ -210,6 +281,7 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 
 void UFPSCombatRangedWeaponInstance::OnUnequipped()
 {
+	CancelScheduledActivation();
 	Super::OnUnequipped();
 }
 

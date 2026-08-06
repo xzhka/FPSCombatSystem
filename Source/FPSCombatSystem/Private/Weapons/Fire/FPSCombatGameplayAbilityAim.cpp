@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Weapons/Aim/FPSCombatGameplayAbilityAim.h"
+#include "Weapons/FIre/FPSCombatGameplayAbilityAim.h"
 
 void UFPSCombatGameplayAbilityAim::InputPressed(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)

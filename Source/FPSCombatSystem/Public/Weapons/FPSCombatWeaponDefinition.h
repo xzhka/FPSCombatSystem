@@ -56,7 +56,7 @@ public:
 	TArray<FVector2D> RecoilPattern;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
-	float RecoilResetDelay = 0.4f;
+	float RecoilResetDelay = 0.3f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float MovementHipFireMultiplier = 1.5f;
