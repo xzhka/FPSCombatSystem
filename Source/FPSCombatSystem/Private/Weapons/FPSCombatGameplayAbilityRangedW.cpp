@@ -92,10 +92,8 @@ void UFPSCombatGameplayAbilityRangedW::ActivateAbility(const FGameplayAbilitySpe
 	check(ASC);
 
 	bHasTargetDataSent = false;
-	ShotTracker.Reset();
 	
-	OnTargetDataReadyCallbackHandle = ASC->AbilityTargetDataSetDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).AddUObject(this, &ThisClass::OnTargetDataReadyCallback);
-	OnTargetDataCancelledCallbackHandle = ASC->AbilityTargetDataCancelledDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).AddUObject(this, &ThisClass::OnTargetDataCancelledCallback);
+	BindShotConfirmation(Handle, ActivationInfo.GetActivationPredictionKey());
 	
 	FireShot();
 }
@@ -104,13 +102,6 @@ void UFPSCombatGameplayAbilityRangedW::EndAbility(const FGameplayAbilitySpecHand
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (UAbilitySystemComponent* ASC = CurrentActorInfo ? CurrentActorInfo->AbilitySystemComponent.Get() : nullptr)
-	{
-		ASC->AbilityTargetDataSetDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).Remove(OnTargetDataReadyCallbackHandle);
-		ASC->AbilityTargetDataCancelledDelegate(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey()).Remove(OnTargetDataCancelledCallbackHandle);
-		ASC->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
-	}
-
 	TWeakObjectPtr<UFPSCombatRangedWeaponInstance> WeakInstanceData = GetWeaponInstance();
 
 	const bool bShouldDriveReactivation = ActorInfo->IsLocallyControlled();
@@ -158,7 +149,7 @@ void UFPSCombatGameplayAbilityRangedW::StartRangedWeaponTargeting()
 		TargetData.Add(TargetHit);
 	}
 
-	OnTargetDataReadyCallback(TargetData, FGameplayTag());
+	OnShotTargetDataReady(TargetData, FGameplayTag(), CurrentActivationInfo.GetActivationPredictionKey());
 }
 
 void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(TArray<FHitResult>& OutHits)
@@ -199,9 +190,29 @@ void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(TArray<FHitResult>&
 	WeaponInstance->ApplyRecoilShotIfNeeded(ShotContext);
 }
 
-void UFPSCombatGameplayAbilityRangedW::OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle,
-	FGameplayTag ApplicationTag)
+void UFPSCombatGameplayAbilityRangedW::BindShotConfirmation(FGameplayAbilitySpecHandle Handle,
+	FPredictionKey PredictionKey)
 {
+	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
+	check(ASC);
+
+	FFPSInFlightShot& Shot = InFlightShots.AddDefaulted_GetRef();
+	Shot.SpecHandle = Handle;
+	Shot.PredictionKey = PredictionKey;
+
+	Shot.DataReadyHandle = ASC->AbilityTargetDataSetDelegate(Handle, PredictionKey).AddUObject(this, &ThisClass::OnShotTargetDataReady, PredictionKey);
+	Shot.DataCancelledHandle = ASC->AbilityTargetDataCancelledDelegate(Handle, PredictionKey).AddUObject(this, &ThisClass::OnShotTargetDataCancelled, PredictionKey);
+}
+
+void UFPSCombatGameplayAbilityRangedW::OnShotTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle,
+	FGameplayTag ApplicationTag, FPredictionKey ShotKey)
+{
+	int32 Index = InFlightShots.IndexOfByPredicate([ShotKey](const FFPSInFlightShot& S) { return S.PredictionKey == ShotKey; });
+	if (Index == INDEX_NONE) return;
+
+	const FFPSInFlightShot Shot = InFlightShots[Index];
+	InFlightShots.RemoveAt(Index);
+	
 	bHasTargetDataSent = true;
 	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
 	check(ASC);
@@ -213,24 +224,30 @@ void UFPSCombatGameplayAbilityRangedW::OnTargetDataReadyCallback(const FGameplay
 	const bool bShouldNotifyServer = CurrentActorInfo->IsLocallyControlled() && !CurrentActorInfo->IsNetAuthority();
 	if (bShouldNotifyServer)
 	{
-		ASC->CallServerSetReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey(), LocalDataHandle, ApplicationTag, ASC->ScopedPredictionKey);
+		ASC->CallServerSetReplicatedTargetData(Shot.SpecHandle, Shot.PredictionKey, LocalDataHandle, ApplicationTag, ASC->ScopedPredictionKey);
 	}
 	
 	ApplyDamageForShot(LocalDataHandle);
 	
-	ASC->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
-	UE_LOG(LogTemp, Warning, TEXT("NotifyShotResolved. Authority: %d"), CurrentActorInfo->IsNetAuthority());
-	ShotTracker.NotifyShotResolved();
-	EndActivationIfComplete();
+	ASC->ConsumeClientReplicatedTargetData(Shot.SpecHandle, Shot.PredictionKey);
+	ASC->AbilityTargetDataSetDelegate(Shot.SpecHandle, Shot.PredictionKey).Remove(Shot.DataReadyHandle);
+	ASC->AbilityTargetDataCancelledDelegate(Shot.SpecHandle, Shot.PredictionKey).Remove(Shot.DataCancelledHandle);
 }
 
-void UFPSCombatGameplayAbilityRangedW::OnTargetDataCancelledCallback()
+void UFPSCombatGameplayAbilityRangedW::OnShotTargetDataCancelled(FPredictionKey ShotKey)
 {
+	int32 Index = InFlightShots.IndexOfByPredicate([ShotKey](const FFPSInFlightShot& S) { return S.PredictionKey == ShotKey; });
+	if (Index == INDEX_NONE) return;
+
+	const FFPSInFlightShot Shot = InFlightShots[Index];
+	InFlightShots.RemoveAt(Index);
+
 	if (UAbilitySystemComponent* ASC = CurrentActorInfo ? CurrentActorInfo->AbilitySystemComponent.Get() : nullptr)
 	{
-		ASC->ConsumeClientReplicatedTargetData(CurrentSpecHandle, CurrentActivationInfo.GetActivationPredictionKey());
+		ASC->ConsumeClientReplicatedTargetData(Shot.SpecHandle, Shot.PredictionKey);
+		ASC->AbilityTargetDataSetDelegate(Shot.SpecHandle, Shot.PredictionKey).Remove(Shot.DataReadyHandle);
+		ASC->AbilityTargetDataCancelledDelegate(Shot.SpecHandle, Shot.PredictionKey).Remove(Shot.DataCancelledHandle);
 	}
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 ECollisionChannel UFPSCombatGameplayAbilityRangedW::DetermineTraceChannel() const
@@ -297,16 +314,13 @@ void UFPSCombatGameplayAbilityRangedW::FireShot()
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
-	
-	ShotTracker.NotifyShotFired();
 	StartRangedWeaponTargeting();
 
 	WeaponData->ConsumeRound();
 	WeaponData->UpdateLastFireTime();
 	WeaponData->NotifyShotHappens();
 	
-	ShotTracker.NotifyShotDone();
-	EndActivationIfComplete();
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, CurrentActorInfo->IsNetAuthority(), false);
 }
 
 void UFPSCombatGameplayAbilityRangedW::ApplyDamageForShot(const FGameplayAbilityTargetDataHandle& DataHandle) const
@@ -337,14 +351,5 @@ void UFPSCombatGameplayAbilityRangedW::ApplyDamageForShot(const FGameplayAbility
 				ASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 			}
 		}
-	}
-
-}
-
-void UFPSCombatGameplayAbilityRangedW::EndActivationIfComplete()
-{
-	if (ShotTracker.IsActivationComplete())
-	{
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, CurrentActorInfo->IsNetAuthority(), false);
 	}
 }

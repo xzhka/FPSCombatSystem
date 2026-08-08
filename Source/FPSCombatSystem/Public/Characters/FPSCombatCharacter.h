@@ -34,6 +34,9 @@ public:
 	
 	// Get Camera Component
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FPSFollowCamera; }
+
+	UFUNCTION(BlueprintPure, Category = "Movement" , meta = (BlueprintThreadSafe))
+	FORCEINLINE UFPSCombatMovementComp* GetCombatMovementComponent() const { return MovementComponent; }
 	
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;

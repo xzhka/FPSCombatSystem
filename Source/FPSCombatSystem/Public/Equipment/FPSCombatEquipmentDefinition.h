@@ -20,7 +20,7 @@ struct FFPSCombatEquipmentSpawnActor
 	TSubclassOf<AActor> SpawnActorClass;
 
 	UPROPERTY(EditAnywhere)
-	FName SpawnActorName;
+	FName AttachSocket;
 };
 
 

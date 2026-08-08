@@ -77,7 +77,7 @@ template<>
 struct TStructOpsTypeTraits<FFPSCombatEquipmentList> : public TStructOpsTypeTraitsBase2<FFPSCombatEquipmentList>
 {
 	enum
-	{ WithNetDeltaSerialize = true };
+	{ WithNetDeltaSerializer = true };
 };
 
 
@@ -112,7 +112,9 @@ public:
 	{
 		return (T*)GetFirstInstanceOfType(T::StaticClass());
 	}
-	
+
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+
 private:
 	UPROPERTY(Replicated)
 	FFPSCombatEquipmentList EquipmentList;

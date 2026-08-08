@@ -3,6 +3,7 @@
 
 #include "Equipment/FPSCombatEquipmentManager.h"
 #include "AbilitySystemGlobals.h"
+#include "Engine/ActorChannel.h"
 #include "Net/UnrealNetwork.h"
 
 FString FFPSCombatAppliedEquipmentEntry::GetDebugString() const
@@ -118,7 +119,7 @@ UFPSCombatEquipmentManager::UFPSCombatEquipmentManager(const FObjectInitializer&
 {
 	SetIsReplicatedByDefault(true);
 	
-	bReplicateUsingRegisteredSubObjectList = true;
+	//bReplicateUsingRegisteredSubObjectList = true;
 	bWantsInitializeComponent = true;
 	EquipmentList.OwnerComponent = this;
 }
@@ -221,4 +222,20 @@ UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::GetFirstInstanceOfType(
 		}
 	}
 	return nullptr;
+}
+
+bool UFPSCombatEquipmentManager::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch,
+	FReplicationFlags* RepFlags)
+{
+	bool WroteLogic = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+	for (FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
+	{
+		UFPSCombatEquipmentInstance* Instance = Entry.Instance;
+		if (IsValid(Instance))
+		{
+			WroteLogic |=Channel->ReplicateSubobject(Instance, *Bunch, *RepFlags);
+		}
+	}
+	return WroteLogic;
 }

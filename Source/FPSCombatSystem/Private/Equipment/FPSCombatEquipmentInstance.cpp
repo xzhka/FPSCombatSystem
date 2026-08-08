@@ -25,8 +25,8 @@ void UFPSCombatEquipmentInstance::SpawnEquipmentActors(const TArray<FFPSCombatEq
 			if (OwningActor)
 			{
 				OwningActor->FinishSpawning(FTransform::Identity, true);
-				OwningActor->AttachToComponent(RootComp, FAttachmentTransformRules::KeepRelativeTransform, SpawnActorInfo.SpawnActorName);
-
+				OwningActor->AttachToComponent(RootComp, FAttachmentTransformRules::KeepRelativeTransform, SpawnActorInfo.AttachSocket);
+				
 				ActorsToSpawn.Add(OwningActor);
 			}
 		}

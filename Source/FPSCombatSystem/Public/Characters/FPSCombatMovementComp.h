@@ -19,7 +19,7 @@ enum class EFPSCombatMoveState : uint8
 
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSCOMBATSYSTEM_API UFPSCombatMovementComp : public UActorComponent
 {
 	GENERATED_BODY()
@@ -32,7 +32,7 @@ public:
 	static UFPSCombatMovementComp* GetMovementComp(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UFPSCombatMovementComp>() : nullptr); }
 
 	UFUNCTION(BlueprintCallable, Category = "Movement State")
-	EFPSCombatMoveState GetCurrentState() const { return CurrentMoveState; }
+	FORCEINLINE EFPSCombatMoveState GetCurrentState() const { return CurrentMoveState; }
 	
 	virtual void BeginPlay() override;
 
@@ -63,8 +63,8 @@ protected:
 
 	bool bIsWalkingForward = false;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float Threshold = 10.f;
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	float Threshold = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float ForwardDotThreshold = 0.3f;

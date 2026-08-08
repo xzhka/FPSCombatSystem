@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "FPSCombatRangedWeaponInstance.h"
 #include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
-#include "Fire/FPSCombatShotTracker.h"
 #include "FPSCombatGameplayAbilityRangedW.generated.h"
 
 /**
@@ -51,25 +50,29 @@ protected:
     FGameplayTag OnOutOfAmmo;
 
 private:
-    
+
+	struct FFPSInFlightShot
+	{
+		FGameplayAbilitySpecHandle SpecHandle;
+		FPredictionKey PredictionKey;
+		FDelegateHandle DataReadyHandle;
+		FDelegateHandle DataCancelledHandle;
+	};
+	
     void FireShot();
 
     void ApplyDamageForShot(const FGameplayAbilityTargetDataHandle& DataHandle) const;
     
     void StartRangedWeaponTargeting();
     void PerformLocalTargeting(OUT TArray<FHitResult>& OutHits);
-    
-    void OnTargetDataReadyCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ApplicationTag);
-    void OnTargetDataCancelledCallback();
-    
+
+	void BindShotConfirmation(FGameplayAbilitySpecHandle Handle, FPredictionKey PredictionKey);
+	void OnShotTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ApplicationTag, FPredictionKey ShotKey);
+	void OnShotTargetDataCancelled(FPredictionKey ShotKey);
+	
     bool IsHitResultValid(const FHitResult& HitResult) const;
-
-    void EndActivationIfComplete();
-
-    FPSCombatShotTracker ShotTracker;
-    
-    FDelegateHandle OnTargetDataReadyCallbackHandle;
-    FDelegateHandle OnTargetDataCancelledCallbackHandle;
     
     bool bHasTargetDataSent = false;
+
+	TArray<FFPSInFlightShot> InFlightShots;
 };
