@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Characters/FPSCombatCharacter.h"
 #include "Components/ActorComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "FPSCombatMovementComp.generated.h"
 
 struct FOnAttributeChangeData;
@@ -16,7 +17,27 @@ enum class EFPSCombatMoveState : uint8
 	Airborne
 };
 
+USTRUCT(BlueprintType)
+struct FPSCombatGroundInfo
+{
+	GENERATED_BODY()
 
+	FPSCombatGroundInfo()
+	  :	LastUpdateFrame(0),
+		GroundDistance(0.f)
+	{}
+
+
+	uint64 LastUpdateFrame;
+
+	UPROPERTY(BlueprintReadOnly)
+	float GroundDistance;
+
+	
+	UPROPERTY(BlueprintReadOnly)
+	FHitResult GroundInfoHitResult;
+	
+};
 
 
 UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -31,8 +52,11 @@ public:
 	UFUNCTION(BlueprintPure)
 	static UFPSCombatMovementComp* GetMovementComp(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UFPSCombatMovementComp>() : nullptr); }
 
-	UFUNCTION(BlueprintCallable, Category = "Movement State")
+	UFUNCTION(BlueprintCallable, Category = "Movement State", meta = (BlueprintThreadSafe))
 	FORCEINLINE EFPSCombatMoveState GetCurrentState() const { return CurrentMoveState; }
+
+	UFUNCTION(BlueprintCallable, Category = "Groung Info")
+	const FPSCombatGroundInfo& GetGroundInfo();
 	
 	virtual void BeginPlay() override;
 
@@ -76,6 +100,8 @@ private:
 	UPROPERTY()
 	TObjectPtr<UFPSCombatAbilitySystemComponent> CachedASC;
 
+	FPSCombatGroundInfo CachedGroundInfo;
+	
 	FVector GetDashDirection() const;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Movement State")

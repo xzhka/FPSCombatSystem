@@ -119,7 +119,6 @@ UFPSCombatEquipmentManager::UFPSCombatEquipmentManager(const FObjectInitializer&
 {
 	SetIsReplicatedByDefault(true);
 	
-	//bReplicateUsingRegisteredSubObjectList = true;
 	bWantsInitializeComponent = true;
 	EquipmentList.OwnerComponent = this;
 }
