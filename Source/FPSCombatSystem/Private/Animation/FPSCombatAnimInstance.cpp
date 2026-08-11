@@ -5,6 +5,7 @@
 
 #include "AbilitySystemGlobals.h"
 #include "Characters/FPSCombatCharacter.h"
+#include "Characters/FPSCombatMovementComp.h"
 
 UFPSCombatAnimInstance::UFPSCombatAnimInstance(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -28,5 +29,22 @@ void UFPSCombatAnimInstance::NativeInitializeAnimation()
 		{
 			InitializeWithAbilitySystem(ASC);
 		}
+	}
+}
+
+void UFPSCombatAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	const AFPSCombatCharacter* Character = Cast<AFPSCombatCharacter>(GetOwningActor());
+
+	if (!Character) return;
+	
+	UFPSCombatMovementComp* MovementComp = CastChecked<UFPSCombatMovementComp>(Character->GetCombatMovementComponent());
+	bIsAirborne = MovementComp->GetCurrentState() == EFPSCombatMoveState::Airborne;
+	if (bIsAirborne)
+	{
+		const FPSCombatGroundInfo& GroundInfo = MovementComp->GetGroundInfo();
+		GroundDistance = GroundInfo.GroundDistance;
 	}
 }

@@ -11,12 +11,11 @@ namespace FPSCombatGameplayTags
 
 	UE_DEFINE_GAMEPLAY_TAG(State_Moving_Walking, "State.Moving.Walking");
 	UE_DEFINE_GAMEPLAY_TAG(State_Moving_MovingForward, "State.Moving.MovingForward");
-
+	UE_DEFINE_GAMEPLAY_TAG(State_Moving_Airborne, "State.Moving.Airborne");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Sprinting, "Ability.Moving.Sprinting");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Dash, "Ability.Moving.Dash");
-
-	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Airborne, "Ability.Moving.Airborne");
+	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource, "Ability.Moving.AirborneSource");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource_Updraft, "Ability.Moving.AirborneSource.Updraft");
 	

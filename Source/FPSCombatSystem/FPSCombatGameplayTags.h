@@ -12,11 +12,11 @@ namespace FPSCombatGameplayTags
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Moving_Walking);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Moving_MovingForward);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Moving_Airborne);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_Sprinting);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_Dash);
-
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_Airborne);
+	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_AirborneSource);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_AirborneSource_Updraft);
 

@@ -21,8 +21,16 @@ public:
 	
 	virtual void InitializeWithAbilitySystem(UAbilitySystemComponent* ASC);
 	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-private:
+protected:
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Locomotion", meta = (AllowPrivateAccess = "true"))
+	bool bIsAirborne = false;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Ground Info")
+	float GroundDistance = -1.f;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "GameplayTags")
 	FGameplayTagBlueprintPropertyMap GameplayTagPropertyMap;
 };
