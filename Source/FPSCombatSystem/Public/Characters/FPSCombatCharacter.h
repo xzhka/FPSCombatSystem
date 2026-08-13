@@ -44,6 +44,7 @@ public:
 	
 	void InitializeAbilitySystem();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void BeginPlay() override;
 
 protected:
 	/*Components initialize*/
@@ -61,6 +62,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
 	TObjectPtr<UFPSCombatEquipmentManager> EquipmentComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	TSubclassOf<UAnimInstance> DefaultAnimLayerClass;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UFPSCombatAbilitySet> AbilitySet;

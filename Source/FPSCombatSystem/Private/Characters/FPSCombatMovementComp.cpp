@@ -21,12 +21,13 @@ UFPSCombatMovementComp::UFPSCombatMovementComp()
 
 const FPSCombatGroundInfo& UFPSCombatMovementComp::GetGroundInfo()
 {
-	UCharacterMovementComponent* MoveComp = OwnerCharacter->GetCharacterMovement();
 	if (!OwnerCharacter || (GFrameCounter == CachedGroundInfo.LastUpdateFrame))
 	{
 		return CachedGroundInfo;
 	}
-
+	
+	UCharacterMovementComponent* MoveComp = OwnerCharacter->GetCharacterMovement();
+	
 	if (MoveComp->MovementMode == MOVE_Walking)
 	{
 		CachedGroundInfo.GroundInfoHitResult = MoveComp->CurrentFloor.HitResult;
@@ -66,6 +67,15 @@ const FPSCombatGroundInfo& UFPSCombatMovementComp::GetGroundInfo()
 	CachedGroundInfo.LastUpdateFrame = GFrameCounter;
 	
 	return CachedGroundInfo;
+}
+
+float UFPSCombatMovementComp::GetMoveSpeedMultiplier() const
+{
+	if (CachedASC)
+	{
+		CachedASC->GetNumericAttribute(UFPSCombatAttributeSet::GetMoveSpeedAttribute());
+	}
+	return 1.f;
 }
 
 void UFPSCombatMovementComp::BeginPlay()

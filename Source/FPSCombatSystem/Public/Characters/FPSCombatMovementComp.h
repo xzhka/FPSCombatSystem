@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Characters/FPSCombatCharacter.h"
 #include "Components/ActorComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "FPSCombatMovementComp.generated.h"
 
 struct FOnAttributeChangeData;
@@ -57,6 +56,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Groung Info")
 	const FPSCombatGroundInfo& GetGroundInfo();
+
+	UFUNCTION(BlueprintPure, Category= "Speed")
+	float GetMoveSpeedMultiplier() const;
 	
 	virtual void BeginPlay() override;
 

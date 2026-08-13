@@ -3,6 +3,8 @@
 
 #include "Characters/Components/FPSCombatStaminaComponent.h"
 
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
+
 
 UFPSCombatStaminaComponent::UFPSCombatStaminaComponent()
 {
@@ -91,7 +93,3 @@ void UFPSCombatStaminaComponent::HandleStaminaRestoredChanged()
 	
 	OnStaminaRestored.Broadcast(GetOwner());
 }
-
-
-
-
