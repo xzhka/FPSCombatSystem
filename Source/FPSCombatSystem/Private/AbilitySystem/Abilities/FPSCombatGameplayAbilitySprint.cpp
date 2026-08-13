@@ -62,6 +62,7 @@ void UFPSCombatGameplayAbilitySprint::EndAbility(const FGameplayAbilitySpecHandl
 		EffectSpecRemove(SprintGrantedEffectHandle);
 		SprintGrantedEffectHandle.Empty();
 	}
+
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

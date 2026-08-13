@@ -40,11 +40,8 @@ void UFPSCombatAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (!Character) return;
 	
-	UFPSCombatMovementComp* MovementComp = CastChecked<UFPSCombatMovementComp>(Character->GetCombatMovementComponent());
-	bIsAirborne = MovementComp->GetCurrentState() == EFPSCombatMoveState::Airborne;
-	if (bIsAirborne)
-	{
-		const FPSCombatGroundInfo& GroundInfo = MovementComp->GetGroundInfo();
-		GroundDistance = GroundInfo.GroundDistance;
-	}
+	UFPSCombatMovementComp* MovementComp = Cast<UFPSCombatMovementComp>(Character->GetCombatMovementComponent());
+	if (!MovementComp) return;
+	const FPSCombatGroundInfo& GroundInfo = MovementComp->GetGroundInfo();
+	GroundDistance = GroundInfo.GroundDistance;
 }

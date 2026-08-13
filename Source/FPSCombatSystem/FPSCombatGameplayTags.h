@@ -31,7 +31,8 @@ namespace FPSCombatGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_Fire);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_Aiming);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_Reload);
-	
+
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Ability_Updraft);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Tags_OutOfAmmo);
 	

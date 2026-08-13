@@ -50,8 +50,7 @@ void AFPSCombatCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 void AFPSCombatCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
-	UE_LOG(LogTemp, Warning, TEXT("PossessedBy AFPSCombatCharacter"));
+	
 	SetOwner(NewController);
 	
 	InitializeAbilitySystem();
@@ -99,4 +98,14 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 UAbilitySystemComponent* AFPSCombatCharacter::GetAbilitySystemComponent() const
 {
 	return GetPlayerState<AFPSCombatPlayerState>() ? GetPlayerState<AFPSCombatPlayerState>()->GetAbilitySystemComponent() : nullptr;
+}
+
+void AFPSCombatCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	check(GetMesh());
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		AnimInstance->LinkAnimClassLayers(DefaultAnimLayerClass);
+	}
 }

@@ -4,6 +4,7 @@
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 
 #include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
+#include "Animation/FPSCombatAnimInstance.h"
 
 UFPSCombatAbilitySystemComponent::UFPSCombatAbilitySystemComponent()
 {
@@ -189,6 +190,12 @@ void UFPSCombatAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor
 				}
 			}
 		}
+
+		if (UFPSCombatAnimInstance* AnimInstance = Cast<UFPSCombatAnimInstance>(ActorInfo->GetAnimInstance()))
+		{
+			AnimInstance->InitializeWithAbilitySystem(this);
+		}
+		
 
 		TryActivateAbilityOnSpawn();
 	}

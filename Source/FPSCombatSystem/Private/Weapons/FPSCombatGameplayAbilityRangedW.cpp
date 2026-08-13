@@ -134,7 +134,7 @@ void UFPSCombatGameplayAbilityRangedW::StartRangedWeaponTargeting()
 
 	APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
 	const bool bIsLocallyControlled = Pawn && Pawn->IsLocallyControlled();
-
+	
 	if (CurrentActorInfo->IsNetAuthority() && !bIsLocallyControlled) { return; }
 	
 	TArray<FHitResult> Hits;
@@ -220,7 +220,6 @@ void UFPSCombatGameplayAbilityRangedW::OnShotTargetDataReady(const FGameplayAbil
 	FScopedPredictionWindow ScopedPredictionWindow(ASC);
 	
 	FGameplayAbilityTargetDataHandle LocalDataHandle(MoveTemp(const_cast<FGameplayAbilityTargetDataHandle&>(DataHandle)));
-	
 	const bool bShouldNotifyServer = CurrentActorInfo->IsLocallyControlled() && !CurrentActorInfo->IsNetAuthority();
 	if (bShouldNotifyServer)
 	{
@@ -232,6 +231,8 @@ void UFPSCombatGameplayAbilityRangedW::OnShotTargetDataReady(const FGameplayAbil
 	ASC->ConsumeClientReplicatedTargetData(Shot.SpecHandle, Shot.PredictionKey);
 	ASC->AbilityTargetDataSetDelegate(Shot.SpecHandle, Shot.PredictionKey).Remove(Shot.DataReadyHandle);
 	ASC->AbilityTargetDataCancelledDelegate(Shot.SpecHandle, Shot.PredictionKey).Remove(Shot.DataCancelledHandle);
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, CurrentActorInfo->IsNetAuthority(), false);
 }
 
 void UFPSCombatGameplayAbilityRangedW::OnShotTargetDataCancelled(FPredictionKey ShotKey)
@@ -320,12 +321,12 @@ void UFPSCombatGameplayAbilityRangedW::FireShot()
 	WeaponData->UpdateLastFireTime();
 	WeaponData->NotifyShotHappens();
 	
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, CurrentActorInfo->IsNetAuthority(), false);
 }
 
 void UFPSCombatGameplayAbilityRangedW::ApplyDamageForShot(const FGameplayAbilityTargetDataHandle& DataHandle) const
 {
 	if (!CurrentActorInfo->IsNetAuthority()) return;
+
 	
 	UFPSCombatRangedWeaponInstance* WeaponInstance = GetWeaponInstance();
 	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
@@ -334,7 +335,6 @@ void UFPSCombatGameplayAbilityRangedW::ApplyDamageForShot(const FGameplayAbility
 	UFPSCombatWeaponDefinition* WeaponDefinition = WeaponInstance->GetWeaponDefinition();
 	if (!WeaponDefinition->DamageEffectClass) return;
 	
-
 	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(WeaponInstance->GetWeaponDefinition()->DamageEffectClass, GetAbilityLevel());
 	SpecHandle.Data->SetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Damage,
 	WeaponInstance->GetWeaponDefinition()->BaseDamage);

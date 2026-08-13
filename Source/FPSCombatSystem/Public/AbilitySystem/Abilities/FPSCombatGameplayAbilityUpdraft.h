@@ -37,7 +37,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UGameplayEffect> AbilityTagGrantEffect;
 	
-
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTag CueTag;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Params")
-	float Distance;
+	float Distance = 0.f;
 };

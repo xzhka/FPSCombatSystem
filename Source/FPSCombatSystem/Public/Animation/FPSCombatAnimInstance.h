@@ -24,9 +24,6 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 protected:
-	
-	UPROPERTY(BlueprintReadOnly, Category = "Locomotion", meta = (AllowPrivateAccess = "true"))
-	bool bIsAirborne = false;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Ground Info")
 	float GroundDistance = -1.f;

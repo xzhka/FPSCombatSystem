@@ -3,10 +3,8 @@
 
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
 #include "GameplayEffectExtension.h"
-#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
-UE_DEFINE_GAMEPLAY_TAG(GameplayTag_Damage, "Gameplay.Damage");
 
 
 UFPSCombatAttributeSet::UFPSCombatAttributeSet()
