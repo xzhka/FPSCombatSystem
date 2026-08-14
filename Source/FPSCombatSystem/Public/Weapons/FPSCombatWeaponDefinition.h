@@ -72,8 +72,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	FText WeaponName;
 
-	/* Montages */
-		
+	/* Animation */
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> FireMontage;
 	

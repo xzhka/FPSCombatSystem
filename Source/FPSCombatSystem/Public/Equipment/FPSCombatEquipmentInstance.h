@@ -42,8 +42,13 @@ public:
 	virtual bool IsSupportedForNetworking() const override { return true; }
 
 	virtual void RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context, UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
-	
 
+	UFUNCTION(BlueprintImplementableEvent, Category =Equipment)
+	void K2_OnEquipped();
+
+	UFUNCTION(BlueprintImplementableEvent, Category =Equipment)
+	void K2_OnUnequipped();
+	
 private:
 
 	UPROPERTY(Replicated)

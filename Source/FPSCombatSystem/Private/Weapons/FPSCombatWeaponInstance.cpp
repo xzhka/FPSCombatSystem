@@ -47,3 +47,10 @@ float UFPSCombatWeaponInstance::GetTimeFromLastInteraction() const
 	return Result;
 	
 }
+
+TSubclassOf<UAnimInstance> UFPSCombatWeaponInstance::PickAnimLayer(bool bIsEquipped,
+	const FGameplayTagContainer& CosmeticTag) const
+{
+	const FFPSCombatLayerSelectionSet SelectionSet = (bIsEquipped ? EquippedAnimSet : UnequippedAnimSet);
+	return SelectionSet.SelectLayers(CosmeticTag);
+}

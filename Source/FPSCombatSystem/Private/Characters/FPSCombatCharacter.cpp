@@ -99,13 +99,3 @@ UAbilitySystemComponent* AFPSCombatCharacter::GetAbilitySystemComponent() const
 {
 	return GetPlayerState<AFPSCombatPlayerState>() ? GetPlayerState<AFPSCombatPlayerState>()->GetAbilitySystemComponent() : nullptr;
 }
-
-void AFPSCombatCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-	check(GetMesh());
-	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
-	{
-		AnimInstance->LinkAnimClassLayers(DefaultAnimLayerClass);
-	}
-}
