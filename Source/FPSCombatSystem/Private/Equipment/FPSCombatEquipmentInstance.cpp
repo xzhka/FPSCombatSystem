@@ -67,8 +67,10 @@ void UFPSCombatEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimePro
 
 void UFPSCombatEquipmentInstance::OnEquipped()
 {
+	K2_OnEquipped();
 }
 
 void UFPSCombatEquipmentInstance::OnUnequipped()
 {
+	K2_OnUnequipped();
 }

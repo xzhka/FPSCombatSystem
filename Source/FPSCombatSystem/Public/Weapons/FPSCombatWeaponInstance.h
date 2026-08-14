@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Animation/FPSCombatAnimationTypes.h"
 #include "Equipment/FPSCombatEquipmentInstance.h"
 #include "FPSCombatWeaponInstance.generated.h"
 
@@ -27,7 +28,18 @@ public:
 	float GetTimeFromLastInteraction() const;
 
 	FORCEINLINE float GetTimeSinceLastFire() const { return GetWorld()->GetTimeSeconds()-TimeFired; }
+
 	
+	
+protected:
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = Animations)
+	TSubclassOf<UAnimInstance> PickAnimLayer(bool bIsEquipped, const FGameplayTagContainer& CosmeticTag) const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animations)
+	FFPSCombatLayerSelectionSet EquippedAnimSet;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animations)
+	FFPSCombatLayerSelectionSet UnequippedAnimSet;
 	
 private:
 
