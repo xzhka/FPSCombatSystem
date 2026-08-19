@@ -21,6 +21,9 @@ struct FFPSCombatEquipmentSpawnActor
 
 	UPROPERTY(EditAnywhere)
 	FName AttachSocket;
+
+	UPROPERTY(EditAnywhere)
+	FTransform ActorTransform;
 };
 
 

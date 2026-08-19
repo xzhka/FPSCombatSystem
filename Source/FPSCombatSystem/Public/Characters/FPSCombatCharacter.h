@@ -47,6 +47,7 @@ public:
 
 protected:
 	/*Components initialize*/
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
 	TObjectPtr<UFPSCombatHealthComponent> HealthComponent;
 

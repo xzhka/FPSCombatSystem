@@ -40,7 +40,6 @@ protected:
 
 	void Jump();
 	void StopJump();
-
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UFPSCombatInputConfig> InputConfig;

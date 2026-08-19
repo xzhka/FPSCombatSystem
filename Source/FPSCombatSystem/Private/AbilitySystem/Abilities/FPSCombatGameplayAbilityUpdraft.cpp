@@ -38,7 +38,6 @@ void UFPSCombatGameplayAbilityUpdraft::ActivateAbility(const FGameplayAbilitySpe
 		FGameplayCueParameters CueParams;
 		CueParams.Location = ActorInfo->AvatarActor->GetActorLocation();
 		ASC->ExecuteGameplayCue(CueTag, CueParams);
-		UE_LOG(LogTemp, Warning, TEXT("UAbilitySystemComponent::ActivateAbility - ExecuteGameplayCue"));
 	}
 	
 	Updraft();

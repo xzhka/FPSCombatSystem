@@ -73,6 +73,9 @@ public:
 	FText WeaponName;
 
 	/* Animation */
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	FName LeftHandGripSocket;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> FireMontage;
