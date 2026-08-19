@@ -13,7 +13,7 @@ class APawn;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatEquipmentInstance : public UObject
 {
 	GENERATED_BODY()

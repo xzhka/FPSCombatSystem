@@ -19,6 +19,8 @@ class FPSCOMBATSYSTEM_API AFPSCombatPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+	AFPSCombatPlayerController(const FObjectInitializer& ObjectInitializer);
+	
 protected:
 	virtual void BeginPlay() override;
 

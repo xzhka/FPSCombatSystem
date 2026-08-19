@@ -19,12 +19,12 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
-
+	
 	FPSFollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FPSFollowCamera->SetupAttachment(GetMesh(), "Head");
 	FPSFollowCamera->SetRelativeLocation(FVector(0.0f, 10.0f, 0.0f));
 	FPSFollowCamera->bUsePawnControlRotation = true;
-
+	
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;

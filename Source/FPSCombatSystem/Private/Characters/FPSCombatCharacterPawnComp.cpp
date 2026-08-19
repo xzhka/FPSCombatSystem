@@ -5,7 +5,6 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "HeadMountedDisplayTypes.h"
 #include "Characters/FPSCombatCharacter.h"
 #include "GameModes/FPSCombatPlayerState.h"
 
@@ -43,8 +42,6 @@ void UFPSCombatCharacterPawnComp::InitializeInputComponents(UInputComponent* Pla
 			}
 		}
 	}
-	
-	
 }
 
 void UFPSCombatCharacterPawnComp::Move(const FInputActionValue& Value)
