@@ -86,10 +86,7 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 			{
 				AbilitySystem->InitializeDefaultAttributes();
 
-				if (AbilitySet)
-				{
-					AbilitySet->GiveAbility(AbilitySystem, &GrantedHandles);
-				}
+				APlayerState->GrantDefaultAbilities();
 			}
 		}
 	}
@@ -98,4 +95,16 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 UAbilitySystemComponent* AFPSCombatCharacter::GetAbilitySystemComponent() const
 {
 	return GetPlayerState<AFPSCombatPlayerState>() ? GetPlayerState<AFPSCombatPlayerState>()->GetAbilitySystemComponent() : nullptr;
+}
+
+void AFPSCombatCharacter::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	check(GetMesh());
+
+	if (DefaultAnimClass)
+	{
+		GetMesh()->LinkAnimClassLayers(DefaultAnimClass);
+	}
 }

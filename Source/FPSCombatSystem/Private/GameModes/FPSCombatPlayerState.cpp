@@ -23,3 +23,11 @@ UAttributeSet* AFPSCombatPlayerState::GetAttributeSet() const
 {
 	return AttributeSet;
 }
+
+void AFPSCombatPlayerState::GrantDefaultAbilities()
+{
+	if (HasAuthority())
+	{
+		AbilitySet->GiveAbility(ASC, &GrantedHandles);
+	}
+}

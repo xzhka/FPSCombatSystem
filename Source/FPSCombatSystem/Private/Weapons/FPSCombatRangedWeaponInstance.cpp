@@ -3,8 +3,9 @@
 #include "Weapons/FPSCombatRangedWeaponInstance.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "FPSCombatSystem/FPSCombatMessageTypes.h"
 #include "Net/UnrealNetwork.h"
-#include "Weapons/FPSCombatAmmoTypes.h"
+#include "FPSCombatSystem/FPSCombatMessageTypes.h"
 
 bool UFPSCombatRangedWeaponInstance::CanReload() const
 {
@@ -124,10 +125,6 @@ bool UFPSCombatRangedWeaponInstance::IsAiming() const
 
 void UFPSCombatRangedWeaponInstance::BroadcastAmmoChanged() const
 {
-	APawn* Pawn = GetPawn();
-	check(Pawn);
-
-
 	FFPSCombatAmmoChangedMessage Message;
 	Message.CurrentAmmo = CurrentAmmoInMag;
 	Message.ReserveAmmo = ReserveAmmo;
