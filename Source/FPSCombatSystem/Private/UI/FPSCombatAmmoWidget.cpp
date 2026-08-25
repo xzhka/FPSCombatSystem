@@ -30,7 +30,7 @@ void UFPSCombatAmmoWidget::HandleAmmoMessage(FGameplayTag Channel, const FFPSCom
 	OnAmmoUpdated(Message.CurrentAmmo, Message.ReserveAmmo);
 }
 
-void UFPSCombatAmmoWidget::HandleEquipmentMessage(FGameplayTag Channel, const FGameplayMessageListenerHandle& Message)
+void UFPSCombatAmmoWidget::HandleEquipmentMessage(FGameplayTag Channel, const FFPSCombatEquipmentChangedMessage& Message)
 {
 	RefreshFromCurrentWeapon();
 }

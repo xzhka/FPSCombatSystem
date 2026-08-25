@@ -3,6 +3,7 @@
 
 #include "Characters/Components/FPSCombatHealthComponent.h"
 
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
 

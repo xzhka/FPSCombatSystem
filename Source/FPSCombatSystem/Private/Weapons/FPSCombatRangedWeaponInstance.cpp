@@ -1,6 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Weapons/FPSCombatRangedWeaponInstance.h"
+
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "FPSCombatSystem/FPSCombatMessageTypes.h"
@@ -142,6 +145,14 @@ void UFPSCombatRangedWeaponInstance::AbortFireSequence()
 	}
 }
 
+void UFPSCombatRangedWeaponInstance::OnFireMontageAdd()
+{
+	if (UFPSCombatWeaponDefinition* Def = GetWeaponDefinition())
+	{
+		CachedFireMontage = Def->FireMontage.Get();
+	}
+}
+
 void UFPSCombatRangedWeaponInstance::ApplyRecoilForShot()
 {
 	const TArray<FVector2D>& RecoilPattern = GetWeaponDefinition()->RecoilPattern; 
@@ -265,6 +276,15 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 	{
 		FireMode = NewObject<UFPSCombatFireMode>(this, GetWeaponDefinition()->FireModeClass);
 	}
+
+	if (UFPSCombatWeaponDefinition* WeaponDef = GetWeaponDefinition())
+	{
+		if (!WeaponDef->FireMontage.IsNull())
+		{
+			FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
+			Streamable.RequestAsyncLoad(WeaponDef->FireMontage.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &UFPSCombatRangedWeaponInstance::OnFireMontageAdd));
+		}
+	}
 	
 	if (CurrentAmmoInMag < 0)
 	{
@@ -278,6 +298,7 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 
 void UFPSCombatRangedWeaponInstance::OnUnequipped()
 {
+	CachedFireMontage = nullptr;
 	CancelScheduledActivation();
 	Super::OnUnequipped();
 }

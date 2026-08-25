@@ -38,8 +38,10 @@ protected:
     virtual void NotifyInputReleased(const FGameplayAbilitySpec& Spec) override;
 
     virtual ECollisionChannel DetermineTraceChannel() const;
-    
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon", meta = (DisplayName = "On Fire Shot"))
+	void K2_OnShotFire();
+	
     UPROPERTY(EditDefaultsOnly, Category = "Validation", meta = (ClampMin = "0.0", Units = "cm"))
     float HitValidationRangeSlack = 60.f;
 
