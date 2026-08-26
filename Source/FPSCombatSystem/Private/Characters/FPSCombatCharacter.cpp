@@ -24,6 +24,8 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	FPSFollowCamera->SetupAttachment(GetMesh(), "Head");
 	FPSFollowCamera->SetRelativeLocation(FVector(0.0f, 10.0f, 0.0f));
 	FPSFollowCamera->bUsePawnControlRotation = true;
+
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 	
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.35f;
@@ -54,8 +56,8 @@ void AFPSCombatCharacter::PossessedBy(AController* NewController)
 	SetOwner(NewController);
 	
 	InitializeAbilitySystem();
-	EquipmentComponent->OnEquipItem(WeaponDefinition);
-	EquipmentComponent->OnEquipItem(ThrowableDefinition);
+	//EquipmentComponent->OnEquipItem(WeaponDefinition);
+	//EquipmentComponent->OnEquipItem(ThrowableDefinition);
 }
 
 void AFPSCombatCharacter::OnRep_PlayerState()
