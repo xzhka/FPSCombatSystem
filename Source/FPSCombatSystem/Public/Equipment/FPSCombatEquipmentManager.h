@@ -62,7 +62,7 @@ public:
 private:
 
 	UFPSCombatAbilitySystemComponent* GetASC() const;
-
+	UFPSCombatEquipmentManager* GetEquipmentManager() const;
 	
 	friend UFPSCombatEquipmentManager;
 	
@@ -115,6 +115,7 @@ public:
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
+	void BroadcastEquipmentChange(UFPSCombatEquipmentInstance* Instance, bool IsEquipped) const;
 private:
 	UPROPERTY(Replicated)
 	FFPSCombatEquipmentList EquipmentList;

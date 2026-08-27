@@ -1,10 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Weapons/FPSCombatRangedWeaponInstance.h"
+
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "FPSCombatSystem/FPSCombatMessageTypes.h"
 #include "Net/UnrealNetwork.h"
-#include "Weapons/FPSCombatAmmoTypes.h"
+#include "FPSCombatSystem/FPSCombatMessageTypes.h"
 
 bool UFPSCombatRangedWeaponInstance::CanReload() const
 {
@@ -124,10 +128,6 @@ bool UFPSCombatRangedWeaponInstance::IsAiming() const
 
 void UFPSCombatRangedWeaponInstance::BroadcastAmmoChanged() const
 {
-	APawn* Pawn = GetPawn();
-	check(Pawn);
-
-
 	FFPSCombatAmmoChangedMessage Message;
 	Message.CurrentAmmo = CurrentAmmoInMag;
 	Message.ReserveAmmo = ReserveAmmo;
@@ -142,6 +142,14 @@ void UFPSCombatRangedWeaponInstance::AbortFireSequence()
 	if (UFPSCombatFireMode* FireM = GetFireMode())
 	{
 		FireM->ResetSequence();
+	}
+}
+
+void UFPSCombatRangedWeaponInstance::OnFireMontageAdd()
+{
+	if (UFPSCombatWeaponDefinition* Def = GetWeaponDefinition())
+	{
+		CachedFireMontage = Def->FireMontage.Get();
 	}
 }
 
@@ -268,6 +276,15 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 	{
 		FireMode = NewObject<UFPSCombatFireMode>(this, GetWeaponDefinition()->FireModeClass);
 	}
+
+	if (UFPSCombatWeaponDefinition* WeaponDef = GetWeaponDefinition())
+	{
+		if (!WeaponDef->FireMontage.IsNull())
+		{
+			FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
+			Streamable.RequestAsyncLoad(WeaponDef->FireMontage.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &UFPSCombatRangedWeaponInstance::OnFireMontageAdd));
+		}
+	}
 	
 	if (CurrentAmmoInMag < 0)
 	{
@@ -281,6 +298,7 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 
 void UFPSCombatRangedWeaponInstance::OnUnequipped()
 {
+	CachedFireMontage = nullptr;
 	CancelScheduledActivation();
 	Super::OnUnequipped();
 }

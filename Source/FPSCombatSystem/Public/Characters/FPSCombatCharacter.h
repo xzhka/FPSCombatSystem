@@ -5,12 +5,11 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "FPSCombatCharacterPawnComp.h"
-#include "AbilitySystem/FPSCombatAbilitySet.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/Character.h"
 #include "Components/FPSCombatHealthComponent.h"
 #include "Components/FPSCombatStaminaComponent.h"
 #include "Equipment/FPSCombatEquipmentManager.h"
+#include "GameFramework/Character.h"
 #include "Weapons/FPSCombatThrowableDefinition.h"
 #include "Weapons/FPSCombatWeaponDefinition.h"
 #include "FPSCombatCharacter.generated.h"
@@ -44,6 +43,7 @@ public:
 	
 	void InitializeAbilitySystem();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
 	/*Components initialize*/
@@ -62,15 +62,14 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
 	TObjectPtr<UFPSCombatEquipmentManager> EquipmentComponent;
-	
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UFPSCombatAbilitySet> AbilitySet;
 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	TSubclassOf<UAnimInstance> DefaultAnimClass;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Definition")
 	TSubclassOf<UFPSCombatWeaponDefinition> WeaponDefinition;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Definition")
 	TSubclassOf<UFPSCombatThrowableDefinition> ThrowableDefinition;
-	
-	FCombatAbilitySet_GrantedHandles GrantedHandles;
 };

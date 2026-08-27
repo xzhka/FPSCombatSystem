@@ -45,8 +45,14 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GetReserveAmmo() const { return ReserveAmmo; }
 
+	UFUNCTION(BlueprintPure, Category = "Weapon")
+	FORCEINLINE UAnimMontage* GetAnimMontage() { return CachedFireMontage; }
+	
 	UFUNCTION(BlueprintPure)
 	UFPSCombatFireMode* GetFireMode() const;
+
+	UFUNCTION(BlueprintPure)
+	UFPSCombatWeaponDefinition* GetWeaponDefinition() const;
 	
 	bool HasAmmoInMag() const { return CurrentAmmoInMag>0;}
 	bool CanReload() const;
@@ -73,8 +79,6 @@ public:
 	void ApplyRecoilShotIfNeeded(const FFPSCombatShotContext& ShotContext);
 
 	FFPSCombatShotContext MakeShotContext();
-
-	UFPSCombatWeaponDefinition* GetWeaponDefinition() const;
 protected:
 	
 	UFUNCTION()
@@ -96,10 +100,15 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<UFPSCombatFireMode> FireMode;
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAnimMontage> CachedFireMontage;
 	
 	void BroadcastAmmoChanged() const;
 
 	void AbortFireSequence();
+
+	void OnFireMontageAdd();
 	
 	int32 CurrentRecoilShotIndex = 0;
 	

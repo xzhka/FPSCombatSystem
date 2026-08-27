@@ -6,6 +6,7 @@
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "FPSCombatSystem/FPSCombatCollisionChannels.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "GameFramework/Character.h"
 
 UFPSCombatGameplayAbilityRangedW::UFPSCombatGameplayAbilityRangedW()
 {
@@ -87,10 +88,6 @@ void UFPSCombatGameplayAbilityRangedW::ActivateAbility(const FGameplayAbilitySpe
 	{
 		WeaponData->HandleInputPressed();
 	}
-	
-	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
-	check(ASC);
-
 	bHasTargetDataSent = false;
 	
 	BindShotConfirmation(Handle, ActivationInfo.GetActivationPredictionKey());
@@ -109,8 +106,8 @@ void UFPSCombatGameplayAbilityRangedW::EndAbility(const FGameplayAbilitySpecHand
 	FGameplayAbilitySpecHandle SpecHandleToReactivation = CurrentSpecHandle;
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-
-
+	
+	
 	if (bShouldDriveReactivation && WeakInstanceData.IsValid())
 	{
 		WeakInstanceData->ScheduleNextShotActivation(SpecHandleToReactivation, NextActivationDelay);	
@@ -231,8 +228,6 @@ void UFPSCombatGameplayAbilityRangedW::OnShotTargetDataReady(const FGameplayAbil
 	ASC->ConsumeClientReplicatedTargetData(Shot.SpecHandle, Shot.PredictionKey);
 	ASC->AbilityTargetDataSetDelegate(Shot.SpecHandle, Shot.PredictionKey).Remove(Shot.DataReadyHandle);
 	ASC->AbilityTargetDataCancelledDelegate(Shot.SpecHandle, Shot.PredictionKey).Remove(Shot.DataCancelledHandle);
-
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, CurrentActorInfo->IsNetAuthority(), false);
 }
 
 void UFPSCombatGameplayAbilityRangedW::OnShotTargetDataCancelled(FPredictionKey ShotKey)
@@ -315,23 +310,24 @@ void UFPSCombatGameplayAbilityRangedW::FireShot()
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 		return;
 	}
-	StartRangedWeaponTargeting();
 
 	WeaponData->ConsumeRound();
 	WeaponData->UpdateLastFireTime();
 	WeaponData->NotifyShotHappens();
+
+	StartRangedWeaponTargeting();
 	
+	K2_OnShotFire();
 }
 
 void UFPSCombatGameplayAbilityRangedW::ApplyDamageForShot(const FGameplayAbilityTargetDataHandle& DataHandle) const
 {
 	if (!CurrentActorInfo->IsNetAuthority()) return;
-
 	
 	UFPSCombatRangedWeaponInstance* WeaponInstance = GetWeaponInstance();
 	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
 	if (!ASC || !WeaponInstance) return;
-
+	
 	UFPSCombatWeaponDefinition* WeaponDefinition = WeaponInstance->GetWeaponDefinition();
 	if (!WeaponDefinition->DamageEffectClass) return;
 	

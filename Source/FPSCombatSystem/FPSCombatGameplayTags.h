@@ -42,6 +42,7 @@ namespace FPSCombatGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Data_Heal);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Ammo_Change);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Equipment_Change);
 
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_RequiresStamina);
