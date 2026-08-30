@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Equipment/FPSCombatEquipmentDefinition.h"
-#include "Projectile/FPSCombatProjectileBase.h"
 #include "FPSCombatWeaponDefinition.generated.h"
 
 class UFPSCombatFireMode;

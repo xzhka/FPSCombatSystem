@@ -24,8 +24,6 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	FPSFollowCamera->SetupAttachment(GetMesh(), "Head");
 	FPSFollowCamera->SetRelativeLocation(FVector(0.0f, 10.0f, 0.0f));
 	FPSFollowCamera->bUsePawnControlRotation = true;
-
-	GetCharacterMovement()->bOrientRotationToMovement = false;
 	
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.35f;
@@ -56,8 +54,8 @@ void AFPSCombatCharacter::PossessedBy(AController* NewController)
 	SetOwner(NewController);
 	
 	InitializeAbilitySystem();
-	//EquipmentComponent->OnEquipItem(WeaponDefinition);
-	//EquipmentComponent->OnEquipItem(ThrowableDefinition);
+	EquipmentComponent->OnEquipItem(WeaponDefinition);
+	EquipmentComponent->OnEquipItem(ThrowableDefinition);
 }
 
 void AFPSCombatCharacter::OnRep_PlayerState()
@@ -88,10 +86,7 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 			{
 				AbilitySystem->InitializeDefaultAttributes();
 
-				if (AbilitySet)
-				{
-					AbilitySet->GiveAbility(AbilitySystem, &GrantedHandles);
-				}
+				APlayerState->GrantDefaultAbilities();
 			}
 		}
 	}
@@ -100,4 +95,16 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 UAbilitySystemComponent* AFPSCombatCharacter::GetAbilitySystemComponent() const
 {
 	return GetPlayerState<AFPSCombatPlayerState>() ? GetPlayerState<AFPSCombatPlayerState>()->GetAbilitySystemComponent() : nullptr;
+}
+
+void AFPSCombatCharacter::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	check(GetMesh());
+
+	if (DefaultAnimClass)
+	{
+		GetMesh()->LinkAnimClassLayers(DefaultAnimClass);
+	}
 }

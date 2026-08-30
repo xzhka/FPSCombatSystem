@@ -176,5 +176,4 @@ void UFPSCombatBaseGameplayAbility::EffectSpecRemove(TArray<FActiveGameplayEffec
 			ASC->RemoveActiveGameplayEffect(EffectHandle);
 		}
 	}
-
 }

@@ -15,7 +15,6 @@ UProjectileComponent_Explosive::UProjectileComponent_Explosive()
 
 void UProjectileComponent_Explosive::OnProjectileImpact(AActor* ImpactActor, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnProjectileImpact"));
 	switch (DetonationTrigger)
 	{
 	case ESpawnActorDetonationTrigger::OnFirstImpact:
@@ -34,7 +33,6 @@ void UProjectileComponent_Explosive::Detonate()
 	
 	if (bAlreadyDetonated) return;
 	bAlreadyDetonated = true;
-	UE_LOG(LogTemp, Warning, TEXT("Detonate"));
 	UAbilitySystemComponent* SourceASC = OwnerProjectile->GetSourceASC();
 	if (!SourceASC) return;
 	
@@ -54,7 +52,6 @@ void UProjectileComponent_Explosive::Detonate()
 		if (!Target || ProcessedTargets.Contains(Target)) continue;
 
 		ProcessedTargets.Add(Target);
-		UE_LOG(LogTemp, Warning, TEXT("Detonate: Before TargetASC"));
 		UAbilitySystemComponent* TargetASC = Target ? UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Target) : nullptr;
 		if (!TargetASC) continue;
 		
@@ -65,12 +62,10 @@ void UProjectileComponent_Explosive::Detonate()
 		FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
 		ContextHandle.AddSourceObject(OwnerProjectile);
 		ContextHandle.AddInstigator(OwnerProjectile->GetInstigator(), OwnerProjectile);
-
-		UE_LOG(LogTemp, Warning, TEXT("Detonate: Before SpecHandle. DamageEffectClass: %d, ContextHandle: %d"), DamageEffectClass != nullptr, ContextHandle.IsValid());
+		
 		FGameplayEffectSpecHandle SpecHandleData = SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.f, ContextHandle);
 		if (!SpecHandleData.IsValid()) continue;
 		const float FinalMag = RuntimeBaseDamage * FalloffMul;
-		UE_LOG(LogTemp, Warning, TEXT("UProjectileComponent_Explosive::Detonate - FinalMag: %f"), FinalMag);
 		SpecHandleData.Data->SetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Damage, FinalMag);
 		SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandleData.Data.Get(), TargetASC);
 	}
@@ -79,7 +74,6 @@ void UProjectileComponent_Explosive::Detonate()
 void UProjectileComponent_Explosive::InitializeExplosion(float InBaseDamage,
 	TSubclassOf<UGameplayEffect> InDamageEffectClass)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UProjectileComponent_Explosive::InitializeExplosion"));
 	RuntimeBaseDamage = InBaseDamage;
 	DamageEffectClass = InDamageEffectClass;
 }
@@ -87,7 +81,6 @@ void UProjectileComponent_Explosive::InitializeExplosion(float InBaseDamage,
 void UProjectileComponent_Explosive::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("UProjectileComponent_Explosive::BeginPlay"));
 	OwnerProjectile = Cast<AFPSCombatProjectileBase>(GetOwner());
 	if (!OwnerProjectile) return;
 
@@ -102,4 +95,3 @@ void UProjectileComponent_Explosive::BeginPlay()
 		OwnerProjectile->SetDestroyOnImpact(false);
 	}
 }
-
