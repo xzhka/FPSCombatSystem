@@ -41,6 +41,7 @@ namespace FPSCombatGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Data_Heal, "SetByCaller.Data.Heal");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Message_Ammo_Change, "Message.Ammo.Change");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Equipment_Change, "Message.Equipment.Change");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_RequiresStamina, "Ability.RequiresStamina");
 }

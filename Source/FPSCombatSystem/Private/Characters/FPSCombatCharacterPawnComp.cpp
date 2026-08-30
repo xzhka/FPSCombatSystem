@@ -35,7 +35,6 @@ void UFPSCombatCharacterPawnComp::InitializeInputComponents(UInputComponent* Pla
 		{
 			if (Action.InputTag.IsValid() && Action.BaseInputActions)
 			{
-				// UE_LOG(LogTemp, Warning, TEXT("InputActions: %s"), *GetNameSafe(Action.BaseInputActions));
 				EIC->BindAction(Action.BaseInputActions, ETriggerEvent::Started, this, &UFPSCombatCharacterPawnComp::Ability_InputTagPressed, Action.InputTag);
 
 				EIC->BindAction(Action.BaseInputActions, ETriggerEvent::Completed, this, &UFPSCombatCharacterPawnComp::Ability_InputTagReleased, Action.InputTag);
@@ -76,7 +75,7 @@ void UFPSCombatCharacterPawnComp::Look(const FInputActionValue& Value)
 void UFPSCombatCharacterPawnComp::Ability_InputTagPressed(FGameplayTag InputTag)
 {
 	APawn* Pawn = GetPawn<APawn>();
-	if (AFPSCombatPlayerState* PlayerState = Pawn->GetPlayerState<AFPSCombatPlayerState>())
+	if (AFPSCombatPlayerState* PlayerState = Pawn ? Pawn->GetPlayerState<AFPSCombatPlayerState>() : nullptr)
 	{
 		if (UFPSCombatAbilitySystemComponent* ASC = Cast<UFPSCombatAbilitySystemComponent>(PlayerState->GetAbilitySystemComponent()))
 		{
@@ -89,7 +88,7 @@ void UFPSCombatCharacterPawnComp::Ability_InputTagPressed(FGameplayTag InputTag)
 void UFPSCombatCharacterPawnComp::Ability_InputTagReleased(FGameplayTag InputTag)
 {
 	APawn* Pawn = GetPawn<APawn>();
-	if (AFPSCombatPlayerState* PlayerState = Pawn->GetPlayerState<AFPSCombatPlayerState>())
+	if (AFPSCombatPlayerState* PlayerState = Pawn ? Pawn->GetPlayerState<AFPSCombatPlayerState>() : nullptr)
 	{
 		if (UFPSCombatAbilitySystemComponent* ASC = Cast<UFPSCombatAbilitySystemComponent>(PlayerState->GetAbilitySystemComponent()))
 		{

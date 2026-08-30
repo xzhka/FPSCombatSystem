@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
+#include "AbilitySystem/FPSCombatAbilitySet.h"
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
 #include "FPSCombatPlayerState.generated.h"
@@ -25,11 +26,18 @@ public:
 
 	UAttributeSet* GetAttributeSet() const;
 
+	void GrantDefaultAbilities();
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UFPSCombatAbilitySystemComponent> ASC;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	TObjectPtr<UFPSCombatAttributeSet> AttributeSet;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UFPSCombatAbilitySet> AbilitySet;
+	
+	FCombatAbilitySet_GrantedHandles GrantedHandles;
 	
 };
