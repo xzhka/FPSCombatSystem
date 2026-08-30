@@ -47,6 +47,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Definition")
 	TObjectPtr<UFPSCombatProjectileDefinition> ProjectileDefinition;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
+	TObjectPtr<UStaticMeshComponent> StaticMeshComp;
 	
 	UPROPERTY()
 	FGameplayEffectSpecHandle DamageSpecHandle;

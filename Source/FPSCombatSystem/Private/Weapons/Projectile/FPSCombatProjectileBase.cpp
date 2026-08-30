@@ -35,15 +35,15 @@ AFPSCombatProjectileBase::AFPSCombatProjectileBase()
 		MovementComp->bShouldBounce = true;
 	}
 
-	UStaticMeshComponent* StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
-	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	StaticMeshComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	StaticMeshComp->SetupAttachment(RootComponent);
+	StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	StaticMeshComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshComp(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
 	if (MeshComp.Succeeded())
 	{
-		StaticMeshComponent->SetStaticMesh(MeshComp.Object);
-		StaticMeshComponent->SetWorldScale3D(FVector(0.3f));
+		StaticMeshComp->SetStaticMesh(MeshComp.Object);
+		StaticMeshComp->SetWorldScale3D(FVector(0.3f));
 	}
 }
 
