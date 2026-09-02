@@ -3,7 +3,6 @@
 
 #include "Weapons/FPSCombatGameplayAbilityRangedW.h"
 
-#include "Abilities/Tasks/AbilityTask_WaitDelay.h"
 #include "FPSCombatSystem/FPSCombatCollisionChannels.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "GameFramework/Character.h"
@@ -74,22 +73,9 @@ void UFPSCombatGameplayAbilityRangedW::ActivateAbility(const FGameplayAbilitySpe
                                                        const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                        const FGameplayEventData* TriggerEventData)
 {
-	UFPSCombatRangedWeaponInstance* WeaponData = GetWeaponInstance();
-	if (!WeaponData || !WeaponData->CanFire())
-	{
-		CancelAbility(Handle, ActorInfo, ActivationInfo, true);
-		return;
-	}
-	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	const bool bIsContinuation = WeaponData->IsContinuationPending();
-	if (!bIsContinuation)
-	{
-		WeaponData->HandleInputPressed();
-	}
-	bHasTargetDataSent = false;
 	
+	bHasTargetDataSent = false;
 	BindShotConfirmation(Handle, ActivationInfo.GetActivationPredictionKey());
 	
 	FireShot();
@@ -103,14 +89,27 @@ void UFPSCombatGameplayAbilityRangedW::EndAbility(const FGameplayAbilitySpecHand
 
 	const bool bShouldDriveReactivation = ActorInfo->IsLocallyControlled();
 	const float NextActivationDelay = WeakInstanceData.IsValid() ? WeakInstanceData->GetWeaponDefinition()->DurationBetweenShoot : 0.f;
+	const bool bOutOfAmmo = WeakInstanceData.IsValid() && !WeakInstanceData->HasAmmoInMag();
 	FGameplayAbilitySpecHandle SpecHandleToReactivation = CurrentSpecHandle;
+	AActor* Avatar = ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr;
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-	
-	
-	if (bShouldDriveReactivation && WeakInstanceData.IsValid())
+
+	if (bOutOfAmmo && OnOutOfAmmoTag.IsValid() && Avatar)
 	{
-		WeakInstanceData->ScheduleNextShotActivation(SpecHandleToReactivation, NextActivationDelay);	
+		FGameplayEventData Payload;
+		Payload.EventTag = OnOutOfAmmoTag;
+
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActorFromActorInfo(), OnOutOfAmmoTag, Payload);
+	}
+	
+	if (bWasCancelled)
+	{
+		if (WeakInstanceData.IsValid()) WeakInstanceData->AbortFireSequence();	
+	}
+	else if (bShouldDriveReactivation && WeakInstanceData.IsValid())
+	{
+		WeakInstanceData->ScheduleNextShotActivation(SpecHandleToReactivation, NextActivationDelay);
 	}
 }
 
@@ -122,7 +121,7 @@ void UFPSCombatGameplayAbilityRangedW::NotifyInputReleased(const FGameplayAbilit
 	}
 }
 
-void UFPSCombatGameplayAbilityRangedW::StartRangedWeaponTargeting()
+void UFPSCombatGameplayAbilityRangedW::StartRangedWeaponTargeting(const FFPSCombatShotContext& Context)
 {
 	check(CurrentActorInfo);
 
@@ -135,7 +134,7 @@ void UFPSCombatGameplayAbilityRangedW::StartRangedWeaponTargeting()
 	if (CurrentActorInfo->IsNetAuthority() && !bIsLocallyControlled) { return; }
 	
 	TArray<FHitResult> Hits;
-	PerformLocalTargeting(Hits);
+	PerformLocalTargeting(Context, Hits);
 
 	FGameplayAbilityTargetDataHandle TargetData;
 
@@ -149,7 +148,7 @@ void UFPSCombatGameplayAbilityRangedW::StartRangedWeaponTargeting()
 	OnShotTargetDataReady(TargetData, FGameplayTag(), CurrentActivationInfo.GetActivationPredictionKey());
 }
 
-void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(TArray<FHitResult>& OutHits)
+void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(const FFPSCombatShotContext& Context, TArray<FHitResult>& OutHits)
 {
 	UFPSCombatRangedWeaponInstance* WeaponInstance = GetWeaponInstance();
 	APawn* Pawn = GetAvatarActorFromActorInfo() ? Cast<APawn>(GetAvatarActorFromActorInfo()) : nullptr;
@@ -166,8 +165,7 @@ void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(TArray<FHitResult>&
 	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
 
 	FVector AimDir = ViewRotation.Vector();
-	const FFPSCombatShotContext ShotContext = WeaponInstance->MakeShotContext();
-	const FVector ShotDir = WeaponInstance->CalculateFireDirection(ShotContext, AimDir);
+	const FVector ShotDir = WeaponInstance->CalculateFireDirection(Context, AimDir);
 
 	const FVector EndDir = ViewLocation + ShotDir * WeaponInstance->GetWeaponDefinition()->TraceRange;
 
@@ -184,7 +182,7 @@ void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(TArray<FHitResult>&
 #endif
 		OutHits.Add(Hit);
 	}
-	WeaponInstance->ApplyRecoilShotIfNeeded(ShotContext);
+	WeaponInstance->ApplyRecoilShotIfNeeded(Context);
 }
 
 void UFPSCombatGameplayAbilityRangedW::BindShotConfirmation(FGameplayAbilitySpecHandle Handle,
@@ -298,24 +296,13 @@ bool UFPSCombatGameplayAbilityRangedW::IsHitResultValid(const FHitResult& HitRes
 void UFPSCombatGameplayAbilityRangedW::FireShot()
 {
 	UFPSCombatRangedWeaponInstance* WeaponData = GetWeaponInstance();
-	if (!WeaponData || !WeaponData->CanFire())
-	{
-		if (WeaponData && !WeaponData->HasAmmoInMag() && OnOutOfAmmo.IsValid())
-		{
-			FGameplayEventData Payload;
-			Payload.EventTag = OnOutOfAmmo;
-
-			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActorFromActorInfo(), OnOutOfAmmo, Payload);
-		}
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
-		return;
-	}
-
+	
 	WeaponData->ConsumeRound();
 	WeaponData->UpdateLastFireTime();
-	WeaponData->NotifyShotHappens();
 
-	StartRangedWeaponTargeting();
+	
+	FFPSCombatShotContext ShotContext = WeaponData->NotifyShotFiredAndMakeShotContext();
+	StartRangedWeaponTargeting(ShotContext);
 	
 	K2_OnShotFire();
 }
@@ -338,13 +325,22 @@ void UFPSCombatGameplayAbilityRangedW::ApplyDamageForShot(const FGameplayAbility
 	{
 		if (const FHitResult* HitResult = DataHandle.Get(It.GetIndex())->GetHitResult())
 		{
-			if (!IsHitResultValid(*HitResult))
-			{
-				continue;
-			}
+			if (!IsHitResultValid(*HitResult)) continue;
+			SpecHandle.Data->GetContext().Get()->AddHitResult(*HitResult, true);
+			
 			if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult->GetActor()))
 			{
 				ASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+				FGameplayCueParameters CueParams;
+				CueParams.Location = HitResult->ImpactPoint;
+				CueParams.Normal = HitResult->Normal;
+				CueParams.PhysicalMaterial = HitResult->PhysMaterial;
+				CueParams.Instigator =  ASC->GetAvatarActor();
+				CueParams.EffectCauser = HitResult->GetActor();
+				CueParams.SourceObject = SpecHandle.Data->GetContext().GetSourceObject();
+				CueParams.EffectContext = SpecHandle.Data->GetContext();
+				
+				TargetASC->ExecuteGameplayCue(ImpactTag, CueParams);
 			}
 		}
 	}

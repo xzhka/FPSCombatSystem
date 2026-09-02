@@ -49,8 +49,11 @@ protected:
     float HitValidationTolerance = 20.f;
 
     UPROPERTY(EditDefaultsOnly, Category = "Tags")
-    FGameplayTag OnOutOfAmmo;
+    FGameplayTag OnOutOfAmmoTag;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTag ImpactTag;
+	
 private:
 
 	struct FFPSInFlightShot
@@ -65,8 +68,8 @@ private:
 
     void ApplyDamageForShot(const FGameplayAbilityTargetDataHandle& DataHandle) const;
     
-    void StartRangedWeaponTargeting();
-    void PerformLocalTargeting(OUT TArray<FHitResult>& OutHits);
+    void StartRangedWeaponTargeting(const FFPSCombatShotContext& Context);
+    void PerformLocalTargeting(const FFPSCombatShotContext& Context, OUT TArray<FHitResult>& OutHits);
 
 	void BindShotConfirmation(FGameplayAbilitySpecHandle Handle, FPredictionKey PredictionKey);
 	void OnShotTargetDataReady(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ApplicationTag, FPredictionKey ShotKey);

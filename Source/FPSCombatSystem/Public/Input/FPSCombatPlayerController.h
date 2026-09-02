@@ -20,14 +20,13 @@ class FPSCOMBATSYSTEM_API AFPSCombatPlayerController : public APlayerController
 	GENERATED_BODY()
 
 	AFPSCombatPlayerController(const FObjectInitializer& ObjectInitializer);
-	
-protected:
-	virtual void BeginPlay() override;
 
 public:
 	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
-
+	
 protected:
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 
