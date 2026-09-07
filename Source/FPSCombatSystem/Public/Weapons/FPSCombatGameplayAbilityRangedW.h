@@ -18,29 +18,39 @@ class FPSCOMBATSYSTEM_API UFPSCombatGameplayAbilityRangedW : public UFPSCombatBa
     UFPSCombatGameplayAbilityRangedW();
     
 public:
+	/* Functions */
+	
+	/* Ability overrides */
     virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
        const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
        FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
     virtual void CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
        const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateCancelAbility) override;
-
+	/* End ability overrides */
     virtual EFPSCombatAbilityActivationPolicy GetActivationPolicy(const FGameplayAbilitySpec& Spec) const override;
-    
+	
     UFUNCTION(BlueprintCallable, Category = "Ability")
     UFPSCombatRangedWeaponInstance* GetWeaponInstance() const;
     
 protected:
+	/* Functions */
+
+	/* Ability overrides */
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
        const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
        const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+	/* End ability overrides */
 
+	
     virtual void NotifyInputReleased(const FGameplayAbilitySpec& Spec) override;
 
     virtual ECollisionChannel DetermineTraceChannel() const;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon", meta = (DisplayName = "On Fire Shot"))
 	void K2_OnShotFire();
+
+	/* Variables */
 	
     UPROPERTY(EditDefaultsOnly, Category = "Validation", meta = (ClampMin = "0.0", Units = "cm"))
     float HitValidationRangeSlack = 60.f;
@@ -63,6 +73,8 @@ private:
 		FDelegateHandle DataReadyHandle;
 		FDelegateHandle DataCancelledHandle;
 	};
+
+	/* Functions */
 	
     void FireShot();
 
@@ -76,7 +88,9 @@ private:
 	void OnShotTargetDataCancelled(FPredictionKey ShotKey);
 	
     bool IsHitResultValid(const FHitResult& HitResult) const;
-    
+
+	/* Variables */
+	
     bool bHasTargetDataSent = false;
 
 	TArray<FFPSInFlightShot> InFlightShots;

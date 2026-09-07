@@ -49,7 +49,6 @@ void FFPSCombatEquipmentList::PostReplicatedAdd(const TArrayView<int32> AddedInd
 
 UFPSCombatEquipmentInstance* FFPSCombatEquipmentList::AddEntry(TSubclassOf<UFPSCombatEquipmentDefinition> EntryDefinition)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AddEntry called"));
 	UFPSCombatEquipmentInstance* ResultInstance = nullptr;
 
 	check(EntryDefinition != nullptr);
@@ -227,10 +226,9 @@ UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::GetFirstInstanceOfType(
 {
 	for (FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
 	{
-
 		if (Entry.Instance && Entry.Instance->IsA(InstanceType))
-			{
-				return Entry.Instance;
+		{
+			return Entry.Instance;
 		}
 	}
 	return nullptr;
@@ -239,17 +237,17 @@ UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::GetFirstInstanceOfType(
 bool UFPSCombatEquipmentManager::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch,
 	FReplicationFlags* RepFlags)
 {
-	bool WroteLogic = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+	bool ReplicateSuper = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
 	for (FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
 	{
 		UFPSCombatEquipmentInstance* Instance = Entry.Instance;
 		if (IsValid(Instance))
 		{
-			WroteLogic |= Channel->ReplicateSubobject(Instance, *Bunch, *RepFlags);
+			ReplicateSuper |= Channel->ReplicateSubobject(Instance, *Bunch, *RepFlags);
 		}
 	}
-	return WroteLogic;
+	return ReplicateSuper;
 }
 
 void UFPSCombatEquipmentManager::BroadcastEquipmentChange(UFPSCombatEquipmentInstance* Instance, bool IsEquipped) const

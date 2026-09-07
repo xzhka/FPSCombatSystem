@@ -37,11 +37,15 @@ namespace FPSCombatGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Cooldown_Duration, "SetByCaller.Cooldown.Duration");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Dash_Duration, "SetByCaller.Dash.Duration");
+	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Throw_Duration, "SetByCaller.Throw.Duration");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Data_Damage, "SetByCaller.Data.Damage");
 	UE_DEFINE_GAMEPLAY_TAG(SetByCaller_Data_Heal, "SetByCaller.Data.Heal");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Message_Ammo_Change, "Message.Ammo.Change");
 	UE_DEFINE_GAMEPLAY_TAG(Message_Equipment_Change, "Message.Equipment.Change");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Item_StackChange, "Message.Item.StackChange");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Item_Added, "Message.Item.Added");
+	UE_DEFINE_GAMEPLAY_TAG(Message_Item_Removed, "Message.Item.Removed");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_RequiresStamina, "Ability.RequiresStamina");
 }

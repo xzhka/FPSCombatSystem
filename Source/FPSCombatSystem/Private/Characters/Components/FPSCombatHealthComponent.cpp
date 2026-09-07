@@ -166,7 +166,6 @@ void UFPSCombatHealthComponent::HandleOutOfHealthChanged(AActor* EffectInstigato
 {
 	if (AbilitySystem && EffectSpec)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Handle on out of health component"));
 		FGameplayEventData Payload;
 		Payload.EventTag = FPSCombatGameplayTags::State_Death;
 		Payload.Instigator = EffectInstigator;
@@ -178,8 +177,6 @@ void UFPSCombatHealthComponent::HandleOutOfHealthChanged(AActor* EffectInstigato
 		Payload.EventMagnitude = NULL;
 		
 		int32 SuccessfulActivation = AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
-
-		UE_LOG(LogTemp, Warning, TEXT("Successful Activation: %d"), SuccessfulActivation);
 	}
 }
 

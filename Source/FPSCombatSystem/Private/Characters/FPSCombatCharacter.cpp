@@ -38,6 +38,7 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComponent"));
 	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComp>(TEXT("MovementComponent"));
 	EquipmentComponent = CreateDefaultSubobject<UFPSCombatEquipmentManager>(TEXT("EquipmentManager"));
+	ItemComponent = CreateDefaultSubobject<UFPSCombatItemManagerComponent>(TEXT("ItemManager"));
 }
 
 void AFPSCombatCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -54,7 +55,7 @@ void AFPSCombatCharacter::PossessedBy(AController* NewController)
 	SetOwner(NewController);
 	
 	InitializeAbilitySystem();
-	EquipmentComponent->OnEquipItem(WeaponDefinition);
+	//EquipmentComponent->OnEquipItem(WeaponDefinition);
 	EquipmentComponent->OnEquipItem(ThrowableDefinition);
 }
 

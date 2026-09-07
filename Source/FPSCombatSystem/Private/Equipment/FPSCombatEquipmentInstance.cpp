@@ -11,6 +11,8 @@
 
 void UFPSCombatEquipmentInstance::SpawnEquipmentActors(const TArray<FFPSCombatEquipmentSpawnActor>& SpawnActors)
 {
+	UE_LOG(LogTemp, Warning, TEXT("SpawnEquipmentActors called. GetOuter()=%s, GetPawn()=%s"),
+		*GetNameSafe(GetOuter()), *GetNameSafe(GetPawn()));
 	if (APawn* OwningPawn = GetPawn())
 	{
 		USceneComponent* RootComp = OwningPawn->GetRootComponent();
@@ -41,6 +43,18 @@ void UFPSCombatEquipmentInstance::ClearEquipmentActors()
 		if (Actor)
 		{
 			Actor->Destroy();
+		}
+	}
+}
+
+void UFPSCombatEquipmentInstance::SetEquipmentActorsHidden(bool bHidden)
+{
+	for (AActor* Actor : ActorsToSpawn)
+	{
+		if (Actor)
+		{
+			Actor->SetActorHiddenInGame(bHidden);
+			Actor->SetActorEnableCollision(!bHidden);
 		}
 	}
 }

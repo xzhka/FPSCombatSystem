@@ -8,6 +8,14 @@
 #include "Projectile/FPSCombatProjectileDefinition.h"
 #include "FPSCombatThrowableDefinition.generated.h"
 
+UENUM(BlueprintType)
+enum class ESpawnActorDetonationTrigger : uint8
+{
+	OnFirstImpact,
+	OnBounceCount, 
+	OnFuseTimer
+};
+
 /**
  * 
  */
@@ -17,7 +25,21 @@ class FPSCOMBATSYSTEM_API UFPSCombatThrowableDefinition : public UFPSCombatEquip
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
+	float ExplosionRadius = 500.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
+	TObjectPtr<UCurveFloat> FalloffCurve;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
+	float FuseDuration = 3.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Explosion")
+	int32 BouncesBeforeDetonation = 4;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
+	ESpawnActorDetonationTrigger DetonationTrigger = ESpawnActorDetonationTrigger::OnFirstImpact;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	float BaseDamage = 50.f;
 	
@@ -39,6 +61,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Throw")
 	float LobArcAngle = 35.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Throw")
+	float SpawnOffset = 80.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Throw")
+	float SpawnHeightOffset = 10.f;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSoftObjectPtr<UTexture2D> WeaponIcon;
 
@@ -49,5 +77,5 @@ public:
 	TSoftObjectPtr<UAnimMontage> ThrowMontage;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TSoftObjectPtr<UAnimMontage> LobMontage;
+	TSoftObjectPtr<UAnimMontage> HoldMontage;
 };
