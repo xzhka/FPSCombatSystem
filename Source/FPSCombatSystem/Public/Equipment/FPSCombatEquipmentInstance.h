@@ -27,6 +27,7 @@ public:
 	virtual void SpawnEquipmentActors(const TArray<FFPSCombatEquipmentSpawnActor>& SpawnActors);
 	virtual void ClearEquipmentActors();
 
+	void SetEquipmentActorsHidden(bool bHidden);
 	
 	UFUNCTION(BlueprintPure)
 	APawn* GetPawn() const;

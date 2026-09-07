@@ -18,27 +18,58 @@ class FPSCOMBATSYSTEM_API AFPSCombatProjectileBase : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
+	/* Functions */
+
+	
 	AFPSCombatProjectileBase();
+
+
+	void ApplyImpactCue(const FHitResult& ImpactResult);
+	virtual void Tick(float DeltaSeconds) override;
 	
 	virtual void PostInitializeComponents() override;
 
 	void InitializeProjectile(const FGameplayEffectSpecHandle& SpecHandle, AActor* InstigatorActor, UAbilitySystemComponent* ASC);
 
 	void InitializeVelocity(const FVector& ProjectileVelocity);
-
+	
+	
+	/* Getters and Setters */
+	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetDestroyOnImpact(const bool bOnImpact) { bDestroyOnImpact = bOnImpact; }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void SetApplyDirectDamageOnImpact(bool bInApply) { bApplyDirectDamageOnImpact = bInApply; } 
+	FORCEINLINE void SetApplyDirectDamageOnImpact(bool bInApply) { bApplyDirectDamageOnImpact = bInApply; }
 	
-	UAbilitySystemComponent* GetSourceASC() const ;
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UProjectileMovementComponent* GetProjectileMovementComponent() { return MovementComp; } 
+	
+	FORCEINLINE UAbilitySystemComponent* GetSourceASC() const ;
 	
 	FOnProjectileImpact OnImpact;
-	
+
 protected:
 
+	/* Functions */
+	
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	
+	UFUNCTION()
+	void OnOverlap(UPrimitiveComponent* OnComponentBeginOverlap, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnProjectileBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
+	
+	void OnProjectileImpact(AActor* ImpactActor, const FHitResult& ImpactResult);
+	void ApplyProjectileDefinition();
+	void ApplyDamageToTarget(AActor* OtherActor) const;
+	virtual void BeginPlay() override;
+
+	/* Variables */
+	
 	UPROPERTY(VisibleDefaultsOnly, Category = "Projectile")
 	TObjectPtr<USphereComponent> CollisionComp;
 
@@ -50,24 +81,23 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
 	TObjectPtr<UStaticMeshComponent> StaticMeshComp;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTag GameplayCueExplosionTag;
 	
 	UPROPERTY()
 	FGameplayEffectSpecHandle DamageSpecHandle;
 
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-	
-	UFUNCTION()
-	void OnOverlap(UPrimitiveComponent* OnComponentBeginOverlap, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	void OnProjectileImpact(AActor* ImpactActor, const FHitResult& ImpactResult);
-	void ApplyProjectileDefinition();
-	void ApplyDamageToTarget(AActor* OtherActor) const;
-	virtual void BeginPlay() override;
-
 	TWeakObjectPtr<UAbilitySystemComponent> SourceASC;
+
+	FVector SpinAxis = FVector::ZeroVector;
+
+	float SpinRateDegPerSec = 0.0f;
 	
 private:
+
+	/* Variables */
+	
 	bool bDestroyOnImpact = true;
 
 	bool bApplyDirectDamageOnImpact = true;

@@ -14,6 +14,23 @@ bool UFPSCombatRangedWeaponInstance::CanReload() const
 	return (ReserveAmmo>0 && CurrentAmmoInMag < GetWeaponDefinition()->ClipSize);
 }
 
+int32 UFPSCombatRangedWeaponInstance::AddReserveAmmo(int32 Amount)
+{
+	AActor* Outer = GetTypedOuter<AActor>();
+	if (!Outer || !Outer->HasAuthority() || Amount <= 0)
+	{
+		return 0;
+	}
+
+	const int MaxReserveAmmo = GetWeaponDefinition() ? GetWeaponDefinition()->ReserveAmmo : ReserveAmmo + Amount;
+	const int OldReserveAmmo = ReserveAmmo;
+	ReserveAmmo = FMath::Clamp(ReserveAmmo + Amount, 0, MaxReserveAmmo);
+
+	BroadcastAmmoChanged();
+
+	return ReserveAmmo-OldReserveAmmo;
+}
+
 void UFPSCombatRangedWeaponInstance::ConsumeRound()
 {
 	APawn* Pawn = GetPawn();
@@ -269,6 +286,11 @@ bool UFPSCombatRangedWeaponInstance::IsPawnMoving() const
 }
 
 void UFPSCombatRangedWeaponInstance::OnRep_CurrentAmmoInMag()
+{
+	BroadcastAmmoChanged();
+}
+
+void UFPSCombatRangedWeaponInstance::OnRep_CurrentReserveAmmo()
 {
 	BroadcastAmmoChanged();
 }

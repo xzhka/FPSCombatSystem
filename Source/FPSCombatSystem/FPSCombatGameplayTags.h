@@ -38,11 +38,15 @@ namespace FPSCombatGameplayTags
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Cooldown_Duration);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Dash_Duration);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Throw_Duration);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Data_Damage);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(SetByCaller_Data_Heal);
 
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Ammo_Change);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Equipment_Change);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Item_StackChange);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Item_Added);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Message_Item_Removed);
 
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_RequiresStamina);

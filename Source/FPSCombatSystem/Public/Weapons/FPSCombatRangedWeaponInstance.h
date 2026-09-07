@@ -50,6 +50,7 @@ public:
 	
 	bool HasAmmoInMag() const { return CurrentAmmoInMag>0;}
 	bool CanReload() const;
+	int32 AddReserveAmmo(int32 Amount);
 	void ConsumeRound();
 	int32 ReloadAmmo();
 
@@ -76,6 +77,9 @@ protected:
 	UFUNCTION()
 	void OnRep_CurrentAmmoInMag();
 
+	UFUNCTION()
+	void OnRep_CurrentReserveAmmo();
+	
 	UAbilitySystemComponent* GetPawnASC() const;
 	
 	bool IsPawnMoving() const;
@@ -89,7 +93,7 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentAmmoInMag)
 	int32 CurrentAmmoInMag = -1;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentReserveAmmo)
 	int32 ReserveAmmo = -1;
 	
 	UPROPERTY(Transient)
