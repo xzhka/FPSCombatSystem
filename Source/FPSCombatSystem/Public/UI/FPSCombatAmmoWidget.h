@@ -25,12 +25,7 @@ protected:
 
 	void HandleEquipmentMessage(FGameplayTag Channel, const FFPSCombatEquipmentChangedMessage& Message);
 	
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnAmmoUpdated(int32 CurrentAmmo, int32 ReserveAmmo);
-
 	void RefreshFromCurrentWeapon();
-	
-	FGameplayMessageListenerHandle AmmoListenerHandle;
 
 	FGameplayMessageListenerHandle EquipmentListenerHandle;
 };

@@ -138,7 +138,7 @@ UFPSCombatEquipmentManager::UFPSCombatEquipmentManager(const FObjectInitializer&
 }
 
 UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::OnEquipItem(
-	TSubclassOf<UFPSCombatEquipmentDefinition> EquipDefinition)
+	TSubclassOf<UFPSCombatEquipmentDefinition> EquipDefinition, UFPSCombatItemInstance* ItemInstance)
 {
 	UFPSCombatEquipmentInstance* Result = nullptr;
 	if (EquipDefinition != nullptr)
@@ -146,6 +146,7 @@ UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::OnEquipItem(
 		Result = EquipmentList.AddEntry(EquipDefinition);
 		if (Result != nullptr)
 		{
+			Result->SetItemInstance(ItemInstance);
 			Result->OnEquipped();
 			BroadcastEquipmentChange(Result, true);
 			
@@ -224,11 +225,14 @@ void UFPSCombatEquipmentManager::UninitializeComponent()
 UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::GetFirstInstanceOfType(
 	TSubclassOf<UFPSCombatEquipmentInstance> InstanceType)
 {
-	for (FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
+	if (InstanceType != nullptr)
 	{
-		if (Entry.Instance && Entry.Instance->IsA(InstanceType))
+		for (FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
 		{
-			return Entry.Instance;
+			if (Entry.Instance && Entry.Instance->IsA(InstanceType))
+			{
+				return Entry.Instance;
+			}
 		}
 	}
 	return nullptr;

@@ -6,6 +6,7 @@
 #include "FPSCombatItemInstance.h"
 #include "Components/ActorComponent.h"
 #include "Net/Serialization/FastArraySerializer.h"
+#include "Items/FPSCombatItemDefinition.h"
 #include "FPSCombatItemManagerComponent.generated.h"
 
 struct FFPSCombatItemList;
@@ -46,15 +47,15 @@ public:
 	void PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize);
 	void PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize);
 	
-	UFPSCombatItemInstance* AddEntry(TSubclassOf<UFPSCombatEquipmentDefinition> Definition, FGameplayTag Tag, int32 StackCount);
+	UFPSCombatItemInstance* AddEntry(TSubclassOf<UFPSCombatItemDefinition> Definition, FGameplayTag Tag, int32 StackCount);
 	UFPSCombatItemInstance* AddPreservedEntry(UFPSCombatItemInstance* InInstance);
 	
 	void RemoveEntry(UFPSCombatItemInstance* ItemInstance);
 	
 	void BroadcastEntryChange(UFPSCombatItemInstance* Instance, FGameplayTag Channel);
-
 	
-	UFPSCombatItemInstance* FindInstanceForDefinition(TSubclassOf<UFPSCombatEquipmentDefinition> Definition);
+	
+	UFPSCombatItemInstance* FindInstanceForDefinition(TSubclassOf<UFPSCombatItemDefinition> Definition);
 	
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParams)
 	{
@@ -91,7 +92,7 @@ public:
 	UFPSCombatItemManagerComponent(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintCallable, Category= "Entry")
-	UFPSCombatItemInstance* AddStack(TSubclassOf<UFPSCombatEquipmentDefinition> Definition, FGameplayTag Tag, int32 StackCount);
+	UFPSCombatItemInstance* AddStack(TSubclassOf<UFPSCombatItemDefinition> Definition, FGameplayTag Tag, int32 StackCount);
 
 	UFUNCTION(BlueprintCallable, Category = "Entry")
 	void AddInstance(UFPSCombatItemInstance* ItemInstance);
@@ -103,7 +104,7 @@ public:
 	TArray<UFPSCombatItemInstance*> GetAllItemInstances() const;
 	
 	UFUNCTION(BlueprintCallable, Category= "Entry")
-	UFPSCombatItemInstance* FindInstanceByDef(TSubclassOf<UFPSCombatEquipmentDefinition> Definition);
+	UFPSCombatItemInstance* FindInstanceByDef(TSubclassOf<UFPSCombatItemDefinition> Definition);
 	
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

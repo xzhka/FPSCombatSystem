@@ -36,7 +36,7 @@ void FFPSCombatItemList::PostReplicatedAdd(const TArrayView<int32> AddedIndices,
 	}
 }
 
-UFPSCombatItemInstance* FFPSCombatItemList::AddEntry(TSubclassOf<UFPSCombatEquipmentDefinition> Definition,
+UFPSCombatItemInstance* FFPSCombatItemList::AddEntry(TSubclassOf<UFPSCombatItemDefinition> Definition,
                                                      FGameplayTag Tag, int32 StackCount)
 {
 	check(OwnerComponent);
@@ -115,7 +115,7 @@ void FFPSCombatItemList::BroadcastEntryChange(UFPSCombatItemInstance* Instance, 
 }
 
 UFPSCombatItemInstance* FFPSCombatItemList::FindInstanceForDefinition(
-	TSubclassOf<UFPSCombatEquipmentDefinition> Definition)
+	TSubclassOf<UFPSCombatItemDefinition> Definition)
 {
 	for (FFPSCombatItemEntry& Entry : EntryList)
 	{
@@ -134,7 +134,7 @@ UFPSCombatItemManagerComponent::UFPSCombatItemManagerComponent(const FObjectInit
 	SetIsReplicatedByDefault(true);
 }
 
-UFPSCombatItemInstance* UFPSCombatItemManagerComponent::AddStack(TSubclassOf<UFPSCombatEquipmentDefinition> Definition,
+UFPSCombatItemInstance* UFPSCombatItemManagerComponent::AddStack(TSubclassOf<UFPSCombatItemDefinition> Definition,
 	FGameplayTag Tag, int32 StackCount)
 {
 	UFPSCombatItemInstance* Result = nullptr;
@@ -186,7 +186,7 @@ TArray<UFPSCombatItemInstance*> UFPSCombatItemManagerComponent::GetAllItemInstan
 }
 
 UFPSCombatItemInstance* UFPSCombatItemManagerComponent::FindInstanceByDef(
-	TSubclassOf<UFPSCombatEquipmentDefinition> Definition)
+	TSubclassOf<UFPSCombatItemDefinition> Definition)
 {
 	return ItemList.FindInstanceForDefinition(Definition);
 }
