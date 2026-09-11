@@ -4,55 +4,66 @@
 
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
-#include "GameFramework/GameplayMessageSubsystem.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
-#include "FPSCombatSystem/FPSCombatMessageTypes.h"
 #include "Net/UnrealNetwork.h"
 
 bool UFPSCombatRangedWeaponInstance::CanReload() const
 {
-	return (ReserveAmmo>0 && CurrentAmmoInMag < GetWeaponDefinition()->ClipSize);
+	const UFPSCombatItemInstance* Item = GetItemInstance();
+	if (!Item) return false;
+	return Item->GetStack(FPSCombatGameplayTags::Data_Weapon_SpareAmmo) > 0
+		&& Item->GetStack(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag) < GetWeaponDefinition()->ClipSize;
 }
 
 int32 UFPSCombatRangedWeaponInstance::AddReserveAmmo(int32 Amount)
 {
+	UFPSCombatItemInstance* Item = GetItemInstance();
 	AActor* Outer = GetTypedOuter<AActor>();
-	if (!Outer || !Outer->HasAuthority() || Amount <= 0)
+	if (!Item || !Outer || !Outer->HasAuthority() || Amount <= 0)
 	{
 		return 0;
 	}
 
-	const int MaxReserveAmmo = GetWeaponDefinition() ? GetWeaponDefinition()->ReserveAmmo : ReserveAmmo + Amount;
-	const int OldReserveAmmo = ReserveAmmo;
-	ReserveAmmo = FMath::Clamp(ReserveAmmo + Amount, 0, MaxReserveAmmo);
+	const int32 MaxReserveAmmo = GetWeaponDefinition()->ReserveAmmo;
+	const int32 OldReserveAmmo = Item->GetStack(FPSCombatGameplayTags::Data_Weapon_SpareAmmo);
+	const int32 DeltaAmmo = FMath::Clamp(OldReserveAmmo + Amount, 0, MaxReserveAmmo) - OldReserveAmmo;
 
-	BroadcastAmmoChanged();
+	if (DeltaAmmo > 0)
+	{
+		Item->AddStackCount(FPSCombatGameplayTags::Data_Weapon_SpareAmmo, DeltaAmmo);
+	}
 
-	return ReserveAmmo-OldReserveAmmo;
+	return DeltaAmmo;
 }
 
 void UFPSCombatRangedWeaponInstance::ConsumeRound()
 {
-	APawn* Pawn = GetPawn();
-	if (!Pawn) return;
+	const AActor* Outer = GetTypedOuter<AActor>();
+	UFPSCombatItemInstance* ItemInstance = GetItemInstance();
 	
-	CurrentAmmoInMag = FMath::Max(0, CurrentAmmoInMag - 1);
-	BroadcastAmmoChanged();
+	if (!ItemInstance || !Outer || !Outer->HasAuthority()) return;
+	
+	if (HasAmmoInMag())
+	{
+		ItemInstance->RemoveStackCount(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag, 1);
+	}
 }
 
 int32 UFPSCombatRangedWeaponInstance::ReloadAmmo()
 {
-	APawn* Pawn = GetPawn();
+	const AActor* Outer = GetTypedOuter<AActor>();
+	UFPSCombatItemInstance* ItemInstance = GetItemInstance();
+	
+	if (!ItemInstance || !Outer || !Outer->HasAuthority()) return 0;
 
-	if (!Pawn || !Pawn->HasAuthority()) return 0;
+	const int32 NeededAmmo = GetWeaponDefinition()->ClipSize - GetCurrentAmmo();
+	const int32 Transferred = FMath::Min(NeededAmmo, GetReserveAmmo());
 
-	const int32 NeededAmmo = GetWeaponDefinition()->ClipSize - CurrentAmmoInMag;
-	const int32 Transferred = FMath::Min(NeededAmmo, ReserveAmmo);
-
-	CurrentAmmoInMag += Transferred;
-	ReserveAmmo -= Transferred;
-	BroadcastAmmoChanged();
-
+	if (Transferred > 0)
+	{
+		ItemInstance->AddStackCount(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag, Transferred);
+		ItemInstance->RemoveStackCount(FPSCombatGameplayTags::Data_Weapon_SpareAmmo, Transferred);
+	}
 	return Transferred;
 }
 
@@ -165,15 +176,6 @@ bool UFPSCombatRangedWeaponInstance::IsAiming() const
 	return GetPawnASC()->HasMatchingGameplayTag(FPSCombatGameplayTags::Weapon_Aiming);
 }
 
-void UFPSCombatRangedWeaponInstance::BroadcastAmmoChanged() const
-{
-	FFPSCombatAmmoChangedMessage Message;
-	Message.CurrentAmmo = CurrentAmmoInMag;
-	Message.ReserveAmmo = ReserveAmmo;
-
-	UGameplayMessageSubsystem::Get(this).BroadcastMessage(FPSCombatGameplayTags::Message_Ammo_Change, Message);
-}
-
 void UFPSCombatRangedWeaponInstance::OnFireMontageAdd()
 {
 	if (UFPSCombatWeaponDefinition* Def = GetWeaponDefinition())
@@ -193,6 +195,27 @@ void UFPSCombatRangedWeaponInstance::ApplyRecoilForShot()
 	}
 
 	RecoilState.TargetRecoilOffset += RecoilPattern[CurrentRecoilShotIndex];
+}
+
+int32 UFPSCombatRangedWeaponInstance::GetCurrentAmmo() const
+{
+	const UFPSCombatItemInstance* ItemInstance = GetItemInstance();
+
+	return ItemInstance ? ItemInstance->GetStack(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag) : 0;
+}
+
+int32 UFPSCombatRangedWeaponInstance::GetReserveAmmo() const
+{
+	const UFPSCombatItemInstance* ItemInstance = GetItemInstance();
+
+	return ItemInstance ? ItemInstance->GetStack(FPSCombatGameplayTags::Data_Weapon_SpareAmmo) : 0;
+}
+
+bool UFPSCombatRangedWeaponInstance::HasAmmoInMag() const
+{
+	const UFPSCombatItemInstance* ItemInstance = GetItemInstance();
+
+	return ItemInstance ? ItemInstance->GetStack(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag) > 0 : 0;
 }
 
 UFPSCombatFireMode* UFPSCombatRangedWeaponInstance::GetFireMode() const
@@ -285,16 +308,6 @@ bool UFPSCombatRangedWeaponInstance::IsPawnMoving() const
 	return ASC->HasMatchingGameplayTag(FPSCombatGameplayTags::State_Moving_Walking);
 }
 
-void UFPSCombatRangedWeaponInstance::OnRep_CurrentAmmoInMag()
-{
-	BroadcastAmmoChanged();
-}
-
-void UFPSCombatRangedWeaponInstance::OnRep_CurrentReserveAmmo()
-{
-	BroadcastAmmoChanged();
-}
-
 UAbilitySystemComponent* UFPSCombatRangedWeaponInstance::GetPawnASC() const
 {
 	APawn* Pawn = GetPawn();
@@ -324,12 +337,15 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 			Streamable.RequestAsyncLoad(WeaponDef->FireMontage.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &UFPSCombatRangedWeaponInstance::OnFireMontageAdd));
 		}
 	}
-	
-	if (CurrentAmmoInMag < 0)
+
+	if (UFPSCombatItemInstance* Item = GetItemInstance())
 	{
-		CurrentAmmoInMag = GetWeaponDefinition()->ClipSize;
-		ReserveAmmo = GetWeaponDefinition()->ReserveAmmo;
-		BroadcastAmmoChanged();
+		AActor* Outer = GetTypedOuter<AActor>();
+		if (Outer && Outer->HasAuthority() && !Item->HasStatTag(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag))
+		{
+			Item->AddStackCount(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag, GetWeaponDefinition()->ClipSize);
+			Item->AddStackCount(FPSCombatGameplayTags::Data_Weapon_SpareAmmo, GetWeaponDefinition()->ReserveAmmo);
+		}
 	}
 	CurrentRecoilShotIndex = 0;
 	RecoilState = FFPSCombatRecoilState();
@@ -340,12 +356,4 @@ void UFPSCombatRangedWeaponInstance::OnUnequipped()
 	CachedFireMontage = nullptr;
 	AbortFireSequence();
 	Super::OnUnequipped();
-}
-
-void UFPSCombatRangedWeaponInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(UFPSCombatRangedWeaponInstance, ReserveAmmo, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(UFPSCombatRangedWeaponInstance, CurrentAmmoInMag, COND_OwnerOnly);
 }

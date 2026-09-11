@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "Equipment/FPSCombatQuickBarComponent.h"
 #include "FPSCombatPlayerController.generated.h"
 
 struct FInputActionValue;
@@ -25,6 +26,10 @@ public:
 	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuickBar")
+	TObjectPtr<UFPSCombatQuickBarComponent> QuickBarComponent;
+
+	
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "UI")

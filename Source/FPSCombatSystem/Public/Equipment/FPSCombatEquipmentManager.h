@@ -7,6 +7,7 @@
 #include "FPSCombatEquipmentInstance.h"
 #include "AbilitySystem/FPSCombatAbilitySet.h"
 #include "Components/PawnComponent.h"
+#include "Items/FPSCombatItemInstance.h"
 #include "Net/Serialization/FastArraySerializer.h"
 #include "FPSCombatEquipmentManager.generated.h"
 
@@ -92,7 +93,7 @@ class FPSCOMBATSYSTEM_API UFPSCombatEquipmentManager : public UPawnComponent
 public:
 
 	UFUNCTION(BlueprintCallable)
-	UFPSCombatEquipmentInstance* OnEquipItem(TSubclassOf<UFPSCombatEquipmentDefinition> EquipDefinition);
+	UFPSCombatEquipmentInstance* OnEquipItem(TSubclassOf<UFPSCombatEquipmentDefinition> EquipDefinition, UFPSCombatItemInstance* ItemInstance);
 
 	UFUNCTION(BlueprintCallable)
 	void OnUnequipItem(UFPSCombatEquipmentInstance* ItemInstance);

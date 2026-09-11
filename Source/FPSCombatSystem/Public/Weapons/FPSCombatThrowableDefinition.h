@@ -67,12 +67,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Throw")
 	float SpawnHeightOffset = 10.f;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSoftObjectPtr<UTexture2D> WeaponIcon;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	FText WeaponName;
-	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> ThrowMontage;
 	

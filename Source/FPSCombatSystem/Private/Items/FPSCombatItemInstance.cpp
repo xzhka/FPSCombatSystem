@@ -7,6 +7,7 @@
 #include "FPSCombatSystem/FPSCombatMessageTypes.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "Iris/ReplicationSystem/ReplicationFragmentUtil.h"
+#include "Items/FPSCombatItemDefinition.h"
 #include "Net/UnrealNetwork.h"
 
 FString FFPSCombatTagInfo::GetDebugString() const
@@ -175,4 +176,13 @@ void UFPSCombatItemInstance::RegisterReplicationFragments(UE::Net::FFragmentRegi
 	using namespace UE::Net;
 
 	FReplicationFragmentUtil::CreateAndRegisterFragmentsForObject(this, Context, RegistrationFlags);
+}
+
+const UFPSCombatItemFragment* UFPSCombatItemInstance::FindFragmentByType(TSubclassOf<UFPSCombatItemFragment> FragmentType) const
+{
+	if ((FragmentType != nullptr) && (ItemDefinition != nullptr))
+	{
+		return GetDefault<UFPSCombatItemDefinition>(ItemDefinition)->FindFragmentByClass(FragmentType);
+	}
+	return nullptr;
 }

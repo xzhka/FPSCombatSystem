@@ -56,7 +56,7 @@ void AFPSCombatCharacter::PossessedBy(AController* NewController)
 	
 	InitializeAbilitySystem();
 	//EquipmentComponent->OnEquipItem(WeaponDefinition);
-	EquipmentComponent->OnEquipItem(ThrowableDefinition);
+	//EquipmentComponent->OnEquipItem(ThrowableDefinition);
 }
 
 void AFPSCombatCharacter::OnRep_PlayerState()

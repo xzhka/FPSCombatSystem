@@ -34,7 +34,7 @@ public:
 	int32 StackCount = 1;
 	
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UFPSCombatEquipmentDefinition> ItemDefinition = nullptr;
+	TSubclassOf<UFPSCombatItemDefinition> ItemDefinition = nullptr;
 };
 		
 

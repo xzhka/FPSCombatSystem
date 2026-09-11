@@ -11,8 +11,6 @@
 
 void UFPSCombatEquipmentInstance::SpawnEquipmentActors(const TArray<FFPSCombatEquipmentSpawnActor>& SpawnActors)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SpawnEquipmentActors called. GetOuter()=%s, GetPawn()=%s"),
-		*GetNameSafe(GetOuter()), *GetNameSafe(GetPawn()));
 	if (APawn* OwningPawn = GetPawn())
 	{
 		USceneComponent* RootComp = OwningPawn->GetRootComponent();
@@ -78,6 +76,7 @@ void UFPSCombatEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimePro
 
 	DOREPLIFETIME(UFPSCombatEquipmentInstance, ActorsToSpawn);
 	DOREPLIFETIME(UFPSCombatEquipmentInstance, InstanceDefinition);
+	DOREPLIFETIME(UFPSCombatEquipmentInstance, Instance);
 }
 
 void UFPSCombatEquipmentInstance::OnEquipped()

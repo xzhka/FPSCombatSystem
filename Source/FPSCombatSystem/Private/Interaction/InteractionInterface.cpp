@@ -31,7 +31,6 @@ void UFPSCombatInteractionMatching::AddInteractionToInventory(UFPSCombatItemMana
 		
 		for (const FActorItemDefinition& Definition : Pickup.ItemDefinitions)
 		{
-			
 			Manager->AddStack(Definition.ItemDefinition, Definition.StatTag, Definition.StackCount);
 		}
 		

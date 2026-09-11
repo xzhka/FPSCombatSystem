@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Equipment/FPSCombatEquipmentDefinition.h"
+#include "GameplayTagContainer.h"
+#include "Net/Serialization/FastArraySerializer.h"
 #include "FPSCombatItemInstance.generated.h"
 
+class UFPSCombatItemFragment;
 struct FFPSCombatTagInfoContainer;
 class UFPSCombatItemInstance;
+class UFPSCombatItemDefinition;
 
 USTRUCT(BlueprintType)
 struct FFPSCombatTagInfo : public FFastArraySerializerItem
@@ -97,23 +100,38 @@ public:
 	UFPSCombatItemInstance();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	TSubclassOf<UFPSCombatEquipmentDefinition> GetItemDefinition() const { return ItemDefinition; }
-	void SetItemDefinition(const TSubclassOf<UFPSCombatEquipmentDefinition> InItemDefinition) { ItemDefinition = InItemDefinition; };
-	
+	TSubclassOf<UFPSCombatItemDefinition> GetItemDefinition() const { return ItemDefinition; }
+	void SetItemDefinition(const TSubclassOf<UFPSCombatItemDefinition> InItemDefinition) { ItemDefinition = InItemDefinition; };
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	bool HasStatTag(FGameplayTag Tag) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	int32 GetStack(FGameplayTag Tag) const { return ItemStats.GetStack(Tag); };
 
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Inventory")
 	void AddStackCount(FGameplayTag Tag, int32 StackCount);
+	
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Inventory")
 	void RemoveStackCount(FGameplayTag Tag, int32 StackCount);
 	
 	virtual void RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context,
 		UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
 	virtual bool IsSupportedForNetworking() const override { return true; }
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const UFPSCombatItemFragment* FindFragmentByType(TSubclassOf<UFPSCombatItemFragment> FragmentType) const;
+
+	template <typename T>
+	const T* FindFragmentByType() const
+	{
+		return (T*)FindFragmentByType(T::StaticClass());
+	}
+	
 private:
 	
 	UPROPERTY(Replicated)
-	TSubclassOf<UFPSCombatEquipmentDefinition> ItemDefinition;
+	TSubclassOf<UFPSCombatItemDefinition> ItemDefinition;
 
 	UPROPERTY(Replicated)
 	FFPSCombatTagInfoContainer ItemStats;

@@ -7,6 +7,9 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "FPSCombatWeaponDefinition.h"
 #include "Fire/FPSCombatFireMode.h"
+#include "FPSCombatSystem/FPSCombatMessageTypes.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "Items/FPSCombatItemInstance.h"
 #include "FPSCombatRangedWeaponInstance.generated.h"
 
 
@@ -33,22 +36,22 @@ class FPSCOMBATSYSTEM_API UFPSCombatRangedWeaponInstance : public UFPSCombatWeap
 
 public:
 
-	UFUNCTION(BlueprintPure)
-	FORCEINLINE int32 GetCurrentAmmo() const { return CurrentAmmoInMag; }
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE int32 GetCurrentAmmo() const;
 
-	UFUNCTION(BlueprintPure)
-	FORCEINLINE int32 GetReserveAmmo() const { return ReserveAmmo; }
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE int32 GetReserveAmmo() const;
 
-	UFUNCTION(BlueprintPure, Category = "Weapon")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
 	FORCEINLINE UAnimMontage* GetAnimMontage() { return CachedFireMontage; }
 	
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UFPSCombatFireMode* GetFireMode() const;
-
-	UFUNCTION(BlueprintPure)
+		
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UFPSCombatWeaponDefinition* GetWeaponDefinition() const;
 	
-	bool HasAmmoInMag() const { return CurrentAmmoInMag>0;}
+	bool HasAmmoInMag() const;
 	bool CanReload() const;
 	int32 AddReserveAmmo(int32 Amount);
 	void ConsumeRound();
@@ -74,11 +77,6 @@ public:
 	FFPSCombatShotContext NotifyShotFiredAndMakeShotContext();
 protected:
 	
-	UFUNCTION()
-	void OnRep_CurrentAmmoInMag();
-
-	UFUNCTION()
-	void OnRep_CurrentReserveAmmo();
 	
 	UAbilitySystemComponent* GetPawnASC() const;
 	
@@ -87,14 +85,7 @@ protected:
 	bool IsAiming() const;
 
 private:
-	void BroadcastAmmoChanged() const;
 	void OnFireMontageAdd();
-	
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentAmmoInMag)
-	int32 CurrentAmmoInMag = -1;
-
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentReserveAmmo)
-	int32 ReserveAmmo = -1;
 	
 	UPROPERTY(Transient)
 	TObjectPtr<UFPSCombatFireMode> FireMode;
@@ -115,5 +106,4 @@ private:
 public:
 	virtual void OnEquipped() override;
 	virtual void OnUnequipped() override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

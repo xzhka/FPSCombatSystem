@@ -63,14 +63,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float MaxSpreadDegrees = 40.f;
 
-	/* UI Visual */
-	
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSoftObjectPtr<UTexture2D> WeaponIcon;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	FText WeaponName;
-
 	/* Animation */
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
