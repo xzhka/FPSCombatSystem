@@ -16,10 +16,30 @@ enum class EFPSCombatMoveState : uint8
 	Airborne
 };
 
+USTRUCT(BlueprintType)
+struct FPSCombatGroundInfo
+{
+	GENERATED_BODY()
+
+	FPSCombatGroundInfo()
+	  :	LastUpdateFrame(0),
+		GroundDistance(0.f)
+	{}
 
 
+	uint64 LastUpdateFrame;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+	UPROPERTY(BlueprintReadOnly)
+	float GroundDistance;
+
+	
+	UPROPERTY(BlueprintReadOnly)
+	FHitResult GroundInfoHitResult;
+	
+};
+
+
+UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSCOMBATSYSTEM_API UFPSCombatMovementComp : public UActorComponent
 {
 	GENERATED_BODY()
@@ -31,8 +51,14 @@ public:
 	UFUNCTION(BlueprintPure)
 	static UFPSCombatMovementComp* GetMovementComp(const AActor* Actor) { return (Actor ? Actor->FindComponentByClass<UFPSCombatMovementComp>() : nullptr); }
 
-	UFUNCTION(BlueprintCallable, Category = "Movement State")
-	EFPSCombatMoveState GetCurrentState() const { return CurrentMoveState; }
+	UFUNCTION(BlueprintCallable, Category = "Movement State", meta = (BlueprintThreadSafe))
+	FORCEINLINE EFPSCombatMoveState GetCurrentState() const { return CurrentMoveState; }
+
+	UFUNCTION(BlueprintCallable, Category = "Groung Info")
+	const FPSCombatGroundInfo& GetGroundInfo();
+
+	UFUNCTION(BlueprintPure, Category= "Speed")
+	float GetMoveSpeedMultiplier() const;
 	
 	virtual void BeginPlay() override;
 
@@ -63,8 +89,8 @@ protected:
 
 	bool bIsWalkingForward = false;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-	float Threshold = 10.f;
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	float Threshold = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float ForwardDotThreshold = 0.3f;
@@ -76,6 +102,8 @@ private:
 	UPROPERTY()
 	TObjectPtr<UFPSCombatAbilitySystemComponent> CachedASC;
 
+	FPSCombatGroundInfo CachedGroundInfo;
+	
 	FVector GetDashDirection() const;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Movement State")

@@ -3,18 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayEffect.h"
 #include "Components/ActorComponent.h"
+#include "Weapons/FPSCombatThrowableDefinition.h"
 #include "Weapons/Projectile/FPSCombatProjectileBase.h"
 #include "ProjectileComponent_Explosive.generated.h"
-
-UENUM(BlueprintType)
-enum class ESpawnActorDetonationTrigger : uint8
-{
-	OnFirstImpact,
-	OnBounceCount, 
-	OnFuseTimer
-};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSCOMBATSYSTEM_API UProjectileComponent_Explosive : public UActorComponent
@@ -22,11 +14,14 @@ class FPSCOMBATSYSTEM_API UProjectileComponent_Explosive : public UActorComponen
 	GENERATED_BODY()
 
 public:	
-	UProjectileComponent_Explosive();
 
+	/* Functions */
+	
 	void Detonate();
 
-	void InitializeExplosion(float InBaseDamage, TSubclassOf<UGameplayEffect> InDamageEffectClass);
+	void DetonateInternal(const FHitResult& Hit);
+
+	void InitializeExplosion(const UFPSCombatThrowableDefinition* InThrowableDef);
 
 	UFUNCTION()
 	void OnProjectileImpact(AActor* ImpactActor, const FHitResult& Hit);
@@ -34,24 +29,21 @@ public:
 	virtual void BeginPlay() override;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
-	float ExplosionRadius = 500.f;
-
+	UPROPERTY()
+	TObjectPtr<const UFPSCombatThrowableDefinition> ThrowableDef;
+	
 	UPROPERTY()
 	TObjectPtr<AFPSCombatProjectileBase> OwnerProjectile;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
-	TObjectPtr<UCurveFloat> FalloffCurve;
+	int32 CurrentBounces = 0;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
-	float FuseDuration = 3.f;
+	FTimerHandle FuseTimer;
 	
-	float RuntimeBaseDamage = 0.f;
-	
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
-
 	bool bAlreadyDetonated = false;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
-	ESpawnActorDetonationTrigger DetonationTrigger = ESpawnActorDetonationTrigger::OnFirstImpact;
+	UFUNCTION()
+	void OnProjectileBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity);
+
+	void SetupOwnerImpactBehaviour();
+	void InitializeOwnerDetonationTrigger();
 };

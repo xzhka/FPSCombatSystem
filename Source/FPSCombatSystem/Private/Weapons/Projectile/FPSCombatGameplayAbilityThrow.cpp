@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Weapons/Projectile//FPSCombatGameplayAbilityThrow.h"
-#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Weapons/Projectile/FPSCombatGameplayAbilityThrow.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "Equipment/FPSCombatEquipmentManager.h"
 #include "Weapons/Projectile/Components/ProjectileComponent_Explosive.h"
 
 UFPSCombatGameplayAbilityThrow::UFPSCombatGameplayAbilityThrow()
@@ -15,51 +15,71 @@ UFPSCombatGameplayAbilityThrow::UFPSCombatGameplayAbilityThrow()
 	
 }
 
+bool UFPSCombatGameplayAbilityThrow::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false;
+	}
+	
+	const UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
+	const FGameplayAbilitySpec* Spec = ASC ? ASC->FindAbilitySpecFromHandle(Handle) : nullptr;
+	const UFPSCombatThrowableInstance* Instance = Spec ? Cast<UFPSCombatThrowableInstance>(Spec->SourceObject.Get()) : nullptr;
+
+	return Instance && Instance->HasChargesRemaining();
+}
+
 void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                                      const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                      const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	UE_LOG(LogTemp, Warning, TEXT("UFPSCombatGameplayAbilityThrow::ActivateAbility"));
+	
 	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UFPSCombatGameplayAbilityThrow::ActivateAbility - CommitAbility"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
 	if (FGameplayAbilitySpec* Spec = UGameplayAbility::GetCurrentAbilitySpec())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UFPSCombatGameplayAbilityThrow::ActivateAbility - ThrowInstance"));
 		ThrowInstance = Cast<UFPSCombatThrowableInstance>(Spec->SourceObject.Get());
 	}
 	UFPSCombatThrowableDefinition* ThrowableDef = ThrowInstance ? ThrowInstance->GetThrowableDefinition() : nullptr;
 	if (!ThrowableDef)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UFPSCombatGameplayAbilityThrow::ActivateAbility - !ThrowableDef"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
+	if (APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo()))
+	{
+		if (UFPSCombatEquipmentManager* EquipManager = Pawn->FindComponentByClass<UFPSCombatEquipmentManager>())
+		{
+			if (UFPSCombatEquipmentInstance* EquipInstance = EquipManager->GetFirstInstanceOfType<UFPSCombatEquipmentInstance>())
+			{
+				CachedItemInstance = EquipInstance;
+				EquipInstance->SetEquipmentActorsHidden(true);
+			}
+		}
+	}
+	K2_OnThrowSetupComplete();
+	
+	WaitInputRelease  = UAbilityTask_WaitInputRelease::WaitInputRelease(this, false);
+	WaitInputRelease->OnRelease.AddDynamic(this, &ThisClass::HandleInputReleased);
+	WaitInputRelease->ReadyForActivation();
 
-	SpawnAndLaunchProjectile();
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-	// UE_LOG(LogTemp, Warning, TEXT("UFPSCombatGameplayAbilityThrow::ActivateAbility- UAbilityTask_WaitGameplayEvent"));
-	// UAbilityTask_WaitGameplayEvent* WaitReleaseEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, ReleaseEventTag, nullptr, false, false);
-	// WaitReleaseEvent->EventReceived.AddDynamic(this, &UFPSCombatGameplayAbilityThrow::OnReleaseNotify);
-	// WaitReleaseEvent->ReadyForActivation();
-}
-
-void UFPSCombatGameplayAbilityThrow::OnReleaseNotify(FGameplayEventData Payload)
-{
-	SpawnAndLaunchProjectile();
+	if (ActorInfo->IsNetAuthority())
+	{
+		GetWorld()->GetTimerManager().SetTimer(MaxHoldHandle, this, &UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout, MaxHoldTime, false);	
+	}
 }
 
 void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SpawnAndLaunchProjectile"));
 	if (!HasAuthority(&CurrentActivationInfo)) return;
 
 	APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
@@ -73,18 +93,17 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 	FRotator LocRot;
 
 	Controller->GetPlayerViewPoint(LocDir, LocRot);
-
-	FVector AimDir = LocRot.Vector();
+	
 	
 	UFPSCombatThrowableDefinition* ThrowableDefinition = ThrowInstance ? ThrowInstance->GetThrowableDefinition() : nullptr;
-	TSubclassOf<AFPSCombatProjectileBase> ProjectileClass = ThrowableDefinition->ProjectileClass.LoadSynchronous();
+	TSubclassOf<AFPSCombatProjectileBase> ProjectileClass = ThrowableDefinition ? ThrowableDefinition->ProjectileClass.LoadSynchronous() : nullptr;
 	if (!ProjectileClass) return;
 
-
+	FVector AimDir = LocRot.Vector();
 	FVector LaunchDir = AimDir;
 	float LaunchSpeed = ThrowableDefinition->ThrowImpulse;
 
-	FVector SpawnLoc = LocDir + AimDir * SpawnOffset + FVector(0.f, 0.f, 10.f);
+	FVector SpawnLoc = LocDir + AimDir * ThrowableDefinition->SpawnOffset + FVector(0.f, 0.f, ThrowableDefinition->SpawnHeightOffset);
 	FTransform ShotTransform(LaunchDir.Rotation(), SpawnLoc);
 
 
@@ -111,6 +130,59 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 
 	if (UProjectileComponent_Explosive* ExplosiveComp = Projectile->FindComponentByClass<UProjectileComponent_Explosive>())
 	{
-		ExplosiveComp->InitializeExplosion(ThrowableDefinition->BaseDamage, ThrowableDefinition->DamageEffectClass);
+		ExplosiveComp->InitializeExplosion(ThrowableDefinition);
 	}
+
+	ThrowInstance->ConsumeProjectile(FPSCombatGameplayTags::Data_Projectile_Quantity);
+}
+
+void UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout()
+{
+	K2_OnThrowReleased(MaxHoldTime);
+}
+
+void UFPSCombatGameplayAbilityThrow::HandleInputReleased(float TimeHeld)
+{
+	if (CurrentActorInfo && CurrentActorInfo->IsNetAuthority())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(MaxHoldHandle);
+	}
+	K2_OnThrowReleased(TimeHeld);
+}
+
+UAnimMontage* UFPSCombatGameplayAbilityThrow::BP_GetHoldMontage() const
+{
+	return GetThrowableDefinition() ? GetThrowableDefinition()->HoldMontage.LoadSynchronous() : nullptr;
+}
+
+UAnimMontage* UFPSCombatGameplayAbilityThrow::BP_GetThrowMontage() const
+{
+	return GetThrowableDefinition() ? GetThrowableDefinition()->ThrowMontage.LoadSynchronous() : nullptr;
+}
+
+void UFPSCombatGameplayAbilityThrow::EndAbility(const FGameplayAbilitySpecHandle Handle,
+                                                const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                                bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (ActorInfo->IsNetAuthority())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(MaxHoldHandle);
+	}
+	if (ThrowInstance)
+	{
+		ThrowInstance->ClearEquipmentActors();
+	}
+	if (CachedItemInstance)
+	{
+		CachedItemInstance->SetEquipmentActorsHidden(false);
+		CachedItemInstance = nullptr;
+	}
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UFPSCombatGameplayAbilityThrow::CommitExecute(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	ApplyCost(Handle, ActorInfo, ActivationInfo);
 }

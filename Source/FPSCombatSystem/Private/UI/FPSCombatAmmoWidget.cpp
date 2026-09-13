@@ -10,33 +10,42 @@
 void UFPSCombatAmmoWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	AmmoListenerHandle = UGameplayMessageSubsystem::Get(this).RegisterListener(FPSCombatGameplayTags::Message_Ammo_Change,this, &UFPSCombatAmmoWidget::HandleAmmoMessage);
+	EquipmentListenerHandle = UGameplayMessageSubsystem::Get(this).RegisterListener(FPSCombatGameplayTags::Message_Equipment_Change, this, &UFPSCombatAmmoWidget::HandleEquipmentMessage);
 	
 	RefreshFromCurrentWeapon();
 }
 
 void UFPSCombatAmmoWidget::NativeDestruct()
 {
-	AmmoListenerHandle.Unregister();
+	EquipmentListenerHandle.Unregister();
 	
 	Super::NativeDestruct();
 }
 
-void UFPSCombatAmmoWidget::HandleAmmoMessage(FGameplayTag Channel, const FFPSCombatAmmoChangedMessage& Message)
+void UFPSCombatAmmoWidget::HandleEquipmentMessage(FGameplayTag Channel, const FFPSCombatEquipmentChangedMessage& Message)
 {
-	OnAmmoUpdated(Message.CurrentAmmo, Message.ReserveAmmo);
+	RefreshFromCurrentWeapon();
 }
 
 void UFPSCombatAmmoWidget::RefreshFromCurrentWeapon()
 {
+	UFPSCombatRangedWeaponInstance* RangedWeaponInstance = nullptr;
+
+	
 	if (APawn* Pawn = GetOwningPlayerPawn())
 	{
 		if (UFPSCombatEquipmentManager* EqpManager = Pawn->FindComponentByClass<UFPSCombatEquipmentManager>())
 		{
-			if (UFPSCombatRangedWeaponInstance* RangedWeaponInstance = Cast<UFPSCombatRangedWeaponInstance>(EqpManager->GetFirstInstanceOfType(UFPSCombatRangedWeaponInstance::StaticClass())))
-			{
-				OnAmmoUpdated(RangedWeaponInstance->GetCurrentAmmo(), RangedWeaponInstance->GetReserveAmmo());
-			}
+			RangedWeaponInstance = Cast<UFPSCombatRangedWeaponInstance>(EqpManager->GetFirstInstanceOfType(UFPSCombatRangedWeaponInstance::StaticClass()));
 		}
+	}
+
+	if (RangedWeaponInstance)
+	{
+		SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	}
+	else
+	{
+		SetVisibility(ESlateVisibility::Collapsed);
 	}
 }

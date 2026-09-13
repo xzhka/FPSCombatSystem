@@ -6,7 +6,7 @@
 #include "GameplayTagContainer.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
-#include "Weapons/FPSCombatAmmoTypes.h"
+#include "FPSCombatSystem/FPSCombatMessageTypes.h"
 #include "FPSCombatAmmoWidget.generated.h"
 
 /**
@@ -20,14 +20,11 @@ class FPSCOMBATSYSTEM_API UFPSCombatAmmoWidget : public UUserWidget
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
+	
 
-	void HandleAmmoMessage(FGameplayTag Channel, const FFPSCombatAmmoChangedMessage& Message);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnAmmoUpdated(int32 CurrentAmmo, int32 ReserveAmmo);
-
+	void HandleEquipmentMessage(FGameplayTag Channel, const FFPSCombatEquipmentChangedMessage& Message);
+	
 	void RefreshFromCurrentWeapon();
-	
-	FGameplayMessageListenerHandle AmmoListenerHandle;
-	
+
+	FGameplayMessageListenerHandle EquipmentListenerHandle;
 };

@@ -18,4 +18,10 @@ class FPSCOMBATSYSTEM_API UFPSCombatThrowableInstance : public UFPSCombatEquipme
 public:
 	UFUNCTION(BlueprintCallable)
 	UFPSCombatThrowableDefinition* GetThrowableDefinition() const ;
+
+	UFUNCTION(BlueprintCallable)
+	bool HasChargesRemaining() const;
+
+	UFUNCTION(BlueprintCallable)
+	void ConsumeProjectile(FGameplayTag ProjectileTag) const;
 };

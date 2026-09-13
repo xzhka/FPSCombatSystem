@@ -2,7 +2,17 @@
 
 
 #include "Input/FPSCombatPlayerController.h"
+
+#include "Camera/FPSCombatPlayerCameraManager.h"
 #include "GameModes/FPSCombatPlayerState.h"
+
+AFPSCombatPlayerController::AFPSCombatPlayerController(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer)
+{
+	PlayerCameraManagerClass = AFPSCombatPlayerCameraManager::StaticClass();
+
+	QuickBarComponent = CreateDefaultSubobject<UFPSCombatQuickBarComponent>(TEXT("QuickBarComponent"));
+}
 
 void AFPSCombatPlayerController::BeginPlay()
 {

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "Equipment/FPSCombatQuickBarComponent.h"
 #include "FPSCombatPlayerController.generated.h"
 
 struct FInputActionValue;
@@ -19,13 +20,18 @@ class FPSCOMBATSYSTEM_API AFPSCombatPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
-protected:
-	virtual void BeginPlay() override;
+	AFPSCombatPlayerController(const FObjectInitializer& ObjectInitializer);
 
 public:
 	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
-
+	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuickBar")
+	TObjectPtr<UFPSCombatQuickBarComponent> QuickBarComponent;
+
+	
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 

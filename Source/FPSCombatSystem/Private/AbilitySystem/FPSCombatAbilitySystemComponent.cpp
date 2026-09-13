@@ -4,6 +4,7 @@
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 
 #include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
+#include "Animation/FPSCombatAnimInstance.h"
 
 UFPSCombatAbilitySystemComponent::UFPSCombatAbilitySystemComponent()
 {
@@ -38,10 +39,10 @@ void UFPSCombatAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTa
 				ReleasedAbilitySpecHandles.AddUnique(Spec.Handle);
 				HeldAbilitySpecHandles.Remove(Spec.Handle);
 
-				if (UFPSCombatBaseGameplayAbility* CombatAbility = Cast<UFPSCombatBaseGameplayAbility>(Spec.Ability))
-				{
-					CombatAbility->NotifyInputReleased(Spec);
-				}
+				// if (UFPSCombatBaseGameplayAbility* CombatAbility = Cast<UFPSCombatBaseGameplayAbility>(Spec.Ability))
+				// {
+				// 	CombatAbility->NotifyInputReleased(Spec);
+				// }
 			}
 		}
 	}
@@ -141,7 +142,6 @@ void UFPSCombatAbilitySystemComponent::ApplyAbilityBlockAndCancelTags(const FGam
 	UGameplayAbility* RequestingAbility, bool bEnableBlockTags, const FGameplayTagContainer& BlockTags,
 	bool bExecuteCancelTags, const FGameplayTagContainer& CancelTags)
 {
-	UE_LOG(LogTemp, Display, TEXT("ApplyAbilityBlockAndCancelTags"));
 	FGameplayTagContainer MergedBlock = BlockTags;
 	FGameplayTagContainer MergedCancel = CancelTags;
 
@@ -190,6 +190,36 @@ void UFPSCombatAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor
 			}
 		}
 
+		if (UFPSCombatAnimInstance* AnimInstance = Cast<UFPSCombatAnimInstance>(ActorInfo->GetAnimInstance()))
+		{
+			AnimInstance->InitializeWithAbilitySystem(this);
+		}
+		
+
 		TryActivateAbilityOnSpawn();
+	}
+}
+
+void UFPSCombatAbilitySystemComponent::AbilitySpecInputPressed(FGameplayAbilitySpec& Spec)
+{
+	Super::AbilitySpecInputPressed(Spec);
+
+	if (Spec.IsActive())
+	{
+		const UGameplayAbility* PrimaryAbility = Spec.GetPrimaryInstance();
+		FPredictionKey PredictionKey = PrimaryAbility ? PrimaryAbility->GetCurrentActivationInfo().GetActivationPredictionKey() : Spec.ActivationInfo.GetActivationPredictionKey();
+		InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, Spec.Handle, PredictionKey);
+	}
+}
+
+void UFPSCombatAbilitySystemComponent::AbilitySpecInputReleased(FGameplayAbilitySpec& Spec)
+{
+	Super::AbilitySpecInputReleased(Spec);
+
+	if (Spec.IsActive())
+	{
+		const UGameplayAbility* PrimaryAbility = Spec.GetPrimaryInstance();
+		FPredictionKey PredictionKey = PrimaryAbility ? PrimaryAbility->GetCurrentActivationInfo().GetActivationPredictionKey() : Spec.ActivationInfo.GetActivationPredictionKey();
+		InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, Spec.Handle, PredictionKey);
 	}
 }

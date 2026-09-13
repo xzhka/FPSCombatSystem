@@ -7,6 +7,7 @@
 #include "FPSCombatEquipmentInstance.h"
 #include "AbilitySystem/FPSCombatAbilitySet.h"
 #include "Components/PawnComponent.h"
+#include "Items/FPSCombatItemInstance.h"
 #include "Net/Serialization/FastArraySerializer.h"
 #include "FPSCombatEquipmentManager.generated.h"
 
@@ -62,7 +63,7 @@ public:
 private:
 
 	UFPSCombatAbilitySystemComponent* GetASC() const;
-
+	UFPSCombatEquipmentManager* GetEquipmentManager() const;
 	
 	friend UFPSCombatEquipmentManager;
 	
@@ -77,7 +78,7 @@ template<>
 struct TStructOpsTypeTraits<FFPSCombatEquipmentList> : public TStructOpsTypeTraitsBase2<FFPSCombatEquipmentList>
 {
 	enum
-	{ WithNetDeltaSerialize = true };
+	{ WithNetDeltaSerializer = true };
 };
 
 
@@ -92,7 +93,7 @@ class FPSCOMBATSYSTEM_API UFPSCombatEquipmentManager : public UPawnComponent
 public:
 
 	UFUNCTION(BlueprintCallable)
-	UFPSCombatEquipmentInstance* OnEquipItem(TSubclassOf<UFPSCombatEquipmentDefinition> EquipDefinition);
+	UFPSCombatEquipmentInstance* OnEquipItem(TSubclassOf<UFPSCombatEquipmentDefinition> EquipDefinition, UFPSCombatItemInstance* ItemInstance);
 
 	UFUNCTION(BlueprintCallable)
 	void OnUnequipItem(UFPSCombatEquipmentInstance* ItemInstance);
@@ -112,7 +113,10 @@ public:
 	{
 		return (T*)GetFirstInstanceOfType(T::StaticClass());
 	}
-	
+
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+
+	void BroadcastEquipmentChange(UFPSCombatEquipmentInstance* Instance, bool IsEquipped) const;
 private:
 	UPROPERTY(Replicated)
 	FFPSCombatEquipmentList EquipmentList;

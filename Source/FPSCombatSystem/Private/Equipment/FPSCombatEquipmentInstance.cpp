@@ -24,9 +24,10 @@ void UFPSCombatEquipmentInstance::SpawnEquipmentActors(const TArray<FFPSCombatEq
 			AActor* OwningActor = GetWorld()->SpawnActorDeferred<AActor>(SpawnActorInfo.SpawnActorClass, FTransform::Identity, OwningPawn);
 			if (OwningActor)
 			{
-				OwningActor->FinishSpawning(FTransform::Identity, true);
-				OwningActor->AttachToComponent(RootComp, FAttachmentTransformRules::KeepRelativeTransform, SpawnActorInfo.SpawnActorName);
-
+				OwningActor->FinishSpawning(FTransform::Identity);
+				OwningActor->SetActorRelativeTransform(SpawnActorInfo.ActorTransform);
+				OwningActor->AttachToComponent(RootComp, FAttachmentTransformRules::KeepRelativeTransform, SpawnActorInfo.AttachSocket);
+				
 				ActorsToSpawn.Add(OwningActor);
 			}
 		}
@@ -40,6 +41,18 @@ void UFPSCombatEquipmentInstance::ClearEquipmentActors()
 		if (Actor)
 		{
 			Actor->Destroy();
+		}
+	}
+}
+
+void UFPSCombatEquipmentInstance::SetEquipmentActorsHidden(bool bHidden)
+{
+	for (AActor* Actor : ActorsToSpawn)
+	{
+		if (Actor)
+		{
+			Actor->SetActorHiddenInGame(bHidden);
+			Actor->SetActorEnableCollision(!bHidden);
 		}
 	}
 }
@@ -63,12 +76,15 @@ void UFPSCombatEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimePro
 
 	DOREPLIFETIME(UFPSCombatEquipmentInstance, ActorsToSpawn);
 	DOREPLIFETIME(UFPSCombatEquipmentInstance, InstanceDefinition);
+	DOREPLIFETIME(UFPSCombatEquipmentInstance, Instance);
 }
 
 void UFPSCombatEquipmentInstance::OnEquipped()
 {
+	K2_OnEquipped();
 }
 
 void UFPSCombatEquipmentInstance::OnUnequipped()
 {
+	K2_OnUnequipped();
 }

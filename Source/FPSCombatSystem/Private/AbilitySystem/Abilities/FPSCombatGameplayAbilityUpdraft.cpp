@@ -32,6 +32,14 @@ void UFPSCombatGameplayAbilityUpdraft::ActivateAbility(const FGameplayAbilitySpe
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+
+	if (UAbilitySystemComponent* ASC= GetAbilitySystemComponentFromActorInfo())
+	{
+		FGameplayCueParameters CueParams;
+		CueParams.Location = ActorInfo->AvatarActor->GetActorLocation();
+		ASC->ExecuteGameplayCue(CueTag, CueParams);
+	}
+	
 	Updraft();
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

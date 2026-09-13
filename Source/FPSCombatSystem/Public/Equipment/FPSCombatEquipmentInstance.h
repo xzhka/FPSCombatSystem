@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "FPSCombatEquipmentDefinition.h"
+#include "Items/FPSCombatItemInstance.h"
 #include "FPSCombatEquipmentInstance.generated.h"
 
 struct FFPSCombatEquipmentSpawnActor;
@@ -13,7 +14,7 @@ class APawn;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatEquipmentInstance : public UObject
 {
 	GENERATED_BODY()
@@ -26,12 +27,17 @@ public:
 	
 	virtual void SpawnEquipmentActors(const TArray<FFPSCombatEquipmentSpawnActor>& SpawnActors);
 	virtual void ClearEquipmentActors();
-
+	void SetEquipmentActorsHidden(bool bHidden);
 	
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	APawn* GetPawn() const;
 
 	void SetDefinition(UFPSCombatEquipmentDefinition* InDefinition) { InstanceDefinition = InDefinition; }
+
+	void SetItemInstance(UFPSCombatItemInstance* InIntemInstance) { Instance = InIntemInstance; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE UFPSCombatItemInstance* GetItemInstance() const { return Instance; }
 	
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FORCEINLINE UFPSCombatEquipmentDefinition* GetDefinition() const { return InstanceDefinition; }
@@ -42,14 +48,21 @@ public:
 	virtual bool IsSupportedForNetworking() const override { return true; }
 
 	virtual void RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context, UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
-	
 
+	UFUNCTION(BlueprintImplementableEvent, Category =Equipment)
+	void K2_OnEquipped();
+
+	UFUNCTION(BlueprintImplementableEvent, Category =Equipment)
+	void K2_OnUnequipped();
+	
 private:
 
+	UPROPERTY(Replicated)
+	TObjectPtr<UFPSCombatItemInstance> Instance;
+	
 	UPROPERTY(Replicated)
 	TObjectPtr<class UFPSCombatEquipmentDefinition> InstanceDefinition;
 	
 	UPROPERTY(Replicated)
 	TArray<TObjectPtr<AActor>> ActorsToSpawn;
-	
 };

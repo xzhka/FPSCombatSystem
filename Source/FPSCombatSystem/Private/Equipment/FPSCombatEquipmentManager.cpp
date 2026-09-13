@@ -3,6 +3,10 @@
 
 #include "Equipment/FPSCombatEquipmentManager.h"
 #include "AbilitySystemGlobals.h"
+#include "Engine/ActorChannel.h"
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "FPSCombatSystem/FPSCombatMessageTypes.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Net/UnrealNetwork.h"
 
 FString FFPSCombatAppliedEquipmentEntry::GetDebugString() const
@@ -18,6 +22,10 @@ void FFPSCombatEquipmentList::PreReplicatedRemove(const TArrayView<int32> Remove
 		if (Entry.Instance != nullptr)
 		{
 			Entry.Instance->OnUnequipped();
+			if (UFPSCombatEquipmentManager* Manager = GetEquipmentManager())
+			{
+				Manager->BroadcastEquipmentChange(Entry.Instance, false);
+			}
 		}
 	}
 }
@@ -31,13 +39,16 @@ void FFPSCombatEquipmentList::PostReplicatedAdd(const TArrayView<int32> AddedInd
 		{
 			Entry.Instance->SetDefinition(GetMutableDefault<UFPSCombatEquipmentDefinition>(Entry.Definition));
 			Entry.Instance->OnEquipped();
+			if (UFPSCombatEquipmentManager* Manager = GetEquipmentManager())
+			{
+				Manager->BroadcastEquipmentChange(Entry.Instance, true);
+			}
 		}
 	}
 }
 
 UFPSCombatEquipmentInstance* FFPSCombatEquipmentList::AddEntry(TSubclassOf<UFPSCombatEquipmentDefinition> EntryDefinition)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AddEntry called"));
 	UFPSCombatEquipmentInstance* ResultInstance = nullptr;
 
 	check(EntryDefinition != nullptr);
@@ -67,14 +78,11 @@ UFPSCombatEquipmentInstance* FFPSCombatEquipmentList::AddEntry(TSubclassOf<UFPSC
 	{
 		ResultInstance->SetDefinition(GetMutableDefault<UFPSCombatEquipmentDefinition>(EntryDefinition));
 	}
-
 	
-	UE_LOG(LogTemp, Warning, TEXT("AddEntry Before Ability called"));
 	if (UFPSCombatAbilitySystemComponent* ASC = GetASC())
 	{
 		for (const TObjectPtr<const UFPSCombatAbilitySet>& AbilitySet : DefinitionCDO->AbilitySet)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AddEntry Ability called"));
 			AbilitySet->GiveAbility(ASC, &NewEntry.GrantedHandles, ResultInstance);
 		}
 	}
@@ -113,37 +121,41 @@ UFPSCombatAbilitySystemComponent* FFPSCombatEquipmentList::GetASC() const
 	return Cast<UFPSCombatAbilitySystemComponent>(UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(OwningActor));
 }
 
+UFPSCombatEquipmentManager* FFPSCombatEquipmentList::GetEquipmentManager() const
+{
+	check(OwnerComponent);
+
+	return Cast<UFPSCombatEquipmentManager>(OwnerComponent);
+}
+
 UFPSCombatEquipmentManager::UFPSCombatEquipmentManager(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 	SetIsReplicatedByDefault(true);
 	
-	bReplicateUsingRegisteredSubObjectList = true;
 	bWantsInitializeComponent = true;
 	EquipmentList.OwnerComponent = this;
 }
 
 UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::OnEquipItem(
-	TSubclassOf<UFPSCombatEquipmentDefinition> EquipDefinition)
+	TSubclassOf<UFPSCombatEquipmentDefinition> EquipDefinition, UFPSCombatItemInstance* ItemInstance)
 {
 	UFPSCombatEquipmentInstance* Result = nullptr;
 	if (EquipDefinition != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("On Equip Item, EquipmentExist"));
 		Result = EquipmentList.AddEntry(EquipDefinition);
 		if (Result != nullptr)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("On Equip Item, Result Not Null"));
+			Result->SetItemInstance(ItemInstance);
 			Result->OnEquipped();
-
+			BroadcastEquipmentChange(Result, true);
+			
 			if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("On Equip Item, Object Ready For Replication"));
 				AddReplicatedSubObject(Result);
 			}
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("On Equip Item, End of Result"));
 	return Result;
 }
 
@@ -157,6 +169,7 @@ void UFPSCombatEquipmentManager::OnUnequipItem(UFPSCombatEquipmentInstance* Item
 		}
 
 		ItemInstance->OnUnequipped();
+		BroadcastEquipmentChange(ItemInstance, false);
 		EquipmentList.RemoveEntry(ItemInstance);
 	}
 }
@@ -212,13 +225,41 @@ void UFPSCombatEquipmentManager::UninitializeComponent()
 UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::GetFirstInstanceOfType(
 	TSubclassOf<UFPSCombatEquipmentInstance> InstanceType)
 {
-	for (FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
+	if (InstanceType != nullptr)
 	{
-
-		if (Entry.Instance && Entry.Instance->IsA(InstanceType))
+		for (FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
+		{
+			if (Entry.Instance && Entry.Instance->IsA(InstanceType))
 			{
 				return Entry.Instance;
+			}
 		}
 	}
 	return nullptr;
+}
+
+bool UFPSCombatEquipmentManager::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch,
+	FReplicationFlags* RepFlags)
+{
+	bool ReplicateSuper = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+	for (FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
+	{
+		UFPSCombatEquipmentInstance* Instance = Entry.Instance;
+		if (IsValid(Instance))
+		{
+			ReplicateSuper |= Channel->ReplicateSubobject(Instance, *Bunch, *RepFlags);
+		}
+	}
+	return ReplicateSuper;
+}
+
+void UFPSCombatEquipmentManager::BroadcastEquipmentChange(UFPSCombatEquipmentInstance* Instance, bool IsEquipped) const
+{
+	FFPSCombatEquipmentChangedMessage EquipmentMessage;
+
+	EquipmentMessage.NewObjectInstance = Instance;
+	EquipmentMessage.bIsEquipped = IsEquipped;
+
+	UGameplayMessageSubsystem::Get(this).BroadcastMessage(FPSCombatGameplayTags::Message_Equipment_Change, EquipmentMessage);
 }

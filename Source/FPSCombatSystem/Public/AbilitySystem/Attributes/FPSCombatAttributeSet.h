@@ -11,10 +11,6 @@
 
 struct FGameplayEffectSpec;
 
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayTag_Damage);
-
-
-
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \

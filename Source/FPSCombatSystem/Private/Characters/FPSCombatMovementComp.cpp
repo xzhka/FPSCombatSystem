@@ -3,14 +3,79 @@
 
 #include "Characters/FPSCombatMovementComp.h"
 
+#include "Components/CapsuleComponent.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/FPSCombatPlayerState.h"
+
+namespace FPSCombatTraceDistance
+{
+	const float GroundTraceDistance = 10000.0f;
+}
 
 // Sets default values for this component's properties
 UFPSCombatMovementComp::UFPSCombatMovementComp()
 {
 	OwnerCharacter = nullptr;
+}
+
+const FPSCombatGroundInfo& UFPSCombatMovementComp::GetGroundInfo()
+{
+	if (!OwnerCharacter || (GFrameCounter == CachedGroundInfo.LastUpdateFrame))
+	{
+		return CachedGroundInfo;
+	}
+	
+	UCharacterMovementComponent* MoveComp = OwnerCharacter->GetCharacterMovement();
+	
+	if (MoveComp->MovementMode == MOVE_Walking)
+	{
+		CachedGroundInfo.GroundInfoHitResult = MoveComp->CurrentFloor.HitResult;
+		CachedGroundInfo.GroundDistance = 0.f;
+	}
+	else
+	{
+		const UCapsuleComponent* Capsule = OwnerCharacter->GetCapsuleComponent();
+		check(Capsule);
+
+		const float HalfCapsuleHeight = Capsule->GetUnscaledCapsuleHalfHeight();
+	
+		const FVector TraceStart(MoveComp->GetActorLocation());
+		const FVector TraceEnd(TraceStart.X, TraceStart.Y, (TraceStart.Z-FPSCombatTraceDistance::GroundTraceDistance - HalfCapsuleHeight));
+		const ECollisionChannel TraceChannel = (MoveComp->UpdatedComponent ? MoveComp->UpdatedComponent->GetCollisionObjectType() : ECC_Pawn);
+
+		FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(FPSCombat_GroundInfo), false, OwnerCharacter);
+		FCollisionResponseParams ResponseParams;
+
+		MoveComp->InitCollisionParams(QueryParams, ResponseParams);
+		
+		FHitResult HitResult;
+		GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, TraceChannel, QueryParams, ResponseParams);
+
+		CachedGroundInfo.GroundInfoHitResult = HitResult;
+		CachedGroundInfo.GroundDistance = FPSCombatTraceDistance::GroundTraceDistance;
+
+		if (MoveComp->MovementMode == MOVE_NavWalking)
+		{
+			CachedGroundInfo.GroundDistance = 0.f;
+		}
+		else if (HitResult.bBlockingHit)
+		{
+			CachedGroundInfo.GroundDistance = FMath::Max((HitResult.Distance - HalfCapsuleHeight), 0.f);
+		}
+	}
+	CachedGroundInfo.LastUpdateFrame = GFrameCounter;
+	
+	return CachedGroundInfo;
+}
+
+float UFPSCombatMovementComp::GetMoveSpeedMultiplier() const
+{
+	if (CachedASC)
+	{
+		CachedASC->GetNumericAttribute(UFPSCombatAttributeSet::GetMoveSpeedAttribute());
+	}
+	return 1.f;
 }
 
 void UFPSCombatMovementComp::BeginPlay()
@@ -34,17 +99,17 @@ void UFPSCombatMovementComp::HandleMovementUpdated(float DeltaSeconds, FVector O
 	
 	const float MoveSpeed = OwnerCharacter->GetCharacterMovement()->Velocity.SizeSquared2D();
 	const bool bNowMoving = MoveSpeed > FMath::Square(Threshold);
-
+	
 	if (bNowMoving != bIsWalking)
 	{
 		bIsWalking = bNowMoving;
 		CachedASC->SetLooseGameplayTagCount(FPSCombatGameplayTags::State_Moving_Walking, bIsWalking ? 1 : 0);
 	}
 
-	const FVector Acceleration = OwnerCharacter->GetCharacterMovement()->GetCurrentAcceleration();
-	if (!Acceleration.IsNearlyZero())
+	const FVector CurrentAcceleration = OwnerCharacter->GetCharacterMovement()->GetCurrentAcceleration();
+	if (!CurrentAcceleration.IsNearlyZero())
 	{
-		const float ForwardDot = FVector::DotProduct(Acceleration.GetSafeNormal(),OwnerCharacter->GetActorForwardVector());
+		const float ForwardDot = FVector::DotProduct(CurrentAcceleration.GetSafeNormal(),OwnerCharacter->GetActorForwardVector());
 		const bool bNowForward = ForwardDot > ForwardDotThreshold;
 		if (bNowForward != bIsWalkingForward)
 		{
@@ -71,7 +136,7 @@ void UFPSCombatMovementComp::SetMovementState(EFPSCombatMoveState NewState)
 	CurrentMoveState = NewState;
 
 	const bool bAirborne = (NewState == EFPSCombatMoveState::Airborne);
-	CachedASC->SetLooseGameplayTagCount(FPSCombatGameplayTags::Ability_Moving_Airborne, bAirborne ? 1 : 0);
+	CachedASC->SetLooseGameplayTagCount(FPSCombatGameplayTags::State_Moving_Airborne, bAirborne ? 1 : 0);
 	if (!bAirborne && OwnerCharacter->HasAuthority())
 	{
 		CachedASC->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(FPSCombatGameplayTags::Ability_Moving_AirborneSource));
@@ -82,9 +147,9 @@ FVector UFPSCombatMovementComp::GetDashDirection() const
 {
 	if (!OwnerCharacter) return FVector::ZeroVector;
 
-	const UCharacterMovementComponent* CMC = OwnerCharacter->GetCharacterMovement();
+	UCharacterMovementComponent* MoveComp = OwnerCharacter->GetCharacterMovement();
 	
-	FVector Direction = CMC->GetCurrentAcceleration().GetSafeNormal();
+	FVector Direction = MoveComp->GetCurrentAcceleration().GetSafeNormal();
 
 	if (Direction.IsNearlyZero())
 	{

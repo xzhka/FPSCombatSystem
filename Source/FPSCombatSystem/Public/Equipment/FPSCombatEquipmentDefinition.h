@@ -8,6 +8,7 @@
 #include "FPSCombatEquipmentDefinition.generated.h"
 
 class UFPSCombatEquipmentInstance;
+class UFPSCombatItemDefinition;
 
 USTRUCT()
 struct FFPSCombatEquipmentSpawnActor
@@ -20,7 +21,10 @@ struct FFPSCombatEquipmentSpawnActor
 	TSubclassOf<AActor> SpawnActorClass;
 
 	UPROPERTY(EditAnywhere)
-	FName SpawnActorName;
+	FName AttachSocket;
+
+	UPROPERTY(EditAnywhere)
+	FTransform ActorTransform;
 };
 
 
@@ -30,6 +34,12 @@ class FPSCOMBATSYSTEM_API UFPSCombatEquipmentDefinition : public UObject
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSoftObjectPtr<UTexture2D> WeaponIcon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	FText WeaponName;
+	
 	UPROPERTY(EditDefaultsOnly, Category="Equipment")
 	TSubclassOf<UFPSCombatEquipmentInstance> ActorEquipmentClass;
 

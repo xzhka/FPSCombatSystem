@@ -3,10 +3,8 @@
 
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
 #include "GameplayEffectExtension.h"
-#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "Net/UnrealNetwork.h"
 
-UE_DEFINE_GAMEPLAY_TAG(GameplayTag_Damage, "Gameplay.Damage");
 
 
 UFPSCombatAttributeSet::UFPSCombatAttributeSet()
@@ -58,14 +56,12 @@ void UFPSCombatAttributeSet::OnRep_HealthChanged(const FGameplayAttributeData& O
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UFPSCombatAttributeSet, Health, OldValue);
 
 	const float CurrentHealth = GetHealth(); 
-
-	UE_LOG(LogTemp, Warning, TEXT("You in OnRep_HealthChanged"));	
+	
 	
 	OnHealthChanged.Broadcast(nullptr, nullptr, OldValue.GetCurrentValue(), CurrentHealth);
 
 	if (!bOutOfHealth && CurrentHealth <= 0.0f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Your Health is %f"), CurrentHealth);
 		OnOutOfHealthChanged.Broadcast(nullptr, nullptr, OldValue.GetCurrentValue(), CurrentHealth);
 	}
 
