@@ -49,6 +49,8 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
+	void GrantDefaultEquipment();
+	
 	/*Components initialize*/
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
@@ -69,13 +71,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	TObjectPtr<UFPSCombatItemManagerComponent> ItemComponent;
 	
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
 	TSubclassOf<UAnimInstance> DefaultAnimClass;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Definition")
-	TSubclassOf<UFPSCombatWeaponDefinition> WeaponDefinition;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Definition")
 	TSubclassOf<UFPSCombatThrowableDefinition> ThrowableDefinition;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Definition")
+	TSubclassOf<UFPSCombatItemDefinition> ThrowableItemDefinition;
 };

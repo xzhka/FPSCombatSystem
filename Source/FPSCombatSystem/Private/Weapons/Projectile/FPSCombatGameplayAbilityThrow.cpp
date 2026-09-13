@@ -15,6 +15,22 @@ UFPSCombatGameplayAbilityThrow::UFPSCombatGameplayAbilityThrow()
 	
 }
 
+bool UFPSCombatGameplayAbilityThrow::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
+	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
+	{
+		return false;
+	}
+	
+	const UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
+	const FGameplayAbilitySpec* Spec = ASC ? ASC->FindAbilitySpecFromHandle(Handle) : nullptr;
+	const UFPSCombatThrowableInstance* Instance = Spec ? Cast<UFPSCombatThrowableInstance>(Spec->SourceObject.Get()) : nullptr;
+
+	return Instance && Instance->HasChargesRemaining();
+}
+
 void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                                      const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                      const FGameplayEventData* TriggerEventData)
@@ -116,6 +132,8 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 	{
 		ExplosiveComp->InitializeExplosion(ThrowableDefinition);
 	}
+
+	ThrowInstance->ConsumeProjectile(FPSCombatGameplayTags::Data_Projectile_Quantity);
 }
 
 void UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout()

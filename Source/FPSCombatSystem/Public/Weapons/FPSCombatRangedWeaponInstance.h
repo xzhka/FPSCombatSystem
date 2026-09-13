@@ -42,6 +42,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE int32 GetReserveAmmo() const;
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE int32 GetMaxAmmoInMag() const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE int32 GetMaxReserveAmmo() const;
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
 	FORCEINLINE UAnimMontage* GetAnimMontage() { return CachedFireMontage; }
 	
@@ -76,8 +82,6 @@ public:
 
 	FFPSCombatShotContext NotifyShotFiredAndMakeShotContext();
 protected:
-	
-	
 	UAbilitySystemComponent* GetPawnASC() const;
 	
 	bool IsPawnMoving() const;

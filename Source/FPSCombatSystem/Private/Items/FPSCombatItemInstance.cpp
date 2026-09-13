@@ -178,6 +178,12 @@ void UFPSCombatItemInstance::RegisterReplicationFragments(UE::Net::FFragmentRegi
 	FReplicationFragmentUtil::CreateAndRegisterFragmentsForObject(this, Context, RegistrationFlags);
 }
 
+int32 UFPSCombatItemInstance::GetDefaultStatsByValue(FGameplayTag Tag) const
+{
+	const UFPSCombatItemDefinition* DefCDO = GetDefault<UFPSCombatItemDefinition>(ItemDefinition);
+	return DefCDO ? DefCDO->GetDefaultStatsValueByTag(Tag) : 0;
+}
+
 const UFPSCombatItemFragment* UFPSCombatItemInstance::FindFragmentByType(TSubclassOf<UFPSCombatItemFragment> FragmentType) const
 {
 	if ((FragmentType != nullptr) && (ItemDefinition != nullptr))

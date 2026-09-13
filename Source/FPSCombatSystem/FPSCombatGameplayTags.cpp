@@ -38,6 +38,9 @@ namespace FPSCombatGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Tags_OutOfAmmo, "Data.Tags.OutOfAmmo");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Weapon_SpareAmmo, "Data.Weapon.SpareAmmo");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Weapon_Ammo_Mag, "Data.Weapon.Ammo.Mag");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Projectile_Quantity, "Data.Projectile.Quantity");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Weapon_AmmountToAdd, "Data.Weapon.AmountToAdd");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Grenade_AmmountToAdd, "Data.Grenade.AmountToAdd");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Item_Stat_Quantity, "Item.Stat.Quantity");
 	

@@ -12,7 +12,7 @@ bool UFPSCombatRangedWeaponInstance::CanReload() const
 	const UFPSCombatItemInstance* Item = GetItemInstance();
 	if (!Item) return false;
 	return Item->GetStack(FPSCombatGameplayTags::Data_Weapon_SpareAmmo) > 0
-		&& Item->GetStack(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag) < GetWeaponDefinition()->ClipSize;
+		&& Item->GetStack(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag) < GetMaxAmmoInMag();
 }
 
 int32 UFPSCombatRangedWeaponInstance::AddReserveAmmo(int32 Amount)
@@ -23,16 +23,15 @@ int32 UFPSCombatRangedWeaponInstance::AddReserveAmmo(int32 Amount)
 	{
 		return 0;
 	}
-
-	const int32 MaxReserveAmmo = GetWeaponDefinition()->ReserveAmmo;
+	
 	const int32 OldReserveAmmo = Item->GetStack(FPSCombatGameplayTags::Data_Weapon_SpareAmmo);
-	const int32 DeltaAmmo = FMath::Clamp(OldReserveAmmo + Amount, 0, MaxReserveAmmo) - OldReserveAmmo;
-
+	const int32 DeltaAmmo = FMath::Clamp(OldReserveAmmo + Amount, 0, GetMaxReserveAmmo()) - OldReserveAmmo;
+	
 	if (DeltaAmmo > 0)
 	{
 		Item->AddStackCount(FPSCombatGameplayTags::Data_Weapon_SpareAmmo, DeltaAmmo);
 	}
-
+	
 	return DeltaAmmo;
 }
 
@@ -56,15 +55,15 @@ int32 UFPSCombatRangedWeaponInstance::ReloadAmmo()
 	
 	if (!ItemInstance || !Outer || !Outer->HasAuthority()) return 0;
 
-	const int32 NeededAmmo = GetWeaponDefinition()->ClipSize - GetCurrentAmmo();
+	const int32 NeededAmmo = GetMaxAmmoInMag() - GetCurrentAmmo();
 	const int32 Transferred = FMath::Min(NeededAmmo, GetReserveAmmo());
 
-	if (Transferred > 0)
-	{
-		ItemInstance->AddStackCount(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag, Transferred);
-		ItemInstance->RemoveStackCount(FPSCombatGameplayTags::Data_Weapon_SpareAmmo, Transferred);
-	}
-	return Transferred;
+	 if (Transferred > 0)
+	 {
+	 	ItemInstance->AddStackCount(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag, Transferred);
+	 	ItemInstance->RemoveStackCount(FPSCombatGameplayTags::Data_Weapon_SpareAmmo, Transferred);
+	 }
+	 return Transferred;
 }
 
 void UFPSCombatRangedWeaponInstance::AbortFireSequence()
@@ -142,7 +141,6 @@ void UFPSCombatRangedWeaponInstance::ScheduleNextShotActivation(const FGameplayA
 			StrongInstance->AbortFireSequence();
 		}
 	}), Delay, false);
-	
 }
 
 void UFPSCombatRangedWeaponInstance::CancelScheduledActivation()
@@ -209,6 +207,20 @@ int32 UFPSCombatRangedWeaponInstance::GetReserveAmmo() const
 	const UFPSCombatItemInstance* ItemInstance = GetItemInstance();
 
 	return ItemInstance ? ItemInstance->GetStack(FPSCombatGameplayTags::Data_Weapon_SpareAmmo) : 0;
+}
+
+int32 UFPSCombatRangedWeaponInstance::GetMaxAmmoInMag() const
+{
+	const UFPSCombatItemInstance* ItemInstance = GetItemInstance();
+
+	return ItemInstance ? ItemInstance->GetDefaultStatsByValue(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag) : 0;
+}
+
+int32 UFPSCombatRangedWeaponInstance::GetMaxReserveAmmo() const
+{
+	const UFPSCombatItemInstance* ItemInstance = GetItemInstance();
+
+	return ItemInstance ? ItemInstance->GetDefaultStatsByValue(FPSCombatGameplayTags::Data_Weapon_SpareAmmo) : 0;
 }
 
 bool UFPSCombatRangedWeaponInstance::HasAmmoInMag() const
@@ -343,8 +355,8 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 		AActor* Outer = GetTypedOuter<AActor>();
 		if (Outer && Outer->HasAuthority() && !Item->HasStatTag(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag))
 		{
-			Item->AddStackCount(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag, GetWeaponDefinition()->ClipSize);
-			Item->AddStackCount(FPSCombatGameplayTags::Data_Weapon_SpareAmmo, GetWeaponDefinition()->ReserveAmmo);
+			Item->AddStackCount(FPSCombatGameplayTags::Data_Weapon_Ammo_Mag, GetMaxAmmoInMag());
+			Item->AddStackCount(FPSCombatGameplayTags::Data_Weapon_SpareAmmo, GetMaxReserveAmmo());
 		}
 	}
 	CurrentRecoilShotIndex = 0;

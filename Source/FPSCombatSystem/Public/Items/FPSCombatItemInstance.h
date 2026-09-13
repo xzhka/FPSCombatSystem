@@ -119,6 +119,9 @@ public:
 		UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
 	virtual bool IsSupportedForNetworking() const override { return true; }
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetDefaultStatsByValue(FGameplayTag Tag) const;
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	const UFPSCombatItemFragment* FindFragmentByType(TSubclassOf<UFPSCombatItemFragment> FragmentType) const;
 

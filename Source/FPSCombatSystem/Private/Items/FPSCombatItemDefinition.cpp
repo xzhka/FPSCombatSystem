@@ -35,3 +35,12 @@ const UFPSCombatItemFragment* UFPSCombatItemDefinition::FindFragmentByClass(
 	}
 	return nullptr;
 }
+
+int32 UFPSCombatItemDefinition::GetDefaultStatsValueByTag(FGameplayTag InTag) const
+{
+	if (const UFPSCombatItemFragment_Stats* Fragment_Stats = Cast<UFPSCombatItemFragment_Stats>(FindFragmentByClass(UFPSCombatItemFragment_Stats::StaticClass())))
+	{
+		return Fragment_Stats->GetStatsByTag(InTag);
+	}
+	return 0;
+}
