@@ -20,12 +20,6 @@ public:
 	
 	/* Ammo global parameters */
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
-	int32 ReserveAmmo = 120;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
-	int32 ClipSize = 20;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	float ReloadDuration = 2.f;
 
 	/* Fire characteristics */

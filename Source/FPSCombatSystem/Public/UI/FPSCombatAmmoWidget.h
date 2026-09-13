@@ -20,8 +20,7 @@ class FPSCOMBATSYSTEM_API UFPSCombatAmmoWidget : public UUserWidget
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
-
-	void HandleAmmoMessage(FGameplayTag Channel, const FFPSCombatAmmoChangedMessage& Message);
+	
 
 	void HandleEquipmentMessage(FGameplayTag Channel, const FFPSCombatEquipmentChangedMessage& Message);
 	

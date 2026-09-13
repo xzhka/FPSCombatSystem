@@ -56,4 +56,6 @@ public:
 	TArray<TObjectPtr<UFPSCombatItemFragment>> Fragments;
 
 	const UFPSCombatItemFragment* FindFragmentByClass(TSubclassOf<UFPSCombatItemFragment> FragmentClass) const;
+
+	int32 GetDefaultStatsValueByTag(FGameplayTag InTag) const;
 };
