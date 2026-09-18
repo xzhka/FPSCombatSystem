@@ -27,7 +27,12 @@ public:
 	
 	virtual void SpawnEquipmentActors(const TArray<FFPSCombatEquipmentSpawnActor>& SpawnActors);
 	virtual void ClearEquipmentActors();
+
+	UFUNCTION(BlueprintCallable)
 	void SetEquipmentActorsHidden(bool bHidden);
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnEquipmentActorsFromInstance();
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	APawn* GetPawn() const;
@@ -42,7 +47,7 @@ public:
 	UFUNCTION(BlueprintPure, BlueprintCallable)
 	FORCEINLINE UFPSCombatEquipmentDefinition* GetDefinition() const { return InstanceDefinition; }
 	
-	UFUNCTION(BlueprintPure)
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE TArray<AActor*> GetActorsToSpawn() const { return ActorsToSpawn; }
 
 	virtual bool IsSupportedForNetworking() const override { return true; }

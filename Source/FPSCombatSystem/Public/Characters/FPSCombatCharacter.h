@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "FPSCombatCharacterPawnComp.h"
+#include "Animation/FPSCombatRigIKComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/FPSCombatHealthComponent.h"
 #include "Components/FPSCombatStaminaComponent.h"
@@ -70,6 +71,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
 	TObjectPtr<UFPSCombatItemManagerComponent> ItemComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+	TObjectPtr<UFPSCombatRigIKComponent> RigIKComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
 	TSubclassOf<UAnimInstance> DefaultAnimClass;

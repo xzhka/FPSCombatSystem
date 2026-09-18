@@ -3,6 +3,9 @@
 
 #include "Weapons/FPSCombatWeaponInstance.h"
 
+#include "Weapons/FPSCombatWeaponActor.h"
+#include "Weapons/FPSCombatWeaponDefinition.h"
+
 
 void UFPSCombatWeaponInstance::OnEquipped()
 {
@@ -49,7 +52,7 @@ float UFPSCombatWeaponInstance::GetTimeFromLastInteraction() const
 }
 
 TSubclassOf<UAnimInstance> UFPSCombatWeaponInstance::PickAnimLayer(bool bIsEquipped,
-	const FGameplayTagContainer& CosmeticTag) const
+                                                                   const FGameplayTagContainer& CosmeticTag) const
 {
 	const FFPSCombatLayerSelectionSet SelectionSet = (bIsEquipped ? EquippedAnimSet : UnequippedAnimSet);
 	return SelectionSet.SelectLayers(CosmeticTag);

@@ -2,12 +2,17 @@
 
 
 #include "Equipment/FPSCombatEquipmentInstance.h"
+
+#include "NativeGameplayTags.h"
 #include "Equipment/FPSCombatEquipmentDefinition.h"
+#include "FPSCombatSystem/FPSCombatMessageTypes.h"
 #include "Iris/ReplicationSystem/ReplicationFragmentUtil.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 
 #include "Net/UnrealNetwork.h"
 
+UE_DEFINE_GAMEPLAY_TAG_STATIC(Message_Equipment_Hidden, "Message.Equipment.Hidden");
 
 void UFPSCombatEquipmentInstance::SpawnEquipmentActors(const TArray<FFPSCombatEquipmentSpawnActor>& SpawnActors)
 {
@@ -43,6 +48,7 @@ void UFPSCombatEquipmentInstance::ClearEquipmentActors()
 			Actor->Destroy();
 		}
 	}
+	ActorsToSpawn.Empty();
 }
 
 void UFPSCombatEquipmentInstance::SetEquipmentActorsHidden(bool bHidden)
@@ -53,7 +59,21 @@ void UFPSCombatEquipmentInstance::SetEquipmentActorsHidden(bool bHidden)
 		{
 			Actor->SetActorHiddenInGame(bHidden);
 			Actor->SetActorEnableCollision(!bHidden);
+			Actor->SetActorTickEnabled(!bHidden);
 		}
+	}
+}
+
+void UFPSCombatEquipmentInstance::SpawnEquipmentActorsFromInstance()
+{
+	if (ActorsToSpawn.Num() > 0)
+	{
+		return;
+	}
+
+	if (const UFPSCombatEquipmentDefinition* DefCDO = GetDefinition())
+	{
+		SpawnEquipmentActors(DefCDO->SpawnActors);
 	}
 }
 
