@@ -35,8 +35,14 @@ protected:
 
 	void OnReleaseNotifyTimeout();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE UFPSCombatThrowableInstance* GetThrowInstance() { return ThrowInstance; }
+	
 	UFUNCTION()
 	void HandleInputReleased(float TimeHandle);
+
+	UFUNCTION(BlueprintCallable, Category = "Visual")
+	void SetThrowableVisualsActive(bool bActive);
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Task", meta = (DisplayName = "On Complete"))
 	void K2_OnThrowSetupComplete();
@@ -55,6 +61,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Throw", DisplayName = "Get Throw Montage")
 	UAnimMontage* BP_GetThrowMontage() const;
+
+	void FinalizeThrowReleased(float TimeHeld);
 	
 	/* Variables */
 	UPROPERTY()
@@ -73,7 +81,4 @@ protected:
 private:
 	UPROPERTY()
 	TObjectPtr<UFPSCombatThrowableInstance> ThrowInstance = nullptr;
-
-	UPROPERTY()
-	TObjectPtr<UFPSCombatEquipmentInstance> CachedItemInstance;
 };

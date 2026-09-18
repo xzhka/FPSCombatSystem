@@ -33,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE TArray<UFPSCombatItemInstance*> GetSlots() const { return ItemSlots; }
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE UFPSCombatEquipmentInstance* GetActiveItemInstance() const { return EquippedItem; }
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Slots")

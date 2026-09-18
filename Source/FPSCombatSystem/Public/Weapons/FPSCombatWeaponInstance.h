@@ -30,7 +30,6 @@ public:
 	FORCEINLINE float GetTimeSinceLastFire() const { return GetWorld()->GetTimeSeconds()-TimeFired; }
 
 	
-	
 protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = Animations)
 	TSubclassOf<UAnimInstance> PickAnimLayer(bool bIsEquipped, const FGameplayTagContainer& CosmeticTag) const;

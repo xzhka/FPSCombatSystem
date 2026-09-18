@@ -5,11 +5,13 @@
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/FPSCombatPlayerState.h"
+#include "Weapons/Projectile/FPSCombatThrowableInstance.h"
 
 
 // Sets default values
 AFPSCombatCharacter::AFPSCombatCharacter()
 {
+	bReplicates = true;
 	GetCapsuleComponent()->SetCapsuleSize(42.0f, 96.0f);
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -36,10 +38,11 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	/* Default components initialize*/
 	PawnComponent = CreateDefaultSubobject<UFPSCombatCharacterPawnComp>(TEXT("PawnComponent"));
 	HealthComponent = CreateDefaultSubobject<UFPSCombatHealthComponent>(TEXT("HealthComponent"));
-	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComponent"));
+	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComponent"));	
 	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComp>(TEXT("MovementComponent"));
-	EquipmentComponent = CreateDefaultSubobject<UFPSCombatEquipmentManager>(TEXT("EquipmentManager"));
+	EquipmentComponent = CreateDefaultSubobject<UFPSCombatEquipmentManager>(TEXT("EquipmentManager")); 
 	ItemComponent = CreateDefaultSubobject<UFPSCombatItemManagerComponent>(TEXT("ItemManager"));
+	RigIKComponent = CreateDefaultSubobject<UFPSCombatRigIKComponent>(TEXT("RigIK"));
 }
 
 void AFPSCombatCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -115,6 +118,9 @@ void AFPSCombatCharacter::GrantDefaultEquipment()
 	{
 		UFPSCombatItemInstance* ItemInstance = ItemComponent->AddStack(ThrowableItemDefinition, FPSCombatGameplayTags::Data_Projectile_Quantity, 0);
 		
-		EquipmentComponent->OnEquipItem(ThrowableDefinition, ItemInstance);
+		if (UFPSCombatEquipmentInstance* ThrowableInstance =  EquipmentComponent->OnEquipItem(ThrowableDefinition, ItemInstance))
+		{
+			ThrowableInstance->SetEquipmentActorsHidden(true);
+		}
 	}
 }

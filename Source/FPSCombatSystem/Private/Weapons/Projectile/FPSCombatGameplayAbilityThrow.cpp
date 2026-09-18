@@ -4,6 +4,7 @@
 #include "Weapons/Projectile/FPSCombatGameplayAbilityThrow.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "Equipment/FPSCombatEquipmentManager.h"
+#include "Equipment/FPSCombatQuickBarComponent.h"
 #include "Weapons/Projectile/Components/ProjectileComponent_Explosive.h"
 
 UFPSCombatGameplayAbilityThrow::UFPSCombatGameplayAbilityThrow()
@@ -12,7 +13,6 @@ UFPSCombatGameplayAbilityThrow::UFPSCombatGameplayAbilityThrow()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
 
 	ReleaseEventTag = FPSCombatGameplayTags::Ability_Throwable_Release;
-	
 }
 
 bool UFPSCombatGameplayAbilityThrow::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -54,28 +54,15 @@ void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecH
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-
-	if (APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo()))
-	{
-		if (UFPSCombatEquipmentManager* EquipManager = Pawn->FindComponentByClass<UFPSCombatEquipmentManager>())
-		{
-			if (UFPSCombatEquipmentInstance* EquipInstance = EquipManager->GetFirstInstanceOfType<UFPSCombatEquipmentInstance>())
-			{
-				CachedItemInstance = EquipInstance;
-				EquipInstance->SetEquipmentActorsHidden(true);
-			}
-		}
-	}
 	K2_OnThrowSetupComplete();
 	
 	WaitInputRelease  = UAbilityTask_WaitInputRelease::WaitInputRelease(this, false);
 	WaitInputRelease->OnRelease.AddDynamic(this, &ThisClass::HandleInputReleased);
 	WaitInputRelease->ReadyForActivation();
 
-	if (ActorInfo->IsNetAuthority())
-	{
-		GetWorld()->GetTimerManager().SetTimer(MaxHoldHandle, this, &UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout, MaxHoldTime, false);	
-	}
+
+	GetWorld()->GetTimerManager().SetTimer(MaxHoldHandle, this, &UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout, MaxHoldTime, false);	
+
 }
 
 void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
@@ -138,16 +125,41 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 
 void UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout()
 {
-	K2_OnThrowReleased(MaxHoldTime);
+	FinalizeThrowReleased(MaxHoldTime);
 }
 
 void UFPSCombatGameplayAbilityThrow::HandleInputReleased(float TimeHeld)
 {
-	if (CurrentActorInfo && CurrentActorInfo->IsNetAuthority())
+	FinalizeThrowReleased(TimeHeld);
+}
+
+void UFPSCombatGameplayAbilityThrow::SetThrowableVisualsActive(bool bActive)
+{
+	if (AController* Controller = GetController())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(MaxHoldHandle);
+		if (UFPSCombatQuickBarComponent* QuickBar = Controller->FindComponentByClass<UFPSCombatQuickBarComponent>())
+		{
+			if (UFPSCombatEquipmentInstance* ActiveItem = QuickBar->GetActiveItemInstance())
+			{
+				ActiveItem->SetEquipmentActorsHidden(bActive);
+			}
+		}
 	}
-	K2_OnThrowReleased(TimeHeld);
+
+	if (!IsValid(ThrowInstance))
+	{
+		return;
+	}
+
+	if (bActive)
+	{
+		ThrowInstance->SpawnEquipmentActorsFromInstance();
+		ThrowInstance->SetEquipmentActorsHidden(false);
+	}
+	else
+	{
+		ThrowInstance->SetEquipmentActorsHidden(true);
+	}
 }
 
 UAnimMontage* UFPSCombatGameplayAbilityThrow::BP_GetHoldMontage() const
@@ -160,22 +172,31 @@ UAnimMontage* UFPSCombatGameplayAbilityThrow::BP_GetThrowMontage() const
 	return GetThrowableDefinition() ? GetThrowableDefinition()->ThrowMontage.LoadSynchronous() : nullptr;
 }
 
+void UFPSCombatGameplayAbilityThrow::FinalizeThrowReleased(float TimeHeld)
+{
+	if (CurrentActorInfo && CurrentActorInfo->IsNetAuthority())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(MaxHoldHandle);
+	}
+	if (WaitInputRelease)
+	{
+		WaitInputRelease->EndTask();
+		WaitInputRelease = nullptr;
+	}
+	
+	K2_OnThrowReleased(TimeHeld);
+}
+
 void UFPSCombatGameplayAbilityThrow::EndAbility(const FGameplayAbilitySpecHandle Handle,
                                                 const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                 bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (ActorInfo->IsNetAuthority())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(MaxHoldHandle);
-	}
+	GetWorld()->GetTimerManager().ClearTimer(MaxHoldHandle);
+	SetThrowableVisualsActive(false);
+	
 	if (ThrowInstance)
 	{
 		ThrowInstance->ClearEquipmentActors();
-	}
-	if (CachedItemInstance)
-	{
-		CachedItemInstance->SetEquipmentActorsHidden(false);
-		CachedItemInstance = nullptr;
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
