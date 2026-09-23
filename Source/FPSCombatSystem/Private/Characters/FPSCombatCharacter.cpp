@@ -41,7 +41,6 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComponent"));	
 	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComp>(TEXT("MovementComponent"));
 	EquipmentComponent = CreateDefaultSubobject<UFPSCombatEquipmentManager>(TEXT("EquipmentManager")); 
-	ItemComponent = CreateDefaultSubobject<UFPSCombatItemManagerComponent>(TEXT("ItemManager"));
 	RigIKComponent = CreateDefaultSubobject<UFPSCombatRigIKComponent>(TEXT("RigIK"));
 }
 
@@ -114,13 +113,26 @@ void AFPSCombatCharacter::OnConstruction(const FTransform& Transform)
 
 void AFPSCombatCharacter::GrantDefaultEquipment()
 {
-	if (ThrowableDefinition!= nullptr)
+	if (ThrowableDefinition == nullptr)
 	{
-		UFPSCombatItemInstance* ItemInstance = ItemComponent->AddStack(ThrowableItemDefinition, FPSCombatGameplayTags::Data_Projectile_Quantity, 0);
-		
-		if (UFPSCombatEquipmentInstance* ThrowableInstance =  EquipmentComponent->OnEquipItem(ThrowableDefinition, ItemInstance))
-		{
-			ThrowableInstance->SetEquipmentActorsHidden(true);
-		}
+		return;
+	}
+
+	AFPSCombatPlayerState* PS = GetPlayerState<AFPSCombatPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	
+	if (PS->GetComponentByClass<UFPSCombatItemManagerComponent>()->FindInstanceByDef(ThrowableItemDefinition) != nullptr)
+	{
+		return;
+	}
+
+	UFPSCombatItemInstance* ItemInstance = PS->GetComponentByClass<UFPSCombatItemManagerComponent>()->AddStack(ThrowableItemDefinition, FPSCombatGameplayTags::Data_Projectile_Quantity, 0);
+	if (UFPSCombatEquipmentInstance* ThrowableInstance = EquipmentComponent->OnEquipItem(ThrowableDefinition, ItemInstance))
+	{
+		ThrowableInstance->SetEquipmentActorsHidden(true);
 	}
 }

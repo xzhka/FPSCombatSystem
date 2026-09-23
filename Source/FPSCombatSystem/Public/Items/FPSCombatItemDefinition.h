@@ -29,6 +29,19 @@ public:
 };
 
 UCLASS()
+class UFPSCombatItemFragment_QuickBarSlot : public UFPSCombatItemFragment
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "QuickBar")
+	TSoftObjectPtr<UTexture2D> Icon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "QuickBar")
+	FText DisplayName;
+};
+
+UCLASS()
 class UFPSCombatItemFragment_Stats : public UFPSCombatItemFragment
 {
 	GENERATED_BODY()

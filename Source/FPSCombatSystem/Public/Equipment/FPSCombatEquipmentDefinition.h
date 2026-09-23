@@ -34,11 +34,6 @@ class FPSCOMBATSYSTEM_API UFPSCombatEquipmentDefinition : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSoftObjectPtr<UTexture2D> WeaponIcon;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	FText WeaponName;
 	
 	UPROPERTY(EditDefaultsOnly, Category="Equipment")
 	TSubclassOf<UFPSCombatEquipmentInstance> ActorEquipmentClass;

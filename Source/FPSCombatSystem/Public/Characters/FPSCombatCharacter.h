@@ -69,9 +69,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
 	TObjectPtr<UFPSCombatEquipmentManager> EquipmentComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
-	TObjectPtr<UFPSCombatItemManagerComponent> ItemComponent;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
 	TObjectPtr<UFPSCombatRigIKComponent> RigIKComponent;
 	

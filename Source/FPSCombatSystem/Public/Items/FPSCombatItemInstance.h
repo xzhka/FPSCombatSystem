@@ -122,7 +122,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetDefaultStatsByValue(FGameplayTag Tag) const;
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UFUNCTION(BlueprintCallable, BlueprintPure=false)
 	const UFPSCombatItemFragment* FindFragmentByType(TSubclassOf<UFPSCombatItemFragment> FragmentType) const;
 
 	template <typename T>
