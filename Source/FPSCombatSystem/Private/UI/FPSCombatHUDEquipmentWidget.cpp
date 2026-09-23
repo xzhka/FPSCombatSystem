@@ -7,31 +7,6 @@
 #include "Equipment/FPSCombatEquipmentManager.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
-void UFPSCombatHUDEquipmentWidget::SetVisibility(ESlateVisibility InVisibility)
-{
-	if (IsDesignTime())
-	{
-		Super::SetVisibility(InVisibility);
-		return;
-	}
-
-	bWantsToVisible = ConvertSerializedVisibilityToRuntime(InVisibility).IsVisible();
-	if (bWantsToVisible)
-	{
-		ShownVisibility = InVisibility;
-	}
-	else
-	{
-		HiddenVisibility = InVisibility;
-	}
-
-	const ESlateVisibility DesiredVisibility = bWantsToVisible ? ShownVisibility : HiddenVisibility;
-	if (GetVisibility() != DesiredVisibility)
-	{
-		Super::SetVisibility(DesiredVisibility);
-	}
-}
-
 void UFPSCombatHUDEquipmentWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -44,20 +19,6 @@ void UFPSCombatHUDEquipmentWidget::NativeDestruct()
 	EquipmentListenerHandle.Unregister();
 	
 	Super::NativeDestruct();
-}
-
-UFPSCombatEquipmentInstance* UFPSCombatHUDEquipmentWidget::GetWatchedInstance() const
-{
-	if (!WatchedInstanceType) return nullptr;
-
-	if (APawn* Pawn = GetOwningPlayerPawn())
-	{
-		if (UFPSCombatEquipmentManager* EqpManager = Pawn->FindComponentByClass<UFPSCombatEquipmentManager>())
-		{
-			return EqpManager->GetFirstInstanceOfType(WatchedInstanceType);
-		}
-	}
-	return nullptr;
 }
 
 void UFPSCombatHUDEquipmentWidget::RefreshWatchedInstance()

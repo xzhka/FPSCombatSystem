@@ -49,7 +49,7 @@ public:
 	FORCEINLINE int32 GetMaxReserveAmmo() const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
-	FORCEINLINE UAnimMontage* GetAnimMontage() { return CachedFireMontage; }
+	FORCEINLINE UAnimMontage* GetAnimFireMontage() { return CachedFireMontage; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UFPSCombatFireMode* GetFireMode() const;

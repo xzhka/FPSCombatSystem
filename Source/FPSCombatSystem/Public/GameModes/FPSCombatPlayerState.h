@@ -8,6 +8,7 @@
 #include "AbilitySystem/FPSCombatAbilitySet.h"
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
+#include "Items/FPSCombatItemManagerComponent.h"
 #include "FPSCombatPlayerState.generated.h"
 
 
@@ -34,6 +35,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute")
 	TObjectPtr<UFPSCombatAttributeSet> AttributeSet;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UFPSCombatItemManagerComponent> ItemComponent;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UFPSCombatAbilitySet> AbilitySet;

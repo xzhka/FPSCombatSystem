@@ -64,8 +64,4 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> FireMontage;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TSoftObjectPtr<UAnimMontage> PickUpMontage;
-	
 };

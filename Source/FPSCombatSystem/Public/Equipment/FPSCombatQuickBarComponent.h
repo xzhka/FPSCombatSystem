@@ -30,9 +30,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Equipment")
 	void CycleSlotBackward();
 	
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure = false)
 	FORCEINLINE TArray<UFPSCombatItemInstance*> GetSlots() const { return ItemSlots; }
 
+	UFUNCTION(BlueprintCallable, BlueprintPure = false)
+	int32 GetActiveSlotIndex() const { return ActiveSlot; }
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE UFPSCombatEquipmentInstance* GetActiveItemInstance() const { return EquippedItem; }
 	
