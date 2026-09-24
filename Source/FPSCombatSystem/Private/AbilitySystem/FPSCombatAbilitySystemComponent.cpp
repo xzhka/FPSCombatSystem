@@ -142,7 +142,6 @@ void UFPSCombatAbilitySystemComponent::ApplyAbilityBlockAndCancelTags(const FGam
 	UGameplayAbility* RequestingAbility, bool bEnableBlockTags, const FGameplayTagContainer& BlockTags,
 	bool bExecuteCancelTags, const FGameplayTagContainer& CancelTags)
 {
-	UE_LOG(LogTemp, Display, TEXT("ApplyAbilityBlockAndCancelTags"));
 	FGameplayTagContainer MergedBlock = BlockTags;
 	FGameplayTagContainer MergedCancel = CancelTags;
 

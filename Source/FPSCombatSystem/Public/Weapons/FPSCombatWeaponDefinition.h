@@ -20,12 +20,6 @@ public:
 	
 	/* Ammo global parameters */
 	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
-	int32 ReserveAmmo = 120;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
-	int32 ClipSize = 20;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Ammo")
 	float ReloadDuration = 2.f;
 
 	/* Fire characteristics */
@@ -63,14 +57,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Fire")
 	float MaxSpreadDegrees = 40.f;
 
-	/* UI Visual */
-	
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSoftObjectPtr<UTexture2D> WeaponIcon;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	FText WeaponName;
-
 	/* Animation */
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
@@ -78,8 +64,4 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> FireMontage;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TSoftObjectPtr<UAnimMontage> PickUpMontage;
-	
 };

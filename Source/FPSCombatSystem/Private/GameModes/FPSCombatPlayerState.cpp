@@ -12,6 +12,8 @@ AFPSCombatPlayerState::AFPSCombatPlayerState()
 	ASC->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	
 	AttributeSet = CreateDefaultSubobject<UFPSCombatAttributeSet>(TEXT("AttributeSet"));
+
+	ItemComponent = CreateDefaultSubobject<UFPSCombatItemManagerComponent>(TEXT("ItemManager"));
 }
 
 UAbilitySystemComponent* AFPSCombatPlayerState::GetAbilitySystemComponent() const

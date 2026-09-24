@@ -11,7 +11,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class FPSCOMBATSYSTEM_API UFPSCombatBaseGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
@@ -39,8 +39,8 @@ public:
 
 	virtual void OnPawnAvatarSet();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = Ability)
-	void K2_OnPawnAvatarSet();
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	AController* GetController();
 	
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,

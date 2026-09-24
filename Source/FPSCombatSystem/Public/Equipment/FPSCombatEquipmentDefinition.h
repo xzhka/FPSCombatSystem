@@ -8,6 +8,7 @@
 #include "FPSCombatEquipmentDefinition.generated.h"
 
 class UFPSCombatEquipmentInstance;
+class UFPSCombatItemDefinition;
 
 USTRUCT()
 struct FFPSCombatEquipmentSpawnActor
@@ -33,6 +34,7 @@ class FPSCOMBATSYSTEM_API UFPSCombatEquipmentDefinition : public UObject
 	GENERATED_BODY()
 
 public:
+	
 	UPROPERTY(EditDefaultsOnly, Category="Equipment")
 	TSubclassOf<UFPSCombatEquipmentInstance> ActorEquipmentClass;
 
