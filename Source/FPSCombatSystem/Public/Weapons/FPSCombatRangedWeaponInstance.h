@@ -7,9 +7,6 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "FPSCombatWeaponDefinition.h"
 #include "Fire/FPSCombatFireMode.h"
-#include "FPSCombatSystem/FPSCombatMessageTypes.h"
-#include "GameFramework/GameplayMessageSubsystem.h"
-#include "Items/FPSCombatItemInstance.h"
 #include "FPSCombatRangedWeaponInstance.generated.h"
 
 
@@ -49,7 +46,7 @@ public:
 	FORCEINLINE int32 GetMaxReserveAmmo() const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
-	FORCEINLINE UAnimMontage* GetAnimFireMontage() { return CachedFireMontage; }
+	UAnimMontage* GetAnimDefinitionMontage(FGameplayTag ActionTag) const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UFPSCombatFireMode* GetFireMode() const;
@@ -89,13 +86,13 @@ protected:
 	bool IsAiming() const;
 
 private:
-	void OnFireMontageAdd();
+	void OnActionMontagesLoaded();
 	
 	UPROPERTY(Transient)
 	TObjectPtr<UFPSCombatFireMode> FireMode;
 
-	UPROPERTY(Transient)
-	TObjectPtr<UAnimMontage> CachedFireMontage;
+	UPROPERTY()
+	TMap<FGameplayTag, TObjectPtr<UAnimMontage>> CachedActionMontages;
 	
 	int32 CurrentRecoilShotIndex = 0;
 

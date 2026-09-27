@@ -5,7 +5,6 @@
 
 #include "FPSCombatSystem/FPSCombatCollisionChannels.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
-#include "GameFramework/Character.h"
 
 UFPSCombatGameplayAbilityRangedW::UFPSCombatGameplayAbilityRangedW()
 {
@@ -170,6 +169,7 @@ void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(const FFPSCombatSho
 	const FVector EndDir = ViewLocation + ShotDir * WeaponInstance->GetWeaponDefinition()->TraceRange;
 
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(WeaponTrace), true, Pawn);
+	Params.bReturnPhysicalMaterial = true;
 	Params.AddIgnoredActor(Pawn);
 
 	const ECollisionChannel TraceChannel = DetermineTraceChannel();
@@ -218,7 +218,7 @@ void UFPSCombatGameplayAbilityRangedW::OnShotTargetDataReady(const FGameplayAbil
 		ASC->CallServerSetReplicatedTargetData(Shot.SpecHandle, Shot.PredictionKey, LocalDataHandle, ApplicationTag, ASC->ScopedPredictionKey);
 	}
 	
-	ApplyDamageForShot(LocalDataHandle);
+	ProcessHitResult(LocalDataHandle);
 	
 	ASC->ConsumeClientReplicatedTargetData(Shot.SpecHandle, Shot.PredictionKey);
 	ASC->AbilityTargetDataSetDelegate(Shot.SpecHandle, Shot.PredictionKey).Remove(Shot.DataReadyHandle);
@@ -304,41 +304,49 @@ void UFPSCombatGameplayAbilityRangedW::FireShot()
 	K2_OnShotFire();
 }
 
-void UFPSCombatGameplayAbilityRangedW::ApplyDamageForShot(const FGameplayAbilityTargetDataHandle& DataHandle) const
+void UFPSCombatGameplayAbilityRangedW::ProcessHitResult(const FGameplayAbilityTargetDataHandle& DataHandle)
 {
 	if (!CurrentActorInfo->IsNetAuthority()) return;
+
+	InvalidateClientPredictionKey();
 	
 	UFPSCombatRangedWeaponInstance* WeaponInstance = GetWeaponInstance();
 	UAbilitySystemComponent* ASC = CurrentActorInfo->AbilitySystemComponent.Get();
 	if (!ASC || !WeaponInstance) return;
 	
 	UFPSCombatWeaponDefinition* WeaponDefinition = WeaponInstance->GetWeaponDefinition();
-	if (!WeaponDefinition->DamageEffectClass) return;
+	if (!WeaponDefinition || !WeaponDefinition->DamageEffectClass) return;
 	
-	FGameplayEffectSpecHandle SpecHandle = MakeOutgoingGameplayEffectSpec(WeaponInstance->GetWeaponDefinition()->DamageEffectClass, GetAbilityLevel());
-	SpecHandle.Data->SetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Damage,
-	WeaponInstance->GetWeaponDefinition()->BaseDamage);
 	for (auto It = DataHandle.Data.CreateConstIterator(); It; ++It)
 	{
 		if (const FHitResult* HitResult = DataHandle.Get(It.GetIndex())->GetHitResult())
 		{
 			if (!IsHitResultValid(*HitResult)) continue;
-			SpecHandle.Data->GetContext().Get()->AddHitResult(*HitResult, true);
+
+			FGameplayEffectContextHandle CueContext = ASC->MakeEffectContext();
+			CueContext.AddHitResult(*HitResult, true);
 			
 			if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult->GetActor()))
 			{
-				ASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
-				FGameplayCueParameters CueParams;
-				CueParams.Location = HitResult->ImpactPoint;
-				CueParams.Normal = HitResult->Normal;
-				CueParams.PhysicalMaterial = HitResult->PhysMaterial;
-				CueParams.Instigator =  ASC->GetAvatarActor();
-				CueParams.EffectCauser = HitResult->GetActor();
-				CueParams.SourceObject = SpecHandle.Data->GetContext().GetSourceObject();
-				CueParams.EffectContext = SpecHandle.Data->GetContext();
-				
-				TargetASC->ExecuteGameplayCue(ImpactTag, CueParams);
+				FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WeaponDefinition->DamageEffectClass, GetAbilityLevel(), ASC->MakeEffectContext());
+				if (SpecHandle.IsValid())
+				{
+					SpecHandle.Data->SetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Damage,
+						WeaponInstance->GetWeaponDefinition()->BaseDamage);	
+					
+					ASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+				}
 			}
+			FGameplayCueParameters CueParams;
+			CueParams.Location = HitResult->ImpactPoint;
+			CueParams.Normal = HitResult->Normal;
+			CueParams.PhysicalMaterial = HitResult->PhysMaterial;
+			CueParams.Instigator =  ASC->GetAvatarActor();
+			CueParams.EffectCauser = HitResult->GetActor();
+			CueParams.SourceObject = WeaponDefinition;
+			CueParams.EffectContext = CueContext;
+			
+			ASC->ExecuteGameplayCue(ImpactTag, CueParams);
 		}
 	}
 }

@@ -15,6 +15,8 @@ class FPSCOMBATSYSTEM_API UFPSCombatGameplayAbilityQuickBar : public UFPSCombatB
 {
 	GENERATED_BODY()
 
+	UFPSCombatGameplayAbilityQuickBar();
+	
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;

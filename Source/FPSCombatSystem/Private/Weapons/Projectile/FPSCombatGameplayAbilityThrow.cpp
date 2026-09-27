@@ -5,14 +5,13 @@
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "Equipment/FPSCombatEquipmentManager.h"
 #include "Equipment/FPSCombatQuickBarComponent.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Weapons/Projectile/Components/ProjectileComponent_Explosive.h"
 
 UFPSCombatGameplayAbilityThrow::UFPSCombatGameplayAbilityThrow()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
-
-	ReleaseEventTag = FPSCombatGameplayTags::Ability_Throwable_Release;
 }
 
 bool UFPSCombatGameplayAbilityThrow::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -60,7 +59,10 @@ void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecH
 	WaitInputRelease->OnRelease.AddDynamic(this, &ThisClass::HandleInputReleased);
 	WaitInputRelease->ReadyForActivation();
 
-
+	UAbilityTask_WaitGameplayEvent* WaitGameplayEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FPSCombatGameplayTags::Ability_ExternalResolveRequested, nullptr, false, true);
+	WaitGameplayEvent->EventReceived.AddDynamic(this, &ThisClass::HandleExternalResolveEvent);
+	WaitGameplayEvent->ReadyForActivation();
+	
 	GetWorld()->GetTimerManager().SetTimer(MaxHoldHandle, this, &UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout, MaxHoldTime, false);	
 
 }
@@ -131,6 +133,25 @@ void UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout()
 void UFPSCombatGameplayAbilityThrow::HandleInputReleased(float TimeHeld)
 {
 	FinalizeThrowReleased(TimeHeld);
+}
+
+void UFPSCombatGameplayAbilityThrow::HandleExternalResolveEvent(FGameplayEventData Payload)
+{
+	if (!CurrentActorInfo && !CurrentActorInfo->IsNetAuthority())
+	{
+		return;
+	}
+	
+	GetWorld()->GetTimerManager().ClearTimer(MaxHoldHandle);
+	if (WaitInputRelease)
+	{
+		WaitInputRelease->EndTask();
+		WaitInputRelease = nullptr;
+	}
+
+	SpawnAndLaunchProjectile();
+
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
 void UFPSCombatGameplayAbilityThrow::SetThrowableVisualsActive(bool bActive)

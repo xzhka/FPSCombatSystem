@@ -63,14 +63,13 @@ protected:
 	UAnimMontage* BP_GetThrowMontage() const;
 
 	void FinalizeThrowReleased(float TimeHeld);
+
+	UFUNCTION()
+	void HandleExternalResolveEvent(FGameplayEventData Payload);
 	
 	/* Variables */
 	UPROPERTY()
 	TObjectPtr<class UAbilityTask_WaitInputRelease> WaitInputRelease;
-	
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Throw")
-	FGameplayTag ReleaseEventTag;
 
 	UPROPERTY()
 	FTimerHandle MaxHoldHandle;

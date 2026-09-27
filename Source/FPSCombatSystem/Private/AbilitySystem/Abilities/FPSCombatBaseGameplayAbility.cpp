@@ -124,7 +124,6 @@ void UFPSCombatBaseGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbi
 
 void UFPSCombatBaseGameplayAbility::OnPawnAvatarSet()
 {
-	K2_OnPawnAvatarSet();
 }
 
 AController* UFPSCombatBaseGameplayAbility::GetController()

@@ -3,6 +3,7 @@
 
 #include "Interaction/WeaponPickupActor.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemGlobals.h"
 #include "Equipment/FPSCombatQuickBarComponent.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
@@ -33,10 +34,12 @@ bool AWeaponPickupActor::TryGivePickup(APawn* PickupPawn)
 				if (FreeSlot == INDEX_NONE) return false;
 				if (UFPSCombatItemInstance* ItemInstance = ItemManager->AddStack(ItemDefinition, FPSCombatGameplayTags::Item_Stat_Quantity, 1))
 				{
-					QuickBar->AddItemToSlot(ItemInstance, FreeSlot);
-
+					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+						PickupPawn, FPSCombatGameplayTags::Ability_ExternalResolveRequested, FGameplayEventData());
 					UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PickupPawn);
 					if (!ASC || ASC->HasMatchingGameplayTag(FPSCombatGameplayTags::Weapon_Reload)) return false;
+					QuickBar->AddItemToSlot(ItemInstance, FreeSlot);
+					
 					QuickBar->SetActiveSlot(FreeSlot);
 				
 					return true;

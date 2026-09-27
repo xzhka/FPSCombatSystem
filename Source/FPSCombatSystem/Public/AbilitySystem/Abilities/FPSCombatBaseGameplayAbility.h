@@ -42,9 +42,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	AController* GetController();
 	
-	UFUNCTION(BlueprintImplementableEvent, Category = Ability)
-	void K2_OnPawnAvatarSet();
-	
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;

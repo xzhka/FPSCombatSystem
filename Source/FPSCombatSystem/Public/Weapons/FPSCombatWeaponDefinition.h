@@ -63,5 +63,5 @@ public:
 	FName LeftHandGripSocket;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TSoftObjectPtr<UAnimMontage> FireMontage;
+	TMap<FGameplayTag, TSoftObjectPtr<UAnimMontage>> ActionAnimations;
 };

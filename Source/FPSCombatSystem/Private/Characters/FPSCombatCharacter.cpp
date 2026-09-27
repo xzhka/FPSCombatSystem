@@ -13,10 +13,9 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 {
 	bReplicates = true;
 	GetCapsuleComponent()->SetCapsuleSize(42.0f, 96.0f);
-
+	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
-
 	
 	// Don`t rotate with controller
 	bUseControllerRotationPitch = false;
@@ -50,6 +49,12 @@ void AFPSCombatCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 	PawnComponent->InitializeInputComponents(PlayerInputComponent);
 }
 
+void AFPSCombatCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	UninitializeAbilitySystem();
+	Super::EndPlay(EndPlayReason);
+}
+
 void AFPSCombatCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -69,6 +74,7 @@ void AFPSCombatCharacter::OnRep_PlayerState()
 
 void AFPSCombatCharacter::UnPossessed()
 {
+	UninitializeAbilitySystem();
 	Super::UnPossessed();
 }
 
@@ -92,6 +98,12 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 			}
 		}
 	}
+}
+
+void AFPSCombatCharacter::UninitializeAbilitySystem()
+{
+	HealthComponent->UninitializeFromAbilitySystem();
+	StaminaComponent->UninitializeFromAbilitySystem();
 }
 
 UAbilitySystemComponent* AFPSCombatCharacter::GetAbilitySystemComponent() const
@@ -119,17 +131,8 @@ void AFPSCombatCharacter::GrantDefaultEquipment()
 	}
 
 	AFPSCombatPlayerState* PS = GetPlayerState<AFPSCombatPlayerState>();
-	if (!PS)
-	{
-		return;
-	}
-
+	if (!PS) return;
 	
-	if (PS->GetComponentByClass<UFPSCombatItemManagerComponent>()->FindInstanceByDef(ThrowableItemDefinition) != nullptr)
-	{
-		return;
-	}
-
 	UFPSCombatItemInstance* ItemInstance = PS->GetComponentByClass<UFPSCombatItemManagerComponent>()->AddStack(ThrowableItemDefinition, FPSCombatGameplayTags::Data_Projectile_Quantity, 0);
 	if (UFPSCombatEquipmentInstance* ThrowableInstance = EquipmentComponent->OnEquipItem(ThrowableDefinition, ItemInstance))
 	{

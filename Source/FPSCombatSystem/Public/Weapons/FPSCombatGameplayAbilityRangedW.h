@@ -78,7 +78,7 @@ private:
 	
     void FireShot();
 
-    void ApplyDamageForShot(const FGameplayAbilityTargetDataHandle& DataHandle) const;
+    void ProcessHitResult(const FGameplayAbilityTargetDataHandle& DataHandle);
     
     void StartRangedWeaponTargeting(const FFPSCombatShotContext& Context);
     void PerformLocalTargeting(const FFPSCombatShotContext& Context, OUT TArray<FHitResult>& OutHits);

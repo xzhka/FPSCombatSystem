@@ -6,6 +6,11 @@
 #include "Equipment/FPSCombatQuickBarComponent.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
+UFPSCombatGameplayAbilityQuickBar::UFPSCombatGameplayAbilityQuickBar()
+{
+	ActivationBlockedTags = FGameplayTagContainer(FPSCombatGameplayTags::Ability_Projectile_Throw);
+}
+
 void UFPSCombatGameplayAbilityQuickBar::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                                         const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                         const FGameplayEventData* TriggerEventData)
