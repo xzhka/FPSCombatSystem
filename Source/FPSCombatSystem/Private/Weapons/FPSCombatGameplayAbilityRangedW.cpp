@@ -166,7 +166,7 @@ void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(const FFPSCombatSho
 	FVector AimDir = ViewRotation.Vector();
 	const FVector ShotDir = WeaponInstance->CalculateFireDirection(Context, AimDir);
 
-	const FVector EndDir = ViewLocation + ShotDir * WeaponInstance->GetWeaponDefinition()->TraceRange;
+	const FVector EndPoint = ViewLocation + ShotDir * WeaponInstance->GetWeaponDefinition()->TraceRange;
 
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(WeaponTrace), true, Pawn);
 	Params.bReturnPhysicalMaterial = true;
@@ -175,10 +175,16 @@ void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(const FFPSCombatSho
 	const ECollisionChannel TraceChannel = DetermineTraceChannel();
 
 	FHitResult Hit;
-	if (GetWorld()->LineTraceSingleByChannel(Hit, ViewLocation, EndDir, TraceChannel, Params))
+	if (!GetWorld()->LineTraceSingleByChannel(Hit, ViewLocation, EndPoint, TraceChannel, Params))
 	{
-		OutHits.Add(Hit);
+		Hit = FHitResult();
+		Hit.TraceStart = ViewLocation;
+		Hit.TraceEnd = EndPoint;
+		Hit.Location = EndPoint;
+		Hit.ImpactPoint = EndPoint;
+		Hit.bBlockingHit = false;
 	}
+	OutHits.Add(Hit);
 	WeaponInstance->ApplyRecoilShotIfNeeded(Context);
 }
 
@@ -267,7 +273,7 @@ bool UFPSCombatGameplayAbilityRangedW::IsHitResultValid(const FHitResult& HitRes
 	{
 		return false;
 	}
-
+	if (!HitResult.bBlockingHit) { return true; }
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(WeaponValidation), true, Pawn);
 	Params.AddIgnoredActor(Pawn);
 	if (HitResult.GetActor())
@@ -342,11 +348,19 @@ void UFPSCombatGameplayAbilityRangedW::ProcessHitResult(const FGameplayAbilityTa
 			CueParams.Normal = HitResult->Normal;
 			CueParams.PhysicalMaterial = HitResult->PhysMaterial;
 			CueParams.Instigator =  ASC->GetAvatarActor();
-			CueParams.EffectCauser = HitResult->GetActor();
+			CueParams.EffectCauser = ASC->GetAvatarActor();
 			CueParams.SourceObject = WeaponDefinition;
 			CueParams.EffectContext = CueContext;
-			
-			ASC->ExecuteGameplayCue(ImpactTag, CueParams);
+
+			if (HitResult->bBlockingHit && ImpactTag.IsValid())
+			{
+				ASC->ExecuteGameplayCue(ImpactTag, CueParams);
+			}
+
+			if (TracerTag.IsValid())
+			{
+				ASC->ExecuteGameplayCue(TracerTag, CueParams);
+			}
 		}
 	}
 }

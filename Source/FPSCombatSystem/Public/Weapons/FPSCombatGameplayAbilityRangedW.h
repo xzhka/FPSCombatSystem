@@ -63,6 +63,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTag ImpactTag;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTag TracerTag;
 	
 private:
 
