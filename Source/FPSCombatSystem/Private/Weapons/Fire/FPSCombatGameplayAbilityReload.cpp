@@ -48,9 +48,7 @@ void UFPSCombatGameplayAbilityReload::ActivateAbility(const FGameplayAbilitySpec
 void UFPSCombatGameplayAbilityReload::GrantReloadAmmo() const
 {
 	UFPSCombatRangedWeaponInstance* WeaponInstance = GetWeaponInstance();
-	UE_LOG(LogTemp, Warning, TEXT("[%s] GrantReloadAmmo called. WeaponInstance = %s"),
-			CurrentActorInfo && CurrentActorInfo->IsNetAuthority() ? TEXT("SERVER") : TEXT("CLIENT"),
-			WeaponInstance ? TEXT("valid") : TEXT("NULL"));
+
 	if (CurrentActorInfo && CurrentActorInfo->IsNetAuthority())
 	{
 		if (WeaponInstance)
