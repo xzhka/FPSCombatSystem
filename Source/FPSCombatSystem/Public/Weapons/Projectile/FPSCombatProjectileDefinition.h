@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "FPSCombatProjectileDefinition.generated.h"
 
 /**
@@ -24,6 +23,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float ProjectileGravityScale = 1.5f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float ProjectileFriction = 0.7f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	bool bProjectileBounceAffectFriction = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float ProjectileMinFrictionFraction = 0.3f;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Lifetime")
-	float ProjectileLifeSpan = 3.f;
+	float ProjectileLifeSpan = 5.f;
 };

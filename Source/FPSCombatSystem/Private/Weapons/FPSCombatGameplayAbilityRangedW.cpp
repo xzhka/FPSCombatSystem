@@ -24,9 +24,9 @@ bool UFPSCombatGameplayAbilityRangedW::CanActivateAbility(const FGameplayAbility
 		return false;
 	}
 
-	UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
+	const UAbilitySystemComponent* ASC = ActorInfo ? ActorInfo->AbilitySystemComponent.Get() : nullptr;
 	const FGameplayAbilitySpec* Spec = ASC ? ASC->FindAbilitySpecFromHandle(Handle) : nullptr;
-	UFPSCombatRangedWeaponInstance* WeaponData = Spec ? Cast<UFPSCombatRangedWeaponInstance>(Spec->SourceObject.Get()) : nullptr;
+	const UFPSCombatRangedWeaponInstance* WeaponData = Spec ? Cast<UFPSCombatRangedWeaponInstance>(Spec->SourceObject.Get()) : nullptr;
 
 	return WeaponData && WeaponData->CanFire();
 }
@@ -177,9 +177,6 @@ void UFPSCombatGameplayAbilityRangedW::PerformLocalTargeting(const FFPSCombatSho
 	FHitResult Hit;
 	if (GetWorld()->LineTraceSingleByChannel(Hit, ViewLocation, EndDir, TraceChannel, Params))
 	{
-#if ENABLE_DRAW_DEBUG
-		DrawDebugLine(GetWorld(), ViewLocation, Hit.bBlockingHit ? Hit.ImpactPoint : EndDir, FColor::Red, false, 10.0f, 0, 1.f);
-#endif
 		OutHits.Add(Hit);
 	}
 	WeaponInstance->ApplyRecoilShotIfNeeded(Context);

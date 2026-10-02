@@ -2,6 +2,7 @@
 #include "FPSCombatSystem/Public/Characters/FPSCombatCharacter.h"
 #include "Characters/FPSCombatMovementComp.h"
 #include "Components/CapsuleComponent.h"
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/FPSCombatPlayerState.h"
 
@@ -38,13 +39,13 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComponent"));
 	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComp>(TEXT("MovementComponent"));
 	EquipmentComponent = CreateDefaultSubobject<UFPSCombatEquipmentManager>(TEXT("EquipmentManager"));
+	ItemComponent = CreateDefaultSubobject<UFPSCombatItemManagerComponent>(TEXT("ItemManager"));
 }
 
 void AFPSCombatCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PawnComponent->InitializeInputComponents(PlayerInputComponent);
-
 }
 
 void AFPSCombatCharacter::PossessedBy(AController* NewController)
@@ -54,8 +55,7 @@ void AFPSCombatCharacter::PossessedBy(AController* NewController)
 	SetOwner(NewController);
 	
 	InitializeAbilitySystem();
-	EquipmentComponent->OnEquipItem(WeaponDefinition);
-	EquipmentComponent->OnEquipItem(ThrowableDefinition);
+	GrantDefaultEquipment();
 }
 
 void AFPSCombatCharacter::OnRep_PlayerState()
@@ -106,5 +106,15 @@ void AFPSCombatCharacter::OnConstruction(const FTransform& Transform)
 	if (DefaultAnimClass)
 	{
 		GetMesh()->LinkAnimClassLayers(DefaultAnimClass);
+	}
+}
+
+void AFPSCombatCharacter::GrantDefaultEquipment()
+{
+	if (ThrowableDefinition!= nullptr)
+	{
+		UFPSCombatItemInstance* ItemInstance = ItemComponent->AddStack(ThrowableItemDefinition, FPSCombatGameplayTags::Data_Projectile_Quantity, 0);
+		
+		EquipmentComponent->OnEquipItem(ThrowableDefinition, ItemInstance);
 	}
 }

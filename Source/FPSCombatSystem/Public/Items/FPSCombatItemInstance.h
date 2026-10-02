@@ -1,0 +1,141 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "Net/Serialization/FastArraySerializer.h"
+#include "FPSCombatItemInstance.generated.h"
+
+class UFPSCombatItemFragment;
+struct FFPSCombatTagInfoContainer;
+class UFPSCombatItemInstance;
+class UFPSCombatItemDefinition;
+
+USTRUCT(BlueprintType)
+struct FFPSCombatTagInfo : public FFastArraySerializerItem
+{
+	GENERATED_BODY()
+	FFPSCombatTagInfo() {}
+
+	FFPSCombatTagInfo(FGameplayTag InTag, int32 InStack)
+		: Tag(InTag), Stack(InStack)
+	{}
+	
+	
+	FString GetDebugString() const;
+
+	
+private:
+
+	friend FFPSCombatTagInfoContainer;
+
+	UPROPERTY()
+	FGameplayTag Tag;
+
+	UPROPERTY()
+	int32 Stack = 0;
+
+	UPROPERTY(NotReplicated)
+	int32 LastNoticedStack = INDEX_NONE;
+};
+
+USTRUCT(BlueprintType)
+struct FFPSCombatTagInfoContainer : public FFastArraySerializer
+{
+
+	GENERATED_BODY()
+	
+	FFPSCombatTagInfoContainer() {}
+
+	FFPSCombatTagInfoContainer(UObject* InOwningInstance)
+		: OwningOuter(InOwningInstance)
+	{}
+
+public:
+
+	
+	void PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize);
+	void PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize);
+	void PostReplicatedChange( const TArrayView< int32 >& ChangedIndices, int32 FinalSize);
+	
+	void AddStack(FGameplayTag Tag, int32 StackCount);
+	void RemoveStack(FGameplayTag Tag, int32 StackCount);
+
+	void BroadcastChange(const FFPSCombatTagInfo& Info, int32 OldCount, int32 NewCount);
+	
+	int32 GetStack(FGameplayTag Tag) const; 
+
+	bool ContainsStack(FGameplayTag Tag) const { return TagsToStack.Contains(Tag); }
+	
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParams)
+	{
+		return FFastArraySerializer::FastArrayDeltaSerialize<FFPSCombatTagInfo, FFPSCombatTagInfoContainer>(EntryList, DeltaParams, *this);
+	}
+	
+private:
+	UPROPERTY()
+	TArray<FFPSCombatTagInfo> EntryList;
+	
+	TMap<FGameplayTag, int32> TagsToStack;
+
+	UPROPERTY(NotReplicated)
+	TWeakObjectPtr<UObject> OwningOuter;
+};
+
+template<>
+struct TStructOpsTypeTraits<FFPSCombatTagInfoContainer> : public TStructOpsTypeTraitsBase2<FFPSCombatTagInfoContainer>
+{
+	enum
+	{ WithNetDeltaSerializer = true };
+};
+
+
+UCLASS(Blueprintable, BlueprintType)
+class FPSCOMBATSYSTEM_API UFPSCombatItemInstance : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UFPSCombatItemInstance();
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	TSubclassOf<UFPSCombatItemDefinition> GetItemDefinition() const { return ItemDefinition; }
+	void SetItemDefinition(const TSubclassOf<UFPSCombatItemDefinition> InItemDefinition) { ItemDefinition = InItemDefinition; };
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	bool HasStatTag(FGameplayTag Tag) const;
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	int32 GetStack(FGameplayTag Tag) const { return ItemStats.GetStack(Tag); };
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Inventory")
+	void AddStackCount(FGameplayTag Tag, int32 StackCount);
+	
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Inventory")
+	void RemoveStackCount(FGameplayTag Tag, int32 StackCount);
+	
+	virtual void RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context,
+		UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
+	virtual bool IsSupportedForNetworking() const override { return true; }
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetDefaultStatsByValue(FGameplayTag Tag) const;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	const UFPSCombatItemFragment* FindFragmentByType(TSubclassOf<UFPSCombatItemFragment> FragmentType) const;
+
+	template <typename T>
+	const T* FindFragmentByType() const
+	{
+		return (T*)FindFragmentByType(T::StaticClass());
+	}
+	
+private:
+	
+	UPROPERTY(Replicated)
+	TSubclassOf<UFPSCombatItemDefinition> ItemDefinition;
+
+	UPROPERTY(Replicated)
+	FFPSCombatTagInfoContainer ItemStats;
+};

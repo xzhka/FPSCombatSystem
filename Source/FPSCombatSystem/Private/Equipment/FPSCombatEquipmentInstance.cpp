@@ -45,6 +45,18 @@ void UFPSCombatEquipmentInstance::ClearEquipmentActors()
 	}
 }
 
+void UFPSCombatEquipmentInstance::SetEquipmentActorsHidden(bool bHidden)
+{
+	for (AActor* Actor : ActorsToSpawn)
+	{
+		if (Actor)
+		{
+			Actor->SetActorHiddenInGame(bHidden);
+			Actor->SetActorEnableCollision(!bHidden);
+		}
+	}
+}
+
 APawn* UFPSCombatEquipmentInstance::GetPawn() const
 {
 	return Cast<APawn>(GetOuter());
@@ -64,6 +76,7 @@ void UFPSCombatEquipmentInstance::GetLifetimeReplicatedProps(TArray<FLifetimePro
 
 	DOREPLIFETIME(UFPSCombatEquipmentInstance, ActorsToSpawn);
 	DOREPLIFETIME(UFPSCombatEquipmentInstance, InstanceDefinition);
+	DOREPLIFETIME(UFPSCombatEquipmentInstance, Instance);
 }
 
 void UFPSCombatEquipmentInstance::OnEquipped()

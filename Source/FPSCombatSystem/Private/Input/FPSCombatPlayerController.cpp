@@ -10,6 +10,8 @@ AFPSCombatPlayerController::AFPSCombatPlayerController(const FObjectInitializer&
 	:Super(ObjectInitializer)
 {
 	PlayerCameraManagerClass = AFPSCombatPlayerCameraManager::StaticClass();
+
+	QuickBarComponent = CreateDefaultSubobject<UFPSCombatQuickBarComponent>(TEXT("QuickBarComponent"));
 }
 
 void AFPSCombatPlayerController::BeginPlay()

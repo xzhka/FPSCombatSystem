@@ -10,8 +10,6 @@
 void UFPSCombatAmmoWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	AmmoListenerHandle = UGameplayMessageSubsystem::Get(this).RegisterListener(FPSCombatGameplayTags::Message_Ammo_Change,this, &UFPSCombatAmmoWidget::HandleAmmoMessage);
-
 	EquipmentListenerHandle = UGameplayMessageSubsystem::Get(this).RegisterListener(FPSCombatGameplayTags::Message_Equipment_Change, this, &UFPSCombatAmmoWidget::HandleEquipmentMessage);
 	
 	RefreshFromCurrentWeapon();
@@ -19,15 +17,9 @@ void UFPSCombatAmmoWidget::NativeConstruct()
 
 void UFPSCombatAmmoWidget::NativeDestruct()
 {
-	AmmoListenerHandle.Unregister();
 	EquipmentListenerHandle.Unregister();
 	
 	Super::NativeDestruct();
-}
-
-void UFPSCombatAmmoWidget::HandleAmmoMessage(FGameplayTag Channel, const FFPSCombatAmmoChangedMessage& Message)
-{
-	OnAmmoUpdated(Message.CurrentAmmo, Message.ReserveAmmo);
 }
 
 void UFPSCombatAmmoWidget::HandleEquipmentMessage(FGameplayTag Channel, const FFPSCombatEquipmentChangedMessage& Message)
@@ -51,11 +43,9 @@ void UFPSCombatAmmoWidget::RefreshFromCurrentWeapon()
 	if (RangedWeaponInstance)
 	{
 		SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-		OnAmmoUpdated(RangedWeaponInstance->GetCurrentAmmo(), RangedWeaponInstance->GetReserveAmmo());
 	}
 	else
 	{
 		SetVisibility(ESlateVisibility::Collapsed);
 	}
-	
 }
