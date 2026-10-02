@@ -26,15 +26,9 @@ public:
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	UFPSCombatRangedWeaponInstance* GetWeaponInstance() const;
-	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
-	UFUNCTION()
-	void OnReloadFinished();
-	
-	UPROPERTY(Transient)
-	TObjectPtr<class UAbilityTask_WaitDelay> WaitDelayTask;
-	
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void GrantReloadAmmo() const;
 };

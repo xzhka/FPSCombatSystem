@@ -56,7 +56,7 @@ void AFPSCombatProjectileBase::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (StaticMeshComp && SpinRateDegPerSec > 0.f)
+	if (HasAuthority() && StaticMeshComp && SpinRateDegPerSec > 0.f)
 	{
 		const FQuat DeltaSpin(SpinAxis, FMath::DegreesToRadians(SpinRateDegPerSec*DeltaSeconds));
 		StaticMeshComp->AddLocalRotation(DeltaSpin);

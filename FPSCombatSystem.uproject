@@ -14,7 +14,8 @@
 				"UMG",
 				"ModularGameplay",
 				"EnhancedInput",
-				"CoreUObject"
+				"CoreUObject",
+				"IKRig"
 			]
 		}
 	],
@@ -43,7 +44,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "GameFeatures",
+			"Name": "Iris",
 			"Enabled": true
 		}
 	]

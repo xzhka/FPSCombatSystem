@@ -28,8 +28,8 @@ struct FFPSCombatEquipmentChangedMessage
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bIsEquipped = false;
-	
 };
+
 
 USTRUCT(BlueprintType)
 struct FFPSCombatItemChangedMessage

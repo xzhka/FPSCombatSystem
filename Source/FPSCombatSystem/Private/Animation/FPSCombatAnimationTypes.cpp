@@ -2,11 +2,11 @@
 #include <FPSCombatSystem/Public/Animation/FPSCombatAnimationTypes.h>
 
 
-TSubclassOf<UAnimInstance> FFPSCombatLayerSelectionSet::SelectLayers(const FGameplayTagContainer& CosmeticTags) const
+TSubclassOf<UAnimInstance> FFPSCombatLayerSelectionSet::SelectLayers() const
 {
 	for (const FFPSCombatLayerTypeSet& Rule : CompleteAnimLayers)
 	{
-		if ((Rule.AnimLayer!= nullptr) && CosmeticTags.HasAll(Rule.RequiredTag))
+		if (Rule.AnimLayer!= nullptr)
 		{
 			return Rule.AnimLayer;
 		}

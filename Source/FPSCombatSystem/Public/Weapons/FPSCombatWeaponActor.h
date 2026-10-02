@@ -17,11 +17,6 @@ class FPSCOMBATSYSTEM_API AFPSCombatWeaponActor : public AActor
 public:	
 	AFPSCombatWeaponActor();
 
-
-protected:
-	UFUNCTION(BlueprintCallable)
-	FTransform GetMuzzleLocation() const;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Names")
-	FName MuzzleSocketName;	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Taransform")
+	FTransform GetSocketTransform(FName SocketName) const;
 };
