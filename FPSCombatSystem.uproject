@@ -14,7 +14,8 @@
 				"UMG",
 				"ModularGameplay",
 				"EnhancedInput",
-				"CoreUObject"
+				"CoreUObject",
+				"IKRig"
 			]
 		}
 	],
@@ -40,6 +41,10 @@
 		},
 		{
 			"Name": "AnimationWarping",
+			"Enabled": true
+		},
+		{
+			"Name": "Iris",
 			"Enabled": true
 		}
 	]

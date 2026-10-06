@@ -3,15 +3,19 @@
 
 #include "Interaction/StatsPickupActor.h"
 
+#include "GameModes/FPSCombatPlayerState.h"
 #include "Items/FPSCombatItemManagerComponent.h"
 
 bool AStatsPickupActor::TryGivePickup(APawn* PickupPawn)
 {
 	check(PickupPawn != nullptr);
 
-	if (UFPSCombatItemManagerComponent* ItemManager = PickupPawn->FindComponentByClass<UFPSCombatItemManagerComponent>())
+	if (AFPSCombatPlayerState* PlayerState = PickupPawn->GetPlayerState<AFPSCombatPlayerState>())
 	{
-		return TryTopUpStat(ItemManager->FindInstanceByDef(ItemDefinition));
+		if (UFPSCombatItemManagerComponent* ItemManager = PlayerState->FindComponentByClass<UFPSCombatItemManagerComponent>())
+		{
+			return TryTopUpStat(ItemManager->FindInstanceByDef(ItemDefinition));
+		}
 	}
 	return false;
 }

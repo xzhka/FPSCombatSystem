@@ -11,9 +11,6 @@ struct FFPSCombatLayerTypeSet
 public:	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	TSubclassOf<UAnimInstance> AnimLayer;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
-	FGameplayTagContainer RequiredTag;
 };
 
 USTRUCT(BlueprintType)
@@ -27,6 +24,6 @@ struct FFPSCombatLayerSelectionSet
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 	TSubclassOf<UAnimInstance> DefaultLayer;
 
-	TSubclassOf<UAnimInstance> SelectLayers(const FGameplayTagContainer& CosmeticTags) const;
+	TSubclassOf<UAnimInstance> SelectLayers() const;
 	
 };

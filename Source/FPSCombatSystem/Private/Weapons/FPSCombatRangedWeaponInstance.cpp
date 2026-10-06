@@ -174,11 +174,18 @@ bool UFPSCombatRangedWeaponInstance::IsAiming() const
 	return GetPawnASC()->HasMatchingGameplayTag(FPSCombatGameplayTags::Weapon_Aiming);
 }
 
-void UFPSCombatRangedWeaponInstance::OnFireMontageAdd()
+void UFPSCombatRangedWeaponInstance::OnActionMontagesLoaded()
 {
-	if (UFPSCombatWeaponDefinition* Def = GetWeaponDefinition())
+	if (UFPSCombatWeaponDefinition* WeaponDef = GetWeaponDefinition())
 	{
-		CachedFireMontage = Def->FireMontage.Get();
+		CachedActionMontages.Empty();
+		for (const auto& Pair : WeaponDef->ActionAnimations)
+		{
+			if (UAnimMontage* Loaded = Pair.Value.Get())
+			{
+				CachedActionMontages.Add(Pair.Key, Loaded);
+			}
+		}
 	}
 }
 
@@ -221,6 +228,12 @@ int32 UFPSCombatRangedWeaponInstance::GetMaxReserveAmmo() const
 	const UFPSCombatItemInstance* ItemInstance = GetItemInstance();
 
 	return ItemInstance ? ItemInstance->GetDefaultStatsByValue(FPSCombatGameplayTags::Data_Weapon_SpareAmmo) : 0;
+}
+
+UAnimMontage* UFPSCombatRangedWeaponInstance::GetAnimDefinitionMontage(FGameplayTag ActionTag) const
+{
+	const TObjectPtr<UAnimMontage>* FoundAnimation = CachedActionMontages.Find(ActionTag);
+	return FoundAnimation ? *FoundAnimation : nullptr;
 }
 
 bool UFPSCombatRangedWeaponInstance::HasAmmoInMag() const
@@ -343,10 +356,14 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 
 	if (UFPSCombatWeaponDefinition* WeaponDef = GetWeaponDefinition())
 	{
-		if (!WeaponDef->FireMontage.IsNull())
+		TArray<FSoftObjectPath> SoftObjectPaths;
+		for (const auto& Pair : WeaponDef->ActionAnimations)
 		{
-			FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
-			Streamable.RequestAsyncLoad(WeaponDef->FireMontage.ToSoftObjectPath(), FStreamableDelegate::CreateUObject(this, &UFPSCombatRangedWeaponInstance::OnFireMontageAdd));
+			if (!Pair.Value.IsNull()) SoftObjectPaths.Add(Pair.Value.ToSoftObjectPath());
+		}
+		if (SoftObjectPaths.Num() > 0)
+		{
+			UAssetManager::GetStreamableManager().RequestAsyncLoad(SoftObjectPaths, FStreamableDelegate::CreateUObject(this, &UFPSCombatRangedWeaponInstance::OnActionMontagesLoaded));
 		}
 	}
 
@@ -365,7 +382,6 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 
 void UFPSCombatRangedWeaponInstance::OnUnequipped()
 {
-	CachedFireMontage = nullptr;
 	AbortFireSequence();
 	Super::OnUnequipped();
 }

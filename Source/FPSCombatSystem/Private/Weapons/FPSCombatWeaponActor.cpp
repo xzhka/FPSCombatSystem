@@ -13,11 +13,11 @@ AFPSCombatWeaponActor::AFPSCombatWeaponActor()
 	WeaponMeshComponent->SetFirstPersonPrimitiveType(EFirstPersonPrimitiveType::FirstPerson);
 }
 
-FTransform AFPSCombatWeaponActor::GetMuzzleLocation() const
+FTransform AFPSCombatWeaponActor::GetSocketTransform(FName SocketName) const
 {
-	if (WeaponMeshComponent && WeaponMeshComponent->DoesSocketExist(MuzzleSocketName))
+	if (WeaponMeshComponent && WeaponMeshComponent->DoesSocketExist(SocketName))
 	{
-		return WeaponMeshComponent->GetSocketTransform(MuzzleSocketName);
+		return WeaponMeshComponent->GetSocketTransform(SocketName);
 	}
 	return GetActorTransform();
 }

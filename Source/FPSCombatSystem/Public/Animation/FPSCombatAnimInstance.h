@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/FPSCombatGameplayAbilitySprint.h"
 #include "Animation/AnimInstance.h"
 #include "FPSCombatAnimInstance.generated.h"

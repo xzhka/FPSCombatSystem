@@ -103,7 +103,7 @@ void UFPSCombatQuickBarComponent::GetLifetimeReplicatedProps(TArray<FLifetimePro
 
 void UFPSCombatQuickBarComponent::SetActiveSlot_Implementation(int32 NewIndex)
 {
-	if (ItemSlots.IsValidIndex(NewIndex) && ActiveSlot != NewIndex)
+	if ((ItemSlots.IsValidIndex(NewIndex)) && (ActiveSlot != NewIndex))
 	{
 		UnequipItemInSlot();
 
@@ -158,7 +158,7 @@ UFPSCombatItemInstance* UFPSCombatQuickBarComponent::RemoveItemFromSlot(int32 It
 int32 UFPSCombatQuickBarComponent::GetNextFreeItemSlot()
 {
 	int32 FreeItemSlot = 0;
-	for (const UFPSCombatItemInstance* Instance : ItemSlots)
+	for (const TObjectPtr<UFPSCombatItemInstance>& Instance : ItemSlots)
 	{
 		if (Instance == nullptr)
 		{

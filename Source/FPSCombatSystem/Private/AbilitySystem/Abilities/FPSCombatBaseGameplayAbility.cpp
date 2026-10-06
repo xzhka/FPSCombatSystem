@@ -124,7 +124,33 @@ void UFPSCombatBaseGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbi
 
 void UFPSCombatBaseGameplayAbility::OnPawnAvatarSet()
 {
-	K2_OnPawnAvatarSet();
+}
+
+AController* UFPSCombatBaseGameplayAbility::GetController()
+{
+	check(CurrentActorInfo);
+	
+	if (AController* Controller = CurrentActorInfo->PlayerController.Get())
+	{
+		return Controller;
+	}
+
+	AActor* OwnerActor = CurrentActorInfo->OwnerActor.Get();
+	while (OwnerActor)
+	{
+		if (AController* Controller = Cast<AController>(OwnerActor))
+		{
+			return Controller;
+		}
+
+		if (const APawn* Pawn = Cast<APawn>(OwnerActor))
+		{
+			return Pawn->GetController();
+		}
+		
+		OwnerActor = OwnerActor->GetOwner();
+	}
+	return nullptr;
 }
 
 AController* UFPSCombatBaseGameplayAbility::GetController()
