@@ -206,9 +206,11 @@ void UFPSCombatAbilitySystemComponent::AbilitySpecInputPressed(FGameplayAbilityS
 
 	if (Spec.IsActive())
 	{
-		const UGameplayAbility* PrimaryAbility = Spec.GetPrimaryInstance();
-		FPredictionKey PredictionKey = PrimaryAbility ? PrimaryAbility->GetCurrentActivationInfo().GetActivationPredictionKey() : Spec.ActivationInfo.GetActivationPredictionKey();
-		InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, Spec.Handle, PredictionKey);
+		if (const UGameplayAbility* PrimaryAbility = Spec.GetPrimaryInstance())
+		{
+			FPredictionKey PredictionKey = PrimaryAbility->GetCurrentActivationInfo().GetActivationPredictionKey();
+			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, Spec.Handle, PredictionKey);
+		}
 	}
 }
 
@@ -218,8 +220,10 @@ void UFPSCombatAbilitySystemComponent::AbilitySpecInputReleased(FGameplayAbility
 
 	if (Spec.IsActive())
 	{
-		const UGameplayAbility* PrimaryAbility = Spec.GetPrimaryInstance();
-		FPredictionKey PredictionKey = PrimaryAbility ? PrimaryAbility->GetCurrentActivationInfo().GetActivationPredictionKey() : Spec.ActivationInfo.GetActivationPredictionKey();
-		InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, Spec.Handle, PredictionKey);
+		if (const UGameplayAbility* PrimaryAbility = Spec.GetPrimaryInstance())
+		{
+			FPredictionKey PredictionKey = PrimaryAbility->GetCurrentActivationInfo().GetActivationPredictionKey();
+			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, Spec.Handle, PredictionKey);
+		}
 	}
 }

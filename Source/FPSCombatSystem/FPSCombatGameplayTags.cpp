@@ -16,8 +16,6 @@ namespace FPSCombatGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Sprinting, "Ability.Moving.Sprinting");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Dash, "Ability.Moving.Dash");
 	
-	UE_DEFINE_GAMEPLAY_TAG(Ability_QuickBar_ChangeSlot, "Ability.QuickBar.ChangeSlot");
-	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource, "Ability.Moving.AirborneSource");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource_Updraft, "Ability.Moving.AirborneSource.Updraft");
 	

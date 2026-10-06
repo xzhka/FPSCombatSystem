@@ -21,6 +21,7 @@ void UFPSCombatHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UFPSCombatHealthComponent, DeathState);
+	DOREPLIFETIME(UFPSCombatHealthComponent, DeathInfo);
 }
 
 
@@ -44,6 +45,14 @@ float UFPSCombatHealthComponent::GetMergedHealth() const
 		return ((MaxHealth > 0.f) ? (Health / MaxHealth) : 0.f);
 	}
 	return 0.f;
+}
+
+void UFPSCombatHealthComponent::SetDeathInfo(const FFPSCombatDeathInfo& NewDeathInfo)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		DeathInfo = NewDeathInfo;
+	}
 }
 
 
@@ -114,10 +123,10 @@ void UFPSCombatHealthComponent::OnRep_DeathStateChange(EDeathState OldDeathState
 		if (NewDeathState == EDeathState::DeathStarted)
 		{
 			DeathStarted();
-			DeathEnded();
 		}
 		else if (NewDeathState == EDeathState::DeathEnded)
 		{
+			DeathStarted();
 			DeathEnded();
 		}
 		else
@@ -176,7 +185,7 @@ void UFPSCombatHealthComponent::HandleOutOfHealthChanged(AActor* EffectInstigato
 		Payload.TargetTags = *EffectSpec->CapturedTargetTags.GetAggregatedTags();
 		Payload.EventMagnitude = NULL;
 		
-		int32 SuccessfulActivation = AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
+		AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
 	}
 }
 

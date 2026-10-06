@@ -8,7 +8,8 @@
 
 UFPSCombatGameplayAbilityQuickBar::UFPSCombatGameplayAbilityQuickBar()
 {
-	ActivationBlockedTags = FGameplayTagContainer(FPSCombatGameplayTags::Ability_Projectile_Throw);
+	ActivationBlockedTags.AddTag(FPSCombatGameplayTags::Ability_Projectile_Throw);
+	ActivationBlockedTags.AddTag(FPSCombatGameplayTags::State_Death);
 }
 
 void UFPSCombatGameplayAbilityQuickBar::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

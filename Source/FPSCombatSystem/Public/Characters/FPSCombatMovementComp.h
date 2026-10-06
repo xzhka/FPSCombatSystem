@@ -64,6 +64,8 @@ public:
 
 	void InitializeWithAbilitySystem(UFPSCombatAbilitySystemComponent* ASC);
 
+	void UninitializeFromAbilitySystem();
+	
 	virtual void Dash(float Strength, float Duration);
 	
 	virtual void Updraft(float Distance);
@@ -99,6 +101,8 @@ protected:
 	TObjectPtr<AFPSCombatCharacter> OwnerCharacter;
 
 private:
+	void ClearASCGameplayTags();
+	
 	UPROPERTY()
 	TObjectPtr<UFPSCombatAbilitySystemComponent> CachedASC;
 

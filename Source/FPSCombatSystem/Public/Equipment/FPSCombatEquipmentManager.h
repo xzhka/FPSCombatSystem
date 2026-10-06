@@ -98,6 +98,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnUnequipItem(UFPSCombatEquipmentInstance* ItemInstance);
 
+	UFUNCTION(BlueprintCallable)
+	void UnequipAll();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	

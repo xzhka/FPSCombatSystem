@@ -128,6 +128,11 @@ void UFPSCombatQuickBarComponent::AddItemToSlot(UFPSCombatItemInstance* Item, in
 		{
 			ItemSlots[ItemSlot] = Item;
 			OnRep_ItemSlots();
+
+			if (ItemSlot == ActiveSlot && EquippedItem == nullptr)
+			{
+				EquipItemInSlot();
+			}
 		}
 	}
 }

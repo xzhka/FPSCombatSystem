@@ -334,7 +334,7 @@ void UFPSCombatGameplayAbilityRangedW::ProcessHitResult(const FGameplayAbilityTa
 			
 			if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult->GetActor()))
 			{
-				FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WeaponDefinition->DamageEffectClass, GetAbilityLevel(), ASC->MakeEffectContext());
+				FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WeaponDefinition->DamageEffectClass, GetAbilityLevel(), CueContext);
 				if (SpecHandle.IsValid())
 				{
 					SpecHandle.Data->SetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Damage,

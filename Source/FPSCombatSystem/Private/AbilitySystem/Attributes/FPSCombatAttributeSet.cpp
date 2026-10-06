@@ -94,6 +94,21 @@ void UFPSCombatAttributeSet::OnRep_MoveSpeedChanged(const FGameplayAttributeData
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UFPSCombatAttributeSet, MoveSpeed, OldValue);
 }
 
+bool UFPSCombatAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
+{
+	if(!Super::PreGameplayEffectExecute(Data))
+	{
+		return false;
+	}
+
+	if (bOutOfHealth && (Data.EvaluatedData.Attribute == GetHealAttribute() || Data.EvaluatedData.Attribute == GetDamageAttribute()))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 
 void UFPSCombatAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
@@ -213,5 +228,15 @@ void UFPSCombatAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& At
 	else if (Attribute == GetStaminaAttribute())
 	{
 		NewValue = GetClampToMax(NewValue, GetMaxStamina());
+	}
+}
+
+void UFPSCombatAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+
+	if (bOutOfHealth && (GetHealth() > 0))
+	{
+		bOutOfHealth = false;
 	}
 }

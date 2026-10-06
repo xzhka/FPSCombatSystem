@@ -80,9 +80,6 @@ struct TStructOpsTypeTraits<FFPSCombatItemList> : public TStructOpsTypeTraitsBas
 	{ WithNetDeltaSerializer = true };
 };
 
-
-
-
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatItemManagerComponent : public UActorComponent
 {
@@ -100,7 +97,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category= "Entry")
 	void RemoveInstance(UFPSCombatItemInstance* ItemInstance);
 
-	UFUNCTION(BlueprintCallable, Category= "Entry")
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category= "Entry")
 	TArray<UFPSCombatItemInstance*> GetAllItemInstances() const;
 	
 	UFUNCTION(BlueprintCallable, Category= "Entry")

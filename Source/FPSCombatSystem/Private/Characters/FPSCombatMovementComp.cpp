@@ -123,6 +123,8 @@ void UFPSCombatMovementComp::HandleMovementModeChanged(ACharacter* Character, EM
 	uint8 PreviousCustomMode)
 {
 	if (!OwnerCharacter) return;
+
+	if (OwnerCharacter->GetCharacterMovement()->MovementMode == MOVE_None) return;
 	
 	const EMovementMode NewMode = OwnerCharacter->GetCharacterMovement()->MovementMode;
 	const bool bIsGrounded = (NewMode == MOVE_Walking || NewMode == MOVE_NavWalking);
@@ -140,6 +142,16 @@ void UFPSCombatMovementComp::SetMovementState(EFPSCombatMoveState NewState)
 	if (!bAirborne && OwnerCharacter->HasAuthority())
 	{
 		CachedASC->RemoveActiveEffectsWithGrantedTags(FGameplayTagContainer(FPSCombatGameplayTags::Ability_Moving_AirborneSource));
+	}
+}
+
+void UFPSCombatMovementComp::ClearASCGameplayTags()
+{
+	if (CachedASC)
+	{
+		CachedASC->SetLooseGameplayTagCount(FPSCombatGameplayTags::State_Moving_Walking, 0);
+		CachedASC->SetLooseGameplayTagCount(FPSCombatGameplayTags::State_Moving_Airborne, 0);
+		CachedASC->SetLooseGameplayTagCount(FPSCombatGameplayTags::State_Moving_MovingForward, 0);
 	}
 }
 
@@ -180,6 +192,24 @@ void UFPSCombatMovementComp::InitializeWithAbilitySystem(UFPSCombatAbilitySystem
 		OwnerCharacter->OnCharacterMovementUpdated.AddDynamic(this, &UFPSCombatMovementComp::HandleMovementUpdated);
 
 		OwnerCharacter->MovementModeChangedDelegate.AddUniqueDynamic(this, &UFPSCombatMovementComp::HandleMovementModeChanged);
+	}
+}
+
+void UFPSCombatMovementComp::UninitializeFromAbilitySystem()
+{
+	if (CachedASC)
+	{
+		ClearASCGameplayTags();
+		CachedASC->GetGameplayAttributeValueChangeDelegate(
+			UFPSCombatAttributeSet::GetMoveSpeedAttribute()).RemoveAll(this);
+	}
+	
+	CachedASC = nullptr;
+
+	if (OwnerCharacter)
+	{
+		OwnerCharacter->OnCharacterMovementUpdated.RemoveAll(this);
+		OwnerCharacter->MovementModeChangedDelegate.RemoveAll(this);
 	}
 }
 

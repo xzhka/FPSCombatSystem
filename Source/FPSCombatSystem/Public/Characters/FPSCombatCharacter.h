@@ -51,6 +51,22 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
+	UFUNCTION()
+	void OnDeathStarted(AActor* OwningActor);
+	
+	UFUNCTION()
+	void OnDeathEnded(AActor* OwningActor);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void K2_OnDeathEnds();
+
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="On Death Started"))
+	void K2_OnDeathStarts(const FFPSCombatDeathInfo& DeathInfo);
+	
+	void ClearActorDueDeath();
+
+	UPROPERTY()
+	TWeakObjectPtr<UFPSCombatAbilitySystemComponent> CachedASC;
 	
 	/*Components initialize*/
 	

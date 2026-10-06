@@ -30,6 +30,7 @@ void AFPSCombatPlayerState::GrantDefaultAbilities()
 {
 	if (HasAuthority())
 	{
+		GrantedHandles.ClearAbilitySystem(ASC);
 		AbilitySet->GiveAbility(ASC, &GrantedHandles);
 	}
 }

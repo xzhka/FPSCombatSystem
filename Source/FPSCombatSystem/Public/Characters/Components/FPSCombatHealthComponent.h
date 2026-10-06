@@ -4,13 +4,28 @@
 
 #include "CoreMinimal.h"
 #include "FPSCombatBaseComponent.h"
-#include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
 #include "Components/ActorComponent.h"
 #include "FPSCombatHealthComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFPSCombatDeathEvent, AActor*, OwningActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FFPSCombatAttributeChanged, AActor*, Investigator, float, OldValue, float, NewValue, UFPSCombatHealthComponent*, HealthComponent);
+
+USTRUCT(BlueprintType)
+struct FFPSCombatDeathInfo
+{
+GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadOnly)
+	int32 MontageIndex = INDEX_NONE;
+
+	UPROPERTY(BlueprintReadOnly)
+	float Alpha = 0.f;
+
+	UPROPERTY(BlueprintReadOnly)
+	FVector Velocity = FVector::ZeroVector;
+};
+
 
 UENUM(BlueprintType)
 enum class EDeathState : uint8
@@ -49,7 +64,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Components|Health")
 	EDeathState GetDeathState() const { return DeathState; };
+	UFUNCTION(BlueprintCallable, Category = "Components|Death")
+	const FFPSCombatDeathInfo& GetDeathInfo() const { return DeathInfo; }
 
+	void SetDeathInfo(const FFPSCombatDeathInfo& NewDeathInfo);
 	
 	UPROPERTY(BlueprintAssignable)
 	FFPSCombatDeathEvent OnDeathStarted;
@@ -91,6 +109,9 @@ protected:
 
 	UPROPERTY(ReplicatedUsing= OnRep_DeathStateChange)
 	EDeathState DeathState;
+
+	UPROPERTY(Replicated)
+	FFPSCombatDeathInfo DeathInfo;
 	
 	
 };

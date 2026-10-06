@@ -78,6 +78,7 @@ void UProjectileComponent_Explosive::DetonateInternal(const FHitResult& Hit)
 			FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
 			ContextHandle.AddSourceObject(OwnerProjectile);
 			ContextHandle.AddInstigator(OwnerProjectile->GetInstigator(), OwnerProjectile);
+			ContextHandle.AddOrigin(PosLocation);
 		
 			FGameplayEffectSpecHandle SpecHandleData = SourceASC->MakeOutgoingSpec(ThrowableDef->DamageEffectClass, 1.f, ContextHandle);
 			if (!SpecHandleData.IsValid()) continue;

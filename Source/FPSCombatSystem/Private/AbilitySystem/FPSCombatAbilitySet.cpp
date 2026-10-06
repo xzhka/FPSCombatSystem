@@ -78,7 +78,6 @@ void UFPSCombatAbilitySet::GiveAbility(UFPSCombatAbilitySystemComponent* ASC,
 
 		if (GrantedHandles)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Give Ability: %s"), *GetNameSafe(AbilityToGrant.GameplayAbility));
 			GrantedHandles->AddAbilities(SpecHandle);
 		}
 	}

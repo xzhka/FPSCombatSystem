@@ -174,6 +174,21 @@ void UFPSCombatEquipmentManager::OnUnequipItem(UFPSCombatEquipmentInstance* Item
 	}
 }
 
+void UFPSCombatEquipmentManager::UnequipAll()
+{
+	TArray<UFPSCombatEquipmentInstance*> AllInstances;
+
+	for (const FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
+	{
+		AllInstances.Add(Entry.Instance);
+	}
+
+	for (UFPSCombatEquipmentInstance* UnequipInstance : AllInstances)
+	{
+		OnUnequipItem(UnequipInstance);
+	}
+}
+
 void UFPSCombatEquipmentManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -206,20 +221,9 @@ void UFPSCombatEquipmentManager::ReadyForReplication()
 
 void UFPSCombatEquipmentManager::UninitializeComponent()
 {
-	Super::UninitializeComponent();
-
-	TArray<UFPSCombatEquipmentInstance*> AllInstances;
-
-	for (const FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
-	{
-		AllInstances.Add(Entry.Instance);
-	}
-
-	for (UFPSCombatEquipmentInstance* UnequipInstance : AllInstances)
-	{
-		OnUnequipItem(UnequipInstance);
-	}
+	UnequipAll();
 	
+	Super::UninitializeComponent();
 }
 
 UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::GetFirstInstanceOfType(
