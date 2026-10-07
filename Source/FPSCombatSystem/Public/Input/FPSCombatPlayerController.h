@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -12,8 +12,9 @@ struct FInputActionValue;
 class UInputMappingContext;
 class UInputAction;
 
-/**
- * 
+/*	AFPSCombatPlayerController
+ *	
+ *	Main base project controller class
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API AFPSCombatPlayerController : public APlayerController

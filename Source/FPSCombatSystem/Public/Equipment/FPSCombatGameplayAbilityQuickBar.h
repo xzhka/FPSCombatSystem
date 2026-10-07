@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,8 +7,9 @@
 #include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
 #include "FPSCombatGameplayAbilityQuickBar.generated.h"
 
-/**
- * 
+/** UFPSCombatGameplayAbilityQuickBar
+ *
+ *  Ability associated with the quick bar component
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatGameplayAbilityQuickBar : public UFPSCombatBaseGameplayAbility

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Characters/FPSCombatCharacterPawnComp.h"
@@ -10,14 +10,12 @@
 
 void UFPSCombatCharacterPawnComp::InitializeInputComponents(UInputComponent* PlayerInputComponent)
 {
-	UE_LOG(LogTemp, Warning, TEXT("InitializeInputComponents called, this=%p"), this);
 	if (APlayerController* PC = Cast<APlayerController>(GetController<APlayerController>()))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
 		{
 			if (InputConfig && InputConfig->DefaultMappingContext)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Mapping Context is added"));
 				LocalPlayerSubsystem->AddMappingContext(InputConfig->DefaultMappingContext,0);
 			}
 		}
@@ -31,13 +29,16 @@ void UFPSCombatCharacterPawnComp::InitializeInputComponents(UInputComponent* Pla
 		EIC->BindAction(JumpAction, ETriggerEvent::Started, this, &UFPSCombatCharacterPawnComp::Jump);
 		EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &UFPSCombatCharacterPawnComp::StopJump);
 
-		for (const FPSInputAction& Action : InputConfig->InputActions)
+		if (!InputConfig->InputActions.IsEmpty())
 		{
-			if (Action.InputTag.IsValid() && Action.BaseInputActions)
+			for (const FPSInputAction& Action : InputConfig->InputActions)
 			{
-				EIC->BindAction(Action.BaseInputActions, ETriggerEvent::Started, this, &UFPSCombatCharacterPawnComp::Ability_InputTagPressed, Action.InputTag);
+				if (Action.InputTag.IsValid() && Action.BaseInputActions)
+				{
+					EIC->BindAction(Action.BaseInputActions, ETriggerEvent::Started, this, &UFPSCombatCharacterPawnComp::Ability_InputTagPressed, Action.InputTag);
 
-				EIC->BindAction(Action.BaseInputActions, ETriggerEvent::Completed, this, &UFPSCombatCharacterPawnComp::Ability_InputTagReleased, Action.InputTag);
+					EIC->BindAction(Action.BaseInputActions, ETriggerEvent::Completed, this, &UFPSCombatCharacterPawnComp::Ability_InputTagReleased, Action.InputTag);
+				}
 			}
 		}
 	}

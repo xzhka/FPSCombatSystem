@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -12,8 +12,9 @@
 #include "FPSCombatPlayerState.generated.h"
 
 
-/**
- * 
+/** AFPSCombatPlayerState
+ *
+ *  Base player state class for pawns
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API AFPSCombatPlayerState : public APlayerState, public IAbilitySystemInterface

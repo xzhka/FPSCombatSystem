@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,8 +7,9 @@
 #include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
 #include "FPSCombatGameplayAbilityDash.generated.h"
 
-/**
- * 
+/** UFPSCombatGameplayAbilityDash
+ *
+ * Dash representing ability
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatGameplayAbilityDash : public UFPSCombatBaseGameplayAbility

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -8,8 +8,10 @@
 #include "Weapons/FPSCombatWeaponActor.h"
 #include "FPSCombatRigIKComponent.generated.h"
 
-/**
- * 
+/** UFPSCombatRigIKComponent
+ *
+ * IK component which treats the
+ * bone sockets attach with weapons
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPSCOMBATSYSTEM_API UFPSCombatRigIKComponent : public UIKRigComponent

@@ -39,6 +39,7 @@ void UFPSCombatAttributeSet::HandleStaminaChange(float OldValue, float NewValue)
 	
 	OnStaminaChanged.Broadcast(OldValue, NewValue);
 
+	// Broadcast on stamina changing
 	const bool bIsNowOutOfStamina = (NewValue <= 0.0f);
 	if (bIsNowOutOfStamina && !bOutOfStamina)
 	{
@@ -60,6 +61,7 @@ void UFPSCombatAttributeSet::OnRep_HealthChanged(const FGameplayAttributeData& O
 	
 	OnHealthChanged.Broadcast(nullptr, nullptr, OldValue.GetCurrentValue(), CurrentHealth);
 
+	// Broadcast on health changed to zero
 	if (!bOutOfHealth && CurrentHealth <= 0.0f)
 	{
 		OnOutOfHealthChanged.Broadcast(nullptr, nullptr, OldValue.GetCurrentValue(), CurrentHealth);
@@ -197,6 +199,7 @@ void UFPSCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attrib
 	}
 	else if (Attribute == GetMaxHealthAttribute())
 	{
+		// We do not allow to MaxHealth value drop under 1
 		NewValue = GetClampToMax(NewValue, GetMaxHealth());
 	}
 
@@ -207,6 +210,7 @@ void UFPSCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attrib
 	}
 	else if (Attribute == GetMaxStaminaAttribute())
 	{
+		// As a Health we do not allow to MaxStamina drop below max stamina
 		NewValue = GetClampToMax(NewValue, GetMaxStamina());
 	}
 

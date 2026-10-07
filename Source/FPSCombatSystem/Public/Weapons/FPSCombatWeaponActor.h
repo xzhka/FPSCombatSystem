@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -8,6 +8,10 @@
 
 class UAnimMontage;
 
+/*	AFPSCombatWeaponActor
+ *	
+ *	Actor represented weapon
+ */
 UCLASS()
 class FPSCOMBATSYSTEM_API AFPSCombatWeaponActor : public AActor
 {

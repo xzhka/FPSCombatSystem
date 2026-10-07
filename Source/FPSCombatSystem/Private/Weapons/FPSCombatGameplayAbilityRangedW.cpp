@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Weapons/FPSCombatGameplayAbilityRangedW.h"
@@ -306,8 +306,6 @@ void UFPSCombatGameplayAbilityRangedW::FireShot()
 	
 	FFPSCombatShotContext ShotContext = WeaponData->NotifyShotFiredAndMakeShotContext();
 	StartRangedWeaponTargeting(ShotContext);
-	
-	K2_OnShotFire();
 }
 
 void UFPSCombatGameplayAbilityRangedW::ProcessHitResult(const FGameplayAbilityTargetDataHandle& DataHandle)

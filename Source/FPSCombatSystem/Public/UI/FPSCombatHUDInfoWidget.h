@@ -1,16 +1,17 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "FPSCombatInfoWidget.generated.h"
+#include "FPSCombatHUDInfoWidget.generated.h"
 
-/**
- * 
+/** UFPSCombatHUDInfoWidget
+ *
+ *	Parent class for info widgets
  */
 UCLASS(Abstract)
-class FPSCOMBATSYSTEM_API UFPSCombatInfoWidget : public UUserWidget
+class FPSCOMBATSYSTEM_API UFPSCombatHUDInfoWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

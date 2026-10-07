@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,8 +7,9 @@
 #include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
 #include "FPSCombatGameplayAbilityRangedW.generated.h"
 
-/**
- * 
+/** UFPSCombatGameplayAbilityRangedW
+ *
+ *	Ability which associated with ranged weapon instance
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatGameplayAbilityRangedW : public UFPSCombatBaseGameplayAbility
@@ -35,20 +36,16 @@ public:
 protected:
 	/* Functions */
 
-	/* Ability overrides */
+	/* Ability override functions */
     virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
        const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
        const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
-	/* End ability overrides */
 
 	
     virtual void NotifyInputReleased(const FGameplayAbilitySpec& Spec) override;
 
     virtual ECollisionChannel DetermineTraceChannel() const;
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon", meta = (DisplayName = "On Fire Shot"))
-	void K2_OnShotFire();
 
 	/* Variables */
 	

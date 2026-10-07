@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Equipment/FPSCombatEquipmentInstance.h"
@@ -74,18 +74,6 @@ void UFPSCombatEquipmentInstance::SpawnEquipmentActorsFromInstance()
 	if (const UFPSCombatEquipmentDefinition* DefCDO = GetDefinition())
 	{
 		SpawnEquipmentActors(DefCDO->SpawnActors);
-	}
-}
-
-void UFPSCombatEquipmentInstance::SetEquipmentActorsHidden(bool bHidden)
-{
-	for (AActor* Actor : ActorsToSpawn)
-	{
-		if (Actor)
-		{
-			Actor->SetActorHiddenInGame(bHidden);
-			Actor->SetActorEnableCollision(!bHidden);
-		}
 	}
 }
 

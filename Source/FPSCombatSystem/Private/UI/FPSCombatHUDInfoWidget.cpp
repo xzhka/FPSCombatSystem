@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
-#include "UI/FPSCombatInfoWidget.h"
+#include "UI/FPSCombatHUDInfoWidget.h"
 
-void UFPSCombatInfoWidget::SetVisibility(ESlateVisibility InVisibility)
+void UFPSCombatHUDInfoWidget::SetVisibility(ESlateVisibility InVisibility)
 {
 	if (IsDesignTime())
 	{
@@ -28,12 +28,12 @@ void UFPSCombatInfoWidget::SetVisibility(ESlateVisibility InVisibility)
 	}
 }
 
-void UFPSCombatInfoWidget::NativeConstruct()
+void UFPSCombatHUDInfoWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 }
 
-void UFPSCombatInfoWidget::NativeDestruct()
+void UFPSCombatHUDInfoWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
 }

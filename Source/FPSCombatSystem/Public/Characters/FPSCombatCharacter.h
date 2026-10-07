@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -17,6 +17,11 @@
 
 class UFPSCombatMovementComp;
 
+
+/*	AFPSCombatCharacter
+ *	
+ *	Main base character pawn class
+ */
 UCLASS()
 class FPSCOMBATSYSTEM_API AFPSCombatCharacter : public ACharacter, public IAbilitySystemInterface
 {
@@ -34,23 +39,27 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	
-	// Get Camera Component
+	/* Get Camera Component */
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FPSFollowCamera; }
 
 	UFUNCTION(BlueprintPure, Category = "Movement" , meta = (BlueprintThreadSafe))
 	FORCEINLINE UFPSCombatMovementComp* GetCombatMovementComponent() const { return MovementComponent; }
 
+	/* ACharacter override functions*/
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 	virtual void UnPossessed() override;
-	
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+	/* Ability system functions */
 	void InitializeAbilitySystem();
 	void UninitializeAbilitySystem();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	virtual void OnConstruction(const FTransform& Transform) override;
 
 protected:
+	/* Death implementation functions*/
+	
 	UFUNCTION()
 	void OnDeathStarted(AActor* OwningActor);
 	
@@ -64,9 +73,6 @@ protected:
 	void K2_OnDeathStarts(const FFPSCombatDeathInfo& DeathInfo);
 	
 	void ClearActorDueDeath();
-
-	UPROPERTY()
-	TWeakObjectPtr<UFPSCombatAbilitySystemComponent> CachedASC;
 	
 	/*Components initialize*/
 	
@@ -98,5 +104,8 @@ protected:
 	TSubclassOf<UFPSCombatItemDefinition> ThrowableItemDefinition;
 
 private:
+	UPROPERTY()
+	TWeakObjectPtr<UFPSCombatAbilitySystemComponent> CachedASC;
+	
 	void GrantDefaultEquipment();
 };

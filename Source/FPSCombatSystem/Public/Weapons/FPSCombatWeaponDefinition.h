@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -8,6 +8,11 @@
 
 class UFPSCombatFireMode;
 
+
+/** UFPSCombatWeaponDefinition
+ *
+ *  Stats definition for every weapon instance
+ */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatWeaponDefinition : public UFPSCombatEquipmentDefinition
 {

@@ -33,6 +33,7 @@ void UFPSCombatGameplayAbilityUpdraft::ActivateAbility(const FGameplayAbilitySpe
 		return;
 	}
 
+	// Manually execute cue on player ability location
 	if (UAbilitySystemComponent* ASC= GetAbilitySystemComponentFromActorInfo())
 	{
 		FGameplayCueParameters CueParams;
@@ -68,6 +69,7 @@ void UFPSCombatGameplayAbilityUpdraft::Updraft()
 		{
 			AirborneEffectHandle = ApplyGameplayEffectSpecToOwner(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, SpecHandle);
 
+			// Register for gameplay effect removed events
 			ASC->OnGameplayEffectRemoved_InfoDelegate(AirborneEffectHandle)->AddUObject(this, &UFPSCombatGameplayAbilityUpdraft::HandleUpdraftSourceChanged);
 			
 		}

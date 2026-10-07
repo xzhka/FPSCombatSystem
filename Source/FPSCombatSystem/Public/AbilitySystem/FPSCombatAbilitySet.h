@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -8,6 +8,10 @@
 #include "Engine/DataAsset.h"
 #include "FPSCombatAbilitySet.generated.h"
 
+/** FCombatAbilitySet_Abilities
+ *
+ * Information about gameplay abilities adding parameters
+ */
 USTRUCT(BlueprintType)
 struct FCombatAbilitySet_Abilities
 {
@@ -25,6 +29,10 @@ public:
 	FGameplayTag InputTag;
 };
 
+/** FCombatAbilitySet_Effects
+ *
+ * Information about gameplay effects adding parameters
+ */
 USTRUCT(BlueprintType)
 struct FCombatAbilitySet_Effects
 {
@@ -48,6 +56,11 @@ public:
 	TSubclassOf<UAttributeSet> AttributeSet;
 };
 
+
+/** FCombatAbilitySet_GrantedHandles
+ *
+ * A piece of granted handles with effect, attributes and abilities 
+ */
 USTRUCT(BlueprintType)
 struct FCombatAbilitySet_GrantedHandles
 {
@@ -77,8 +90,9 @@ protected:
 
 
 
-/**
- * 
+/** UFPSCombatAbilitySet
+ *
+ * Data asset used to grant attribute sets/abilities/effects
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatAbilitySet : public UDataAsset

@@ -1,3 +1,5 @@
+// FPS Combat project
+
 #pragma once
 #include "NativeGameplayTags.h"
 
@@ -36,10 +38,9 @@ namespace FPSCombatGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Tags_OutOfAmmo);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_SpareAmmo);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_Ammo_Mag);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_Ammo_Mag);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Projectile_Quantity);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_AmmountToAdd);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Grenade_AmmountToAdd);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_AmountToAdd);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Grenade_AmountToAdd);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Stat_Quantity);
 	

@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// FPS Combat project
 
 #include "FPSCombatSystem.h"
 #include "Modules/ModuleManager.h"

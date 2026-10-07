@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -9,8 +9,10 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCancelTagTriggered);
 
 
-/**
- * 
+/** UAbilityTask_WaitCancelTags
+ *
+ * Ability task related to
+ * new added tags while ability is active
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UAbilityTask_WaitCancelTags : public UAbilityTask_WaitGameplayTag
@@ -22,14 +24,11 @@ public:
 	
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"))
 	static UAbilityTask_WaitCancelTags* WaitCancelTags(UGameplayAbility* OwningAbility, FGameplayTagContainer TagsToAdd, FGameplayTagContainer TagsToRemove);
-	
-protected:
-	virtual void OnDestroy(bool AbilityIsEnding) override;
 
-public:
 	UPROPERTY(BlueprintAssignable)
 	FOnCancelTagTriggered OnCancelTagTriggered;
-
+protected:
+	virtual void OnDestroy(bool AbilityIsEnding) override;
 
 private:
 	FGameplayTagContainer AddedTags;

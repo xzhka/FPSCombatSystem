@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -11,6 +11,12 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFPSCombatDeathEvent, AActor*, OwningActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FFPSCombatAttributeChanged, AActor*, Investigator, float, OldValue, float, NewValue, UFPSCombatHealthComponent*, HealthComponent);
 
+/** FFPSCombatDeathInfo
+ *
+ *	Struct which contain a death info
+ *	that would be the place of truth
+ *	for every client on server
+ */
 USTRUCT(BlueprintType)
 struct FFPSCombatDeathInfo
 {
@@ -26,7 +32,10 @@ public:
 	FVector Velocity = FVector::ZeroVector;
 };
 
-
+/** EDeathState
+ *
+ *	Enum with current player state
+ */
 UENUM(BlueprintType)
 enum class EDeathState : uint8
 {
@@ -36,7 +45,11 @@ enum class EDeathState : uint8
 };
 
 
-
+/** UFPSCombatHealthComponent
+ *
+ *	Derived class which represents health stat
+ *	and work with the death event triggering
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSCOMBATSYSTEM_API UFPSCombatHealthComponent : public UFPSCombatBaseComponent
 {

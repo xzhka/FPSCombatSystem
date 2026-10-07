@@ -64,6 +64,8 @@ void UFPSCombatGameplayAbilityDash::Dash()
 		MovementComp->Dash(Strength, Duration);
 	}
 
+	// On authority remove current tag effect
+	// then apply it manually by duration
 	if (CurrentActorInfo->IsNetAuthority())
 	{
 		EffectSpecRemove(DashGrantedEffectHandle);

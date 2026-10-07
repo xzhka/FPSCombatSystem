@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -22,8 +22,9 @@ DECLARE_MULTICAST_DELEGATE_FourParams(FFPSAttributeHealthEvent, AActor* /*Effect
 DECLARE_MULTICAST_DELEGATE(FFPSAttributeStaminaEvent);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FFPSAttributeStaminaChangedEvent, float /*OldValue*/, float /*NewValue*/);
 
-/**
+/* UFPSCombatAttributeSet
  * 
+ * Attribute class declaration for stats 
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatAttributeSet : public UAttributeSet
@@ -42,7 +43,7 @@ public:
 	mutable FFPSAttributeStaminaChangedEvent OnStaminaChanged;
 	mutable FFPSAttributeStaminaChangedEvent OnMaxStaminaChanged;
 	
-	
+	/* Initialize the attribute access macro */
 	ATTRIBUTE_ACCESSORS(UFPSCombatAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UFPSCombatAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UFPSCombatAttributeSet, Heal);
@@ -58,6 +59,7 @@ public:
 
 	
 private:
+	/* Create a replicate attribute data for stats */
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthChanged, Category = "Attributes|Health", meta = (AllowPrivateAccess = true))
 	FGameplayAttributeData Health;
 
@@ -90,6 +92,7 @@ private:
 	float StaminaBeforeChange = 0.f;
 	
 protected:
+	/* Replication using functions */
 	UFUNCTION()
 	void OnRep_HealthChanged(const FGameplayAttributeData& OldValue);
 
@@ -106,6 +109,7 @@ protected:
 	void OnRep_MoveSpeedChanged(const FGameplayAttributeData& OldValue);
 
 public:
+	/* UAttributeSet override functions */
 	virtual bool PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;

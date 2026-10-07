@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -8,8 +8,10 @@
 #include "FPSCombatBaseGameplayAbility.generated.h"
 
 
-/**
- * 
+/** UFPSCombatBaseGameplayAbility
+ *
+ * Base setup parent ability for
+ * ability classes
  */
 UCLASS(Blueprintable)
 class FPSCOMBATSYSTEM_API UFPSCombatBaseGameplayAbility : public UGameplayAbility

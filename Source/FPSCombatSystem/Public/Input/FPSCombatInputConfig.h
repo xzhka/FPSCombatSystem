@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -11,6 +11,10 @@
 class UInputAction;
 class UInputMappingContext;
 
+/*	FPSInputAction
+ *	
+ *	Struct which connects the action and tag
+ */
 USTRUCT(BlueprintType)
 struct FPSInputAction
 {
@@ -24,7 +28,10 @@ public:
 	FGameplayTag InputTag;
 };
 
-
+/*	UFPSCombatInputConfig
+ *	
+ *	Data asset which contains an input actions
+ */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatInputConfig : public UDataAsset
 {

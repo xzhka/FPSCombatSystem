@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 #include "FPSCombatSystem/Public/Characters/FPSCombatCharacter.h"
 #include "Characters/FPSCombatMovementComp.h"
 #include "Components/CapsuleComponent.h"
@@ -9,7 +9,7 @@
 #include "Weapons/Projectile/FPSCombatThrowableInstance.h"
 
 
-// Sets default values
+// Sets default character parameters
 AFPSCombatCharacter::AFPSCombatCharacter()
 {
 	bReplicates = true;
@@ -18,7 +18,7 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	
-	// Don`t rotate with controller
+	/* Setup controller rotation */
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
@@ -63,6 +63,7 @@ void AFPSCombatCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AFPSCombatCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+	// Reset input flags to default for every created pawn instance
 	NewController->ResetIgnoreInputFlags();
 	
 	SetOwner(NewController);
@@ -152,19 +153,21 @@ void AFPSCombatCharacter::OnDeathStarted(AActor* OwningActor)
 {
 	if (HasAuthority())
 	{
+		// Store replicated DeathInfo which would be
+		// the same on every client
 		FFPSCombatDeathInfo Info;
 		Info.MontageIndex = FMath::RandRange(0, MAX_int32-1);
 		Info.Alpha = FMath::FRand();
 		Info.Velocity = GetCharacterMovement()->GetLastUpdateVelocity();
 		HealthComponent->SetDeathInfo(Info);
 	}
-	
+
+	// Set death state setup
 	if (GetController())
 	{
 		GetController()->SetIgnoreMoveInput(true);
 		GetController()->SetIgnoreLookInput(true);
 	}
-
 	bUseControllerRotationYaw = false;
 
 	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
@@ -207,6 +210,7 @@ void AFPSCombatCharacter::ClearActorDueDeath()
 	}
 }
 
+// Grant default instance which related to item system 
 void AFPSCombatCharacter::GrantDefaultEquipment()
 {
 	if (ThrowableDefinition == nullptr)

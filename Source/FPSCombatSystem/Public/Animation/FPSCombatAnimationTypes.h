@@ -1,8 +1,11 @@
+// FPS Combat project
+
 #pragma once
 #include "GameplayTagContainer.h"
 
 #include "FPSCombatAnimationTypes.generated.h"
 
+/* Struct handling anim instance layer*/
 USTRUCT(BlueprintType)
 struct FFPSCombatLayerTypeSet
 {
@@ -13,6 +16,12 @@ public:
 	TSubclassOf<UAnimInstance> AnimLayer;
 };
 
+
+/*	FFPSCombatLayerSelectionSet
+ *	
+ *	Selection set with complete
+ *	animation layers
+ */
 USTRUCT(BlueprintType)
 struct FFPSCombatLayerSelectionSet
 {

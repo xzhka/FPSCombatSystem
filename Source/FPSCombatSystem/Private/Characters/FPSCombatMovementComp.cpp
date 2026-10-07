@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Characters/FPSCombatMovementComp.h"
@@ -73,7 +73,7 @@ float UFPSCombatMovementComp::GetMoveSpeedMultiplier() const
 {
 	if (CachedASC)
 	{
-		CachedASC->GetNumericAttribute(UFPSCombatAttributeSet::GetMoveSpeedAttribute());
+		return CachedASC->GetNumericAttribute(UFPSCombatAttributeSet::GetMoveSpeedAttribute());
 	}
 	return 1.f;
 }

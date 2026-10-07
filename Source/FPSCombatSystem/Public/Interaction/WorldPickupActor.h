@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -10,7 +10,10 @@
 #include "WorldPickupActor.generated.h"
 
 
-
+/*	AWorldPickupActor
+ *	
+ *	Parent class for world spawnable actors
+ */
 UCLASS(Abstract)
 class FPSCOMBATSYSTEM_API AWorldPickupActor : public AActor
 {
