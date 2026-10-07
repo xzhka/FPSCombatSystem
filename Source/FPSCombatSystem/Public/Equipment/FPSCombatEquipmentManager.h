@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -14,6 +14,7 @@
 class UFPSCombatEquipmentManager;
 struct FFPSCombatEquipmentList;
 
+/* Single piece of applied equipment */
 USTRUCT(BlueprintType)
 struct FFPSCombatAppliedEquipmentEntry : public FFastArraySerializerItem
 {
@@ -38,6 +39,7 @@ private:
 	FCombatAbilitySet_GrantedHandles GrantedHandles;
 };
 
+/* List of applied equipment */
 USTRUCT(BlueprintType)
 struct FFPSCombatEquipmentList : public FFastArraySerializer
 {
@@ -82,6 +84,10 @@ struct TStructOpsTypeTraits<FFPSCombatEquipmentList> : public TStructOpsTypeTrai
 };
 
 
+/*	UFPSCombatEquipmentManager
+ *	
+ *	Manages equipment applied to pawn
+ */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatEquipmentManager : public UPawnComponent
 {
@@ -98,6 +104,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnUnequipItem(UFPSCombatEquipmentInstance* ItemInstance);
 
+	UFUNCTION(BlueprintCallable)
+	void UnequipAll();
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	

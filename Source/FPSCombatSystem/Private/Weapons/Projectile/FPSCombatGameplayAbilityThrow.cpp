@@ -137,7 +137,7 @@ void UFPSCombatGameplayAbilityThrow::HandleInputReleased(float TimeHeld)
 
 void UFPSCombatGameplayAbilityThrow::HandleExternalResolveEvent(FGameplayEventData Payload)
 {
-	if (!CurrentActorInfo && !CurrentActorInfo->IsNetAuthority())
+	if (!CurrentActorInfo || !CurrentActorInfo->IsNetAuthority())
 	{
 		return;
 	}

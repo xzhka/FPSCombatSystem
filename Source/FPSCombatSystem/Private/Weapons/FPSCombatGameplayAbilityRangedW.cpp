@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Weapons/FPSCombatGameplayAbilityRangedW.h"
@@ -306,8 +306,6 @@ void UFPSCombatGameplayAbilityRangedW::FireShot()
 	
 	FFPSCombatShotContext ShotContext = WeaponData->NotifyShotFiredAndMakeShotContext();
 	StartRangedWeaponTargeting(ShotContext);
-	
-	K2_OnShotFire();
 }
 
 void UFPSCombatGameplayAbilityRangedW::ProcessHitResult(const FGameplayAbilityTargetDataHandle& DataHandle)
@@ -334,7 +332,7 @@ void UFPSCombatGameplayAbilityRangedW::ProcessHitResult(const FGameplayAbilityTa
 			
 			if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult->GetActor()))
 			{
-				FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WeaponDefinition->DamageEffectClass, GetAbilityLevel(), ASC->MakeEffectContext());
+				FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WeaponDefinition->DamageEffectClass, GetAbilityLevel(), CueContext);
 				if (SpecHandle.IsValid())
 				{
 					SpecHandle.Data->SetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Damage,

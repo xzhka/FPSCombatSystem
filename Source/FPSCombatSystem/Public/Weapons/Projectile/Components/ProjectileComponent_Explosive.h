@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -8,6 +8,10 @@
 #include "Weapons/Projectile/FPSCombatProjectileBase.h"
 #include "ProjectileComponent_Explosive.generated.h"
 
+/*	UProjectileComponent_Explosive
+ *	
+ *	Explosion component for every projectile which would detonate
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSCOMBATSYSTEM_API UProjectileComponent_Explosive : public UActorComponent
 {

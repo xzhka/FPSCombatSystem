@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -9,13 +9,17 @@
 
 struct FInputActionValue;
 class UInputAction;
-/**
- * 
+
+
+/** UFPSCombatCharacterPawnComp
+ *
+ *  Pawn component which stores the input
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatCharacterPawnComp : public UPawnComponent
 {
 	GENERATED_BODY()
+	/* Input actions */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
 
@@ -26,20 +30,21 @@ class FPSCOMBATSYSTEM_API UFPSCombatCharacterPawnComp : public UPawnComponent
 	UInputAction* LookAction;
 
 public:
-	
+
+	/* Base component initializing */
 	void InitializeInputComponents(UInputComponent* PlayerInputComponent);
 	
 
 protected:
-
+	/* Default pawn class actions */
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-
-	void Ability_InputTagPressed(FGameplayTag InputTag);
-	void Ability_InputTagReleased(FGameplayTag InputTag);
-
 	void Jump();
 	void StopJump();
+
+	/* Ability input action treatment */
+	void Ability_InputTagPressed(FGameplayTag InputTag);
+	void Ability_InputTagReleased(FGameplayTag InputTag);
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UFPSCombatInputConfig> InputConfig;

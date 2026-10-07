@@ -109,6 +109,7 @@ void UFPSCombatBaseGameplayAbility::TryActivateAbilityOnSpawn(const FGameplayAbi
 		AActor* AvatarActor = ActorInfo->AvatarActor.Get();
 		if (ASC && AvatarActor && !AvatarActor->GetTearOff() && (AvatarActor->GetLifeSpan() <= 0.f))
 		{
+			// Find ability execution and activation rules for activating at start
 			const bool bIsLocalExecution = (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalPredicted) || (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalOnly);
 			const bool bIsServerExecution = (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::ServerInitiated) || (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::ServerOnly);
 
@@ -136,6 +137,8 @@ AController* UFPSCombatBaseGameplayAbility::GetController()
 	}
 
 	AActor* OwnerActor = CurrentActorInfo->OwnerActor.Get();
+	// Go through the whole owner chain of Actor
+	// to find Controller
 	while (OwnerActor)
 	{
 		if (AController* Controller = Cast<AController>(OwnerActor))
@@ -159,6 +162,7 @@ void UFPSCombatBaseGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	// Add a gameplay task for added and removed tags
 	UAbilityTask_WaitCancelTags* WaitCancelTags = UAbilityTask_WaitCancelTags::WaitCancelTags(this, AddedOnTags, RemovedOnTags);
 	WaitCancelTags->OnCancelTagTriggered.AddDynamic(this, &UFPSCombatBaseGameplayAbility::HandleCancelTagTriggered);
 	WaitCancelTags->ReadyForActivation();
@@ -183,6 +187,7 @@ void UFPSCombatBaseGameplayAbility::EffectSpecApply(TArray<TSubclassOf<UGameplay
 			FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(EffectClass, GetAbilityLevel(), Context);
 			if (SpecHandle.IsValid())
 			{
+				// Apply duration gameplay tag for effect
 				if (DurationSetByCallerTag.IsValid())
 				{
 					SpecHandle.Data->SetSetByCallerMagnitude(DurationSetByCallerTag, DurationValue);

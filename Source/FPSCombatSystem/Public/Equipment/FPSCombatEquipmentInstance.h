@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -11,8 +11,9 @@ struct FFPSCombatEquipmentSpawnActor;
 class APawn;
 
 
-/**
+/** UFPSCombatEquipmentInstance
  * 
+ *  A piece owned and applied to pawn
  */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatEquipmentInstance : public UObject

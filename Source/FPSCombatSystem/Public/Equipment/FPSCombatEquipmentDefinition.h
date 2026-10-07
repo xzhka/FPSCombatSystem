@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -10,6 +10,11 @@
 class UFPSCombatEquipmentInstance;
 class UFPSCombatItemDefinition;
 
+/*	FFPSCombatEquipmentSpawnActor
+ *	
+ *	Struct which contains the equipment
+ *	spawn info
+ */
 USTRUCT()
 struct FFPSCombatEquipmentSpawnActor
 {
@@ -27,7 +32,10 @@ struct FFPSCombatEquipmentSpawnActor
 	FTransform ActorTransform;
 };
 
-
+/*	UFPSCombatEquipmentDefinition
+ *	
+ *	Definition for a piece of equipment
+ */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatEquipmentDefinition : public UObject
 {

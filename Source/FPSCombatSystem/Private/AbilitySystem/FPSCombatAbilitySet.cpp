@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "AbilitySystem/FPSCombatAbilitySet.h"
@@ -78,7 +78,6 @@ void UFPSCombatAbilitySet::GiveAbility(UFPSCombatAbilitySystemComponent* ASC,
 
 		if (GrantedHandles)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Give Ability: %s"), *GetNameSafe(AbilityToGrant.GameplayAbility));
 			GrantedHandles->AddAbilities(SpecHandle);
 		}
 	}

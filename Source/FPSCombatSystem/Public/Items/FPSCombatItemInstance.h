@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -12,6 +12,7 @@ struct FFPSCombatTagInfoContainer;
 class UFPSCombatItemInstance;
 class UFPSCombatItemDefinition;
 
+/* Representation of one tag with value stack */
 USTRUCT(BlueprintType)
 struct FFPSCombatTagInfo : public FFastArraySerializerItem
 {
@@ -22,10 +23,7 @@ struct FFPSCombatTagInfo : public FFastArraySerializerItem
 		: Tag(InTag), Stack(InStack)
 	{}
 	
-	
 	FString GetDebugString() const;
-
-	
 private:
 
 	friend FFPSCombatTagInfoContainer;
@@ -40,6 +38,7 @@ private:
 	int32 LastNoticedStack = INDEX_NONE;
 };
 
+/* Container of gameplay tag stacks */
 USTRUCT(BlueprintType)
 struct FFPSCombatTagInfoContainer : public FFastArraySerializer
 {
@@ -90,7 +89,10 @@ struct TStructOpsTypeTraits<FFPSCombatTagInfoContainer> : public TStructOpsTypeT
 	{ WithNetDeltaSerializer = true };
 };
 
-
+/*	UFPSCombatItemInstance
+ *	
+ *	Item representation class
+ */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatItemInstance : public UObject
 {

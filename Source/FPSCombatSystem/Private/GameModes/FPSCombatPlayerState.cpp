@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "FPSCombatSystem/Public/GameModes/FPSCombatPlayerState.h"
@@ -30,6 +30,7 @@ void AFPSCombatPlayerState::GrantDefaultAbilities()
 {
 	if (HasAuthority())
 	{
+		GrantedHandles.ClearAbilitySystem(ASC);
 		AbilitySet->GiveAbility(ASC, &GrantedHandles);
 	}
 }

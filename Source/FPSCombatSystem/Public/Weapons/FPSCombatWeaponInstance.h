@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,8 +7,9 @@
 #include "Equipment/FPSCombatEquipmentInstance.h"
 #include "FPSCombatWeaponInstance.generated.h"
 
-/**
- * 
+/** UFPSCombatWeaponInstance
+ *
+ *  A part of equipment instance which represents the weapon spawned
  */
 UCLASS(Abstract)
 class FPSCOMBATSYSTEM_API UFPSCombatWeaponInstance : public UFPSCombatEquipmentInstance

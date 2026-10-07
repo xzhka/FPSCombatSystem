@@ -1,10 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "FPSCombatBaseComponent.h"
-#include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
 #include "Components/ActorComponent.h"
 #include "FPSCombatHealthComponent.generated.h"
@@ -12,6 +11,31 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFPSCombatDeathEvent, AActor*, OwningActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FFPSCombatAttributeChanged, AActor*, Investigator, float, OldValue, float, NewValue, UFPSCombatHealthComponent*, HealthComponent);
 
+/** FFPSCombatDeathInfo
+ *
+ *	Struct which contain a death info
+ *	that would be the place of truth
+ *	for every client on server
+ */
+USTRUCT(BlueprintType)
+struct FFPSCombatDeathInfo
+{
+GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadOnly)
+	int32 MontageIndex = INDEX_NONE;
+
+	UPROPERTY(BlueprintReadOnly)
+	float Alpha = 0.f;
+
+	UPROPERTY(BlueprintReadOnly)
+	FVector Velocity = FVector::ZeroVector;
+};
+
+/** EDeathState
+ *
+ *	Enum with current player state
+ */
 UENUM(BlueprintType)
 enum class EDeathState : uint8
 {
@@ -21,7 +45,11 @@ enum class EDeathState : uint8
 };
 
 
-
+/** UFPSCombatHealthComponent
+ *
+ *	Derived class which represents health stat
+ *	and work with the death event triggering
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSCOMBATSYSTEM_API UFPSCombatHealthComponent : public UFPSCombatBaseComponent
 {
@@ -49,7 +77,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Components|Health")
 	EDeathState GetDeathState() const { return DeathState; };
+	UFUNCTION(BlueprintCallable, Category = "Components|Death")
+	const FFPSCombatDeathInfo& GetDeathInfo() const { return DeathInfo; }
 
+	void SetDeathInfo(const FFPSCombatDeathInfo& NewDeathInfo);
 	
 	UPROPERTY(BlueprintAssignable)
 	FFPSCombatDeathEvent OnDeathStarted;
@@ -91,6 +122,9 @@ protected:
 
 	UPROPERTY(ReplicatedUsing= OnRep_DeathStateChange)
 	EDeathState DeathState;
+
+	UPROPERTY(Replicated)
+	FFPSCombatDeathInfo DeathInfo;
 	
 	
 };

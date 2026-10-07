@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -6,8 +6,10 @@
 #include "Abilities/GameplayAbility.h"
 #include "FPSCombatGameplayAbilityDeath.generated.h"
 
-/**
- * 
+/** UFPSCombatGameplayAbilityDeath
+ *
+ * Ability for death handling.
+ * Triggering by gameplay event
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatGameplayAbilityDeath : public UGameplayAbility

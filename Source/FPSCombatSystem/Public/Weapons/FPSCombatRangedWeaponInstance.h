@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -26,6 +26,10 @@ struct FFPSCombatShotContext
 	bool bIsFreshSequence = false;
 };
 
+/*	UFPSCombatRangedWeaponInstance
+ *	
+ *	A part of equipment instance which represents the ranged weapon spawned
+ */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatRangedWeaponInstance : public UFPSCombatWeaponInstance
 {

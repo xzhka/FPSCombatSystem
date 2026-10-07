@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Characters/Components/FPSCombatHealthComponent.h"
@@ -21,6 +21,7 @@ void UFPSCombatHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UFPSCombatHealthComponent, DeathState);
+	DOREPLIFETIME(UFPSCombatHealthComponent, DeathInfo);
 }
 
 
@@ -44,6 +45,14 @@ float UFPSCombatHealthComponent::GetMergedHealth() const
 		return ((MaxHealth > 0.f) ? (Health / MaxHealth) : 0.f);
 	}
 	return 0.f;
+}
+
+void UFPSCombatHealthComponent::SetDeathInfo(const FFPSCombatDeathInfo& NewDeathInfo)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		DeathInfo = NewDeathInfo;
+	}
 }
 
 
@@ -88,8 +97,7 @@ void UFPSCombatHealthComponent::DeathEnded()
 	AActor* OwningActor = GetOwner();
 
 	check(OwningActor);
-
-	UE_LOG(LogTemp, Warning, TEXT("Death Ended, Player Dead"));
+	
 	
 	OnDeathEnded.Broadcast(OwningActor);
 
@@ -102,7 +110,6 @@ void UFPSCombatHealthComponent::OnRep_DeathStateChange(EDeathState OldDeathState
 	const EDeathState NewDeathState = DeathState;
 
 	DeathState = OldDeathState;
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_DeathStateChange"));
 	if (OldDeathState > NewDeathState)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("In Health Component predicted past state: old state [%hhu] to [%hhu]"), (uint8)OldDeathState, (uint8)NewDeathState);
@@ -114,10 +121,10 @@ void UFPSCombatHealthComponent::OnRep_DeathStateChange(EDeathState OldDeathState
 		if (NewDeathState == EDeathState::DeathStarted)
 		{
 			DeathStarted();
-			DeathEnded();
 		}
 		else if (NewDeathState == EDeathState::DeathEnded)
 		{
+			DeathStarted();
 			DeathEnded();
 		}
 		else
@@ -174,9 +181,9 @@ void UFPSCombatHealthComponent::HandleOutOfHealthChanged(AActor* EffectInstigato
 		Payload.ContextHandle = EffectSpec->GetEffectContext();
 		Payload.InstigatorTags = *EffectSpec->CapturedSourceTags.GetAggregatedTags();
 		Payload.TargetTags = *EffectSpec->CapturedTargetTags.GetAggregatedTags();
-		Payload.EventMagnitude = NULL;
+		Payload.EventMagnitude = 0.f;
 		
-		int32 SuccessfulActivation = AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
+		AbilitySystem->HandleGameplayEvent(Payload.EventTag, &Payload);
 	}
 }
 

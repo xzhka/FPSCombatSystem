@@ -1,3 +1,4 @@
+// FPS Combat project
 
 #include "FPSCombatGameplayTags.h"
 
@@ -15,8 +16,6 @@ namespace FPSCombatGameplayTags
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Sprinting, "Ability.Moving.Sprinting");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_Dash, "Ability.Moving.Dash");
-	
-	UE_DEFINE_GAMEPLAY_TAG(Ability_QuickBar_ChangeSlot, "Ability.QuickBar.ChangeSlot");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource, "Ability.Moving.AirborneSource");
 	UE_DEFINE_GAMEPLAY_TAG(Ability_Moving_AirborneSource_Updraft, "Ability.Moving.AirborneSource.Updraft");
@@ -38,8 +37,8 @@ namespace FPSCombatGameplayTags
 	UE_DEFINE_GAMEPLAY_TAG(Data_Weapon_SpareAmmo, "Data.Weapon.SpareAmmo");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Weapon_Ammo_Mag, "Data.Weapon.Ammo.Mag");
 	UE_DEFINE_GAMEPLAY_TAG(Data_Projectile_Quantity, "Data.Projectile.Quantity");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Weapon_AmmountToAdd, "Data.Weapon.AmountToAdd");
-	UE_DEFINE_GAMEPLAY_TAG(Data_Grenade_AmmountToAdd, "Data.Grenade.AmountToAdd");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Weapon_AmountToAdd, "Data.Weapon.AmountToAdd");
+	UE_DEFINE_GAMEPLAY_TAG(Data_Grenade_AmountToAdd, "Data.Grenade.AmountToAdd");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Item_Stat_Quantity, "Item.Stat.Quantity");
 	

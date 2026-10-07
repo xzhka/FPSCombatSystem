@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,8 +7,9 @@
 #include "FPSCombatFireMode.generated.h"
 
 class UFPSCombatRangedWeaponInstance;
-/**
- * 
+/** UFPSCombatFireMode
+ *
+ *	An object which represents the weapon fire mode
  */
 UCLASS(Abstract, Blueprintable, DefaultToInstanced)
 class FPSCOMBATSYSTEM_API UFPSCombatFireMode : public UObject
@@ -32,6 +33,10 @@ public:
 	}
 };
 
+/** UFPSCombatFireMode_Burst
+ *
+ *	Derived class for burst fire mode weapons
+ */
 UCLASS()
 class UFPSCombatFireMode_Burst : public UFPSCombatFireMode
 {
@@ -51,12 +56,20 @@ private:
 	int32 CurrentBurst = 0;
 };
 
+/** UFPSCombatFireMode_Semi
+ *
+ *	Derived class for semi fire mode weapons
+ */
 UCLASS()
 class UFPSCombatFireMode_Semi : public UFPSCombatFireMode
 {
 	GENERATED_BODY()
 };
 
+/** UFPSCombatFireMode_FullAuto
+ *
+ *	Derived class for auto shooting mode weapons
+ */
 UCLASS()
 class UFPSCombatFireMode_FullAuto : public UFPSCombatFireMode
 {

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -11,8 +11,10 @@
 #define COMBAT_CAMERA_PITCH_MAX (80.f);
 
 
-/**
- * 
+/** AFPSCombatPlayerCameraManager
+ *
+ * Base player camera manager used
+ * by that project
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API AFPSCombatPlayerCameraManager : public APlayerCameraManager

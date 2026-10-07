@@ -37,16 +37,14 @@ void UFPSCombatGameplayAbilitySprint::ActivateAbility(const FGameplayAbilitySpec
 	}
 	
 	EffectSpecApply(SprintGrantedEffectsClass, SprintGrantedEffectHandle);
-
-	
-	
 }
 
 void UFPSCombatGameplayAbilitySprint::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)	
 {
-	
+	// Apply cooldown on sprint
+	// when we out of stamina
 	if (bWasCancelled)
 	{
 		if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -9,6 +9,7 @@
 
 struct FOnAttributeChangeData;
 
+/* Enum store state of pawn */
 UENUM(BlueprintType)
 enum class EFPSCombatMoveState : uint8
 {
@@ -16,6 +17,10 @@ enum class EFPSCombatMoveState : uint8
 	Airborne
 };
 
+/*	FPSCombatGroundInfo
+ *	
+ *	Information about the ground under the pawn
+ */
 USTRUCT(BlueprintType)
 struct FPSCombatGroundInfo
 {
@@ -38,7 +43,12 @@ struct FPSCombatGroundInfo
 	
 };
 
-
+/*	UFPSCombatMovementComp
+ *	
+ *	Actor component representing
+ *	pawn state, movement abilties
+ *  and move speed affectors 
+ */
 UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSCOMBATSYSTEM_API UFPSCombatMovementComp : public UActorComponent
 {
@@ -64,6 +74,8 @@ public:
 
 	void InitializeWithAbilitySystem(UFPSCombatAbilitySystemComponent* ASC);
 
+	void UninitializeFromAbilitySystem();
+	
 	virtual void Dash(float Strength, float Duration);
 	
 	virtual void Updraft(float Distance);
@@ -99,6 +111,8 @@ protected:
 	TObjectPtr<AFPSCombatCharacter> OwnerCharacter;
 
 private:
+	void ClearASCGameplayTags();
+	
 	UPROPERTY()
 	TObjectPtr<UFPSCombatAbilitySystemComponent> CachedASC;
 

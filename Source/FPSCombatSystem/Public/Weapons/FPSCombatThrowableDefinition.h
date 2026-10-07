@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -16,8 +16,9 @@ enum class ESpawnActorDetonationTrigger : uint8
 	OnFuseTimer
 };
 
-/**
- * 
+/** UFPSCombatThrowableDefinition
+ *
+ *   Stats definition for every throwable instance
  */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatThrowableDefinition : public UFPSCombatEquipmentDefinition

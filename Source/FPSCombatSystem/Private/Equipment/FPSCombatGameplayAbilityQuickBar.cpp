@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Equipment/FPSCombatGameplayAbilityQuickBar.h"
@@ -8,7 +8,8 @@
 
 UFPSCombatGameplayAbilityQuickBar::UFPSCombatGameplayAbilityQuickBar()
 {
-	ActivationBlockedTags = FGameplayTagContainer(FPSCombatGameplayTags::Ability_Projectile_Throw);
+	ActivationBlockedTags.AddTag(FPSCombatGameplayTags::Ability_Projectile_Throw);
+	ActivationBlockedTags.AddTag(FPSCombatGameplayTags::State_Death);
 }
 
 void UFPSCombatGameplayAbilityQuickBar::ActivateAbility(const FGameplayAbilitySpecHandle Handle,

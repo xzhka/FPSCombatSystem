@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,8 +7,9 @@
 #include "Weapons/FPSCombatThrowableDefinition.h"
 #include "FPSCombatThrowableInstance.generated.h"
 
-/**
+/** UFPSCombatThrowableInstance
  * 
+ *  A part of equipment instance which represents the throwable objects
  */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatThrowableInstance : public UFPSCombatEquipmentInstance

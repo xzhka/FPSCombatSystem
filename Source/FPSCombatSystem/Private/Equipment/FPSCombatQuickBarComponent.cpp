@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Equipment/FPSCombatQuickBarComponent.h"
@@ -128,6 +128,11 @@ void UFPSCombatQuickBarComponent::AddItemToSlot(UFPSCombatItemInstance* Item, in
 		{
 			ItemSlots[ItemSlot] = Item;
 			OnRep_ItemSlots();
+
+			if (ItemSlot == ActiveSlot && EquippedItem == nullptr)
+			{
+				EquipItemInSlot();
+			}
 		}
 	}
 }

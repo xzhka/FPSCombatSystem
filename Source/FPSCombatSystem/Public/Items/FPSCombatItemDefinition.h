@@ -1,13 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "FPSCombatItemInstance.h"
 #include "Equipment/FPSCombatEquipmentDefinition.h"
-#include "UObject/NoExportTypes.h"
 #include "FPSCombatItemDefinition.generated.h"
 
+
+/*	UFPSCombatItemFragment
+ */
 UCLASS(MinimalAPI, Abstract, EditInlineNew, Blueprintable)
 class UFPSCombatItemFragment : public UObject
 {
@@ -17,6 +19,10 @@ public:
 	virtual void OnInstanceCreated(UFPSCombatItemInstance* InItemInstance) const {}
 };
 
+/*	UFPSCombatItemFragment_Equippable
+ *	
+ *	Item fragment for every equippable object
+ */
 UCLASS()
 class UFPSCombatItemFragment_Equippable : public UFPSCombatItemFragment
 {
@@ -28,6 +34,10 @@ public:
 	
 };
 
+/*	UFPSCombatItemFragment_QuickBarSlot
+ *	
+ *	Item fragment for quick bar slot
+ */
 UCLASS()
 class UFPSCombatItemFragment_QuickBarSlot : public UFPSCombatItemFragment
 {
@@ -41,6 +51,10 @@ public:
 	FText DisplayName;
 };
 
+/*	UFPSCombatItemFragment_Stats
+ *	
+ *	Item fragment for stats
+ */
 UCLASS()
 class UFPSCombatItemFragment_Stats : public UFPSCombatItemFragment
 {
@@ -55,7 +69,10 @@ public:
 	TMap<FGameplayTag, int32> Stats;
 };
 
-
+/*	UFPSCombatItemDefinition
+ *
+ *	Fragments definition for items
+ */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatItemDefinition : public UObject
 {
