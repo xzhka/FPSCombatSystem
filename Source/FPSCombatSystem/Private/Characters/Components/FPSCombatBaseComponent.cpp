@@ -3,6 +3,8 @@
 
 #include "Characters/Components/FPSCombatBaseComponent.h"
 
+#include "FPSCombatSystem/FPSCombatSystem.h"
+
 
 void UFPSCombatBaseComponent::InitializeWithAbilitySystem(UFPSCombatAbilitySystemComponent* ASC)
 {
@@ -14,7 +16,7 @@ void UFPSCombatBaseComponent::InitializeWithAbilitySystem(UFPSCombatAbilitySyste
 
 	if (!AbilitySystem)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AbilitySystem unauthorize in component"));
+		UE_LOG(LogFPSCombat, Warning, TEXT("%s: owner has no AbilitySystemComponent."), *GetNameSafe(GetOwner()));
 		return;
 	}
 
@@ -22,10 +24,12 @@ void UFPSCombatBaseComponent::InitializeWithAbilitySystem(UFPSCombatAbilitySyste
 
 	if (!AttributeSet)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AttributeSet unauthorize in component"));
+		UE_LOG(LogFPSCombat, Warning, TEXT("%s: owner has no AttributeSet."), *GetNameSafe(GetOwner()));
 		return;
 	}
 
+	// Derived component classes binds to the attribute set
+	// delegate here.
 	BindAttributeDelegate();
 }
 

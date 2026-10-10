@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/FPSCombatAbilitySet.h"
 
+#include "FPSCombatSystem/FPSCombatSystem.h"
+
 void FCombatAbilitySet_GrantedHandles::AddAbilities(const FGameplayAbilitySpecHandle& Handle)
 {
 	if (Handle.IsValid())
@@ -66,7 +68,7 @@ void UFPSCombatAbilitySet::GiveAbility(UFPSCombatAbilitySystemComponent* ASC,
 
 		if (!IsValid(AbilityToGrant.GameplayAbility))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("An ability is not add"));
+			UE_LOG(LogFPSCombat, Warning, TEXT("An ability is not valid"));
 			continue;
 		}
 		
@@ -87,7 +89,7 @@ void UFPSCombatAbilitySet::GiveAbility(UFPSCombatAbilitySystemComponent* ASC,
 		const FCombatAbilitySet_Effects& EffectToGrant = GrantedGameplayEffects[IndexEffect];
 		if (!IsValid(EffectToGrant.GameplayEffect))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("An effect is not add"));
+			UE_LOG(LogFPSCombat, Warning, TEXT("An effect is not valid"));
 			continue;
 		}
 
@@ -106,7 +108,7 @@ void UFPSCombatAbilitySet::GiveAbility(UFPSCombatAbilitySystemComponent* ASC,
 		const FCombatAbilitySet_AttributeSets& AttributeToGrant = GrantedGameplayAttributes[IndexAttribute];
 		if (!IsValid(AttributeToGrant.AttributeSet))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("An attribute set is not add"));
+			UE_LOG(LogFPSCombat, Warning, TEXT("An attribute set is not valid"));
 			continue;
 		}
 

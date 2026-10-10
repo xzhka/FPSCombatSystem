@@ -69,8 +69,15 @@ int32 UFPSCombatRangedWeaponInstance::ReloadAmmo()
 void UFPSCombatRangedWeaponInstance::AbortFireSequence()
 {
 	CancelScheduledActivation();
+	// True only when this activation was started by our own timer ( by next burst bullet or
+	// full-auto held). Read once and cleared by ConsumeIsContinuation().
+	// False means the player pressed the button again -> fresh sequence (reset recoil, burst).
 	bIsContinuation = false;
+
+	// True only if we wait for the timer to fire next shot. CanFire() returns
+	// false meanwhile, so manual clicks will not add extra shots into the gap.
 	bReactivationPending = false;
+	
 	CurrentRecoilShotIndex = 0;
 	RecoilState = FFPSCombatRecoilState();
 	if (UFPSCombatFireMode* FireM = GetFireMode())
@@ -92,6 +99,13 @@ bool UFPSCombatRangedWeaponInstance::WantsAnotherShotThisActivation() const
 	return FireM && HasAmmoInMag() && FireM->WantsAnotherShotThisActivation(this);
 }
 
+// Fire loop represents:
+// Player Input -> ActivateAbility -> FireShot -> EndAbility
+// It triggers the duration timer and after that TryActivateAbility
+// We do not loop inside a single activation, because each shot requires
+// a unique prediction key / target data for server validation, and must
+// re-run CanFire() every time.
+// Semi fire is end up here.
 void UFPSCombatRangedWeaponInstance::ScheduleNextShotActivation(const FGameplayAbilitySpecHandle& SpecHandle,
 	float Delay)
 {
@@ -117,6 +131,9 @@ void UFPSCombatRangedWeaponInstance::ScheduleNextShotActivation(const FGameplayA
 	const TWeakObjectPtr<UAbilitySystemComponent> WeakASC = ASC;
 	const TWeakObjectPtr<UFPSCombatRangedWeaponInstance> WeakInstance = this;
 
+	// The timer belongs to world timer, not to the weapon, so it can outlive it
+	// ( unequip, death, level change). So for that case we use a weak lambda + weak pointers,
+	// re-checking when the timer fires. 
 	Pawn->GetWorldTimerManager().SetTimer(NextActivationTimerHandle, FTimerDelegate::CreateWeakLambda(this,
 		[WeakASC, WeakInstance,SpecHandle, bBurstWantsNextShot]()
 	{
@@ -253,12 +270,15 @@ UFPSCombatFireMode* UFPSCombatRangedWeaponInstance::GetFireMode() const
 }
 
 FVector UFPSCombatRangedWeaponInstance::CalculateFireDirection(const FFPSCombatShotContext& ShotContext, FVector& AimDirection) const
-{	
+{
+	// If that`s first shot which not in recoil line
+	// (no matter do we aim or not) shot it right to the center.
 	if (ShotContext.bIsFreshSequence && ShotContext.bStationary)
 	{
 		return AimDirection;
 	}
-	
+
+	// If fire was done.
 	if (ShotContext.bIsAiming && ShotContext.bStationary)
 	{
 		FRotator RecoilRotation = AimDirection.Rotation();
@@ -267,6 +287,7 @@ FVector UFPSCombatRangedWeaponInstance::CalculateFireDirection(const FFPSCombatS
 		return RecoilRotation.Vector();
 	}
 
+	// Calculate random spread, bigger when its hip-firing or moving.
 	float Spread = ShotContext.bIsAiming ? GetWeaponDefinition()->AimedMovingSpread : GetWeaponDefinition()->HipFireSpread;
 	if (!ShotContext.bIsAiming && !ShotContext.bStationary)
 	{
@@ -274,6 +295,11 @@ FVector UFPSCombatRangedWeaponInstance::CalculateFireDirection(const FFPSCombatS
 	}
 	Spread = FMath::Min(Spread, GetWeaponDefinition()->MaxSpreadDegrees);
 
+	// Random point inside a disc of radius Spread (degrees):
+	// Radius = Spread * T^SpreadBiasExponent, T random in [0,1].
+	// Exponent 0.5 = uniform over the disc. Higher = more shots near the center,
+	// lower = more near the edge. We can tune "feel" of recoil with this value.
+	// Adding to pitch/yaw is a small-angle approximation, fine for a few degrees.
 	const float Azimuth = FMath::FRandRange(0.f, 360.f);
 	const float T = FMath::FRand();
 	const float Radius = Spread * FMath::Pow(T, GetWeaponDefinition()->SpreadBiasExponent);

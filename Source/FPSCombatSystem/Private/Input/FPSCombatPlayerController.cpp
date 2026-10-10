@@ -18,7 +18,7 @@ void AFPSCombatPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-
+	// Only the local player has a HUD.
 	if (HUDWidgetClass && IsLocalController())
 	{
 		HUDWidgetInstance = CreateWidget<UUserWidget>(this, HUDWidgetClass);
@@ -35,6 +35,8 @@ void AFPSCombatPlayerController::PostProcessInput(const float DeltaTime, const b
 	{
 		if (UFPSCombatAbilitySystemComponent* ASC = Cast<UFPSCombatAbilitySystemComponent>(PS->GetAbilitySystemComponent()))
 		{
+			// Ability input is processed after the engine has gathered this
+			// frame's input.
 			ASC->ProcessAbilityInput(DeltaTime, bGamePaused);
 		}
 	}

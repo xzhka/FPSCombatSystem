@@ -37,7 +37,9 @@ float UFPSCombatWeaponInstance::GetTimeFromLastInteraction() const
 	check(World);
 
 	const double CurrentTime = World->GetTimeSeconds();
-	
+
+	// Time since the last interaction: the smaller of the time since equip and
+	// the time since the last shot.
 	double Result = CurrentTime - TimeEquipped;
 
 	if (Result > 0.f)
@@ -45,10 +47,8 @@ float UFPSCombatWeaponInstance::GetTimeFromLastInteraction() const
 		const double FireTime = CurrentTime - TimeFired;
 		Result = FMath::Min(Result, FireTime);
 	}
-	
 
 	return Result;
-	
 }
 
 TSubclassOf<UAnimInstance> UFPSCombatWeaponInstance::PickAnimLayer(bool bIsEquipped) const

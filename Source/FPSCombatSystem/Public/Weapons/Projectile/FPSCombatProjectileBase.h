@@ -49,7 +49,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UProjectileMovementComponent* GetProjectileMovementComponent() { return MovementComp; } 
 	
-	FORCEINLINE UAbilitySystemComponent* GetSourceASC() const ;
+	UAbilitySystemComponent* GetSourceASC() const;
 	
 	FOnProjectileImpact OnImpact;
 

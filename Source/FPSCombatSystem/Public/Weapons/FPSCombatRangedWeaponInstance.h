@@ -38,16 +38,16 @@ class FPSCOMBATSYSTEM_API UFPSCombatRangedWeaponInstance : public UFPSCombatWeap
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE int32 GetCurrentAmmo() const;
+	int32 GetCurrentAmmo() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE int32 GetReserveAmmo() const;
+	int32 GetReserveAmmo() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE int32 GetMaxAmmoInMag() const;
+	int32 GetMaxAmmoInMag() const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE int32 GetMaxReserveAmmo() const;
+	int32 GetMaxReserveAmmo() const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
 	UAnimMontage* GetAnimDefinitionMontage(FGameplayTag ActionTag) const;

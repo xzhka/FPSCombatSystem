@@ -24,7 +24,8 @@ public:
 	AFPSCombatWeaponActor();
 
 	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMeshComponent; } 
-	
+
+	/* Get socket transform from the weapon mesh */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Transform")
 	FTransform GetSocketTransform(FName SocketName) const;
 };

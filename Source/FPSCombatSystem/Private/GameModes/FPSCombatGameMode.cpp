@@ -17,6 +17,8 @@ AFPSCombatGameMode::AFPSCombatGameMode()
 void AFPSCombatGameMode::HandlePawnDeath(AController* Controller)
 {
 	if (!IsValid(Controller)) return;
+
+	// One respawn timer per controller.
 	if (RespawnTimers.Contains(Controller)) return;
 
 	FTimerHandle& Handle = RespawnTimers.Add(Controller);
@@ -31,6 +33,7 @@ void AFPSCombatGameMode::RespawnPlayer(AController* Controller)
 
 	if (!IsValid(Controller)) return;
 
+	// Detach any leftover pawn before restarting the player.
 	if (Controller->GetPawn())
 	{
 		Controller->UnPossess();
@@ -40,6 +43,7 @@ void AFPSCombatGameMode::RespawnPlayer(AController* Controller)
 
 void AFPSCombatGameMode::Logout(AController* Exiting)
 {
+	// Cancel a pending respawn if the player leaves.
 	if (FTimerHandle* Handle = RespawnTimers.Find(Exiting))
 	{
 		GetWorldTimerManager().ClearTimer(*Handle);

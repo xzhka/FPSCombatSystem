@@ -27,7 +27,10 @@ bool AWorldPickupActor::TryTopUpStat(UFPSCombatItemInstance* ItemInstance) const
 {
 	if (!ItemInstance) return false;
 	
+	// Room left until the stat reaches its default maximum.
 	const int32 RemainingStat = ItemInstance->GetDefaultStatsByValue(StatTagToAdd) - ItemInstance->GetStack(StatTagToAdd);
+	// Add the smaller of the room left and MaxAmountToAdd. Fails when the stat
+	// is already full.
 	if (RemainingStat > 0 && RemainingStat < ItemInstance->GetDefaultStatsByValue(MaxAmountToAdd))
 	{
 		ItemInstance->AddStackCount(StatTagToAdd, RemainingStat);

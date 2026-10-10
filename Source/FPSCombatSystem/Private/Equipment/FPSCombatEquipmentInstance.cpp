@@ -3,22 +3,19 @@
 
 #include "Equipment/FPSCombatEquipmentInstance.h"
 
-#include "NativeGameplayTags.h"
 #include "Equipment/FPSCombatEquipmentDefinition.h"
-#include "FPSCombatSystem/FPSCombatMessageTypes.h"
 #include "Iris/ReplicationSystem/ReplicationFragmentUtil.h"
 #include "GameFramework/Character.h"
-#include "GameFramework/GameplayMessageSubsystem.h"
-
 #include "Net/UnrealNetwork.h"
 
-UE_DEFINE_GAMEPLAY_TAG_STATIC(Message_Equipment_Hidden, "Message.Equipment.Hidden");
 
 void UFPSCombatEquipmentInstance::SpawnEquipmentActors(const TArray<FFPSCombatEquipmentSpawnActor>& SpawnActors)
 {
 	if (APawn* OwningPawn = GetPawn())
 	{
 		USceneComponent* RootComp = OwningPawn->GetRootComponent();
+		// Character attach weapon right to the skeletal mesh (the socket
+		// lives here).
 		if (const ACharacter* Char = Cast<ACharacter>(OwningPawn))
 		{
 			RootComp = Char->GetMesh();
@@ -26,6 +23,8 @@ void UFPSCombatEquipmentInstance::SpawnEquipmentActors(const TArray<FFPSCombatEq
 		
 		for (const FFPSCombatEquipmentSpawnActor& SpawnActorInfo : SpawnActors)
 		{
+			// Spawn at identity, then attach and apply the relative transform
+			// from the definition.
 			AActor* OwningActor = GetWorld()->SpawnActorDeferred<AActor>(SpawnActorInfo.SpawnActorClass, FTransform::Identity, OwningPawn);
 			if (OwningActor)
 			{
@@ -57,6 +56,8 @@ void UFPSCombatEquipmentInstance::SetEquipmentActorsHidden(bool bHidden)
 	{
 		if (Actor)
 		{
+			// Hiding also disables collision and ticking, so a hidden item is
+			// fully inert.
 			Actor->SetActorHiddenInGame(bHidden);
 			Actor->SetActorEnableCollision(!bHidden);
 			Actor->SetActorTickEnabled(!bHidden);
@@ -66,6 +67,7 @@ void UFPSCombatEquipmentInstance::SetEquipmentActorsHidden(bool bHidden)
 
 void UFPSCombatEquipmentInstance::SpawnEquipmentActorsFromInstance()
 {
+	// Spawn from the definition only if nothing is spawned yet.
 	if (ActorsToSpawn.Num() > 0)
 	{
 		return;

@@ -45,6 +45,8 @@ UFPSCombatItemInstance* FFPSCombatItemList::AddEntry(TSubclassOf<UFPSCombatItemD
 	check(Actor);
 	check(Actor->HasAuthority());
 
+	// One instance per definition: adding to an existing item just raises its
+	// stack.
 	if (UFPSCombatItemInstance* Exist = FindInstanceForDefinition(Definition))
 	{
 		Exist->AddStackCount(Tag, StackCount);
@@ -70,6 +72,7 @@ UFPSCombatItemInstance* FFPSCombatItemList::AddPreservedEntry(UFPSCombatItemInst
 
 	if (!InInstance) return nullptr; 
 
+	// Re-outer the existing instance to the new owner so it keeps its stacks.
 	InInstance->Rename(nullptr, OwnerComponent->GetOwner());
 
 	FFPSCombatItemEntry& NewEntry = EntryList.AddDefaulted_GetRef();

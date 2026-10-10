@@ -32,6 +32,8 @@ void UFPSCombatGameplayAbilityQuickBar::ActivateAbility(const FGameplayAbilitySp
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 }
 
+
+// Select the actions on quick bar input
 void UFPSCombatGameplayAbilityQuickBar::ActionTagSelector(UFPSCombatQuickBarComponent* QuickBarComponent)
 {
 	const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec();

@@ -71,6 +71,7 @@ void FFPSCombatTagInfoContainer::AddStack(FGameplayTag Tag, int32 StackCount)
 				return;
 			}
 		}
+		// No entry for this tag yet, so create one.
 		FFPSCombatTagInfo& NewEntry = EntryList.Emplace_GetRef(Tag, StackCount);
 		MarkItemDirty(NewEntry);
 		TagsToStack.Add(Tag, StackCount);
@@ -93,6 +94,8 @@ void FFPSCombatTagInfoContainer::RemoveStack(FGameplayTag Tag, int32 StackCount)
 			FFPSCombatTagInfo& Stack = *It;
 			if (Stack.Tag == Tag)
 			{
+				// Removing at least the whole stack deletes the entry.
+				// Otherwise, just decrement it.
 				if (Stack.Stack <= StackCount)
 				{
 					BroadcastChange(Stack, Stack.Stack, 0);

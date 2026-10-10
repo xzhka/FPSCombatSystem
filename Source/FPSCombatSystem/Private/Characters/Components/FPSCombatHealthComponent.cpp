@@ -4,6 +4,7 @@
 #include "Characters/Components/FPSCombatHealthComponent.h"
 
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "FPSCombatSystem/FPSCombatSystem.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -112,7 +113,7 @@ void UFPSCombatHealthComponent::OnRep_DeathStateChange(EDeathState OldDeathState
 	DeathState = OldDeathState;
 	if (OldDeathState > NewDeathState)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("In Health Component predicted past state: old state [%hhu] to [%hhu]"), (uint8)OldDeathState, (uint8)NewDeathState);
+		UE_LOG(LogFPSCombat, Warning, TEXT("In Health Component predicted past state: old state [%hhu] to [%hhu]"), (uint8)OldDeathState, (uint8)NewDeathState);
 		return;
 	}
 
@@ -129,7 +130,7 @@ void UFPSCombatHealthComponent::OnRep_DeathStateChange(EDeathState OldDeathState
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("In Health Component wrong transition: old state [%hhu] to [%hhu]"), (uint8)OldDeathState, (uint8)NewDeathState);
+			UE_LOG(LogFPSCombat, Warning, TEXT("In Health Component wrong transition: old state [%hhu] to [%hhu]"), (uint8)OldDeathState, (uint8)NewDeathState);
 		}
 	}
 	else if (OldDeathState == EDeathState::DeathStarted)
@@ -140,7 +141,7 @@ void UFPSCombatHealthComponent::OnRep_DeathStateChange(EDeathState OldDeathState
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("In Health Component wrong transition: old state [%hhu] to [%hhu]"), (uint8)OldDeathState, (uint8)NewDeathState);
+			UE_LOG(LogFPSCombat, Warning, TEXT("In Health Component wrong transition: old state [%hhu] to [%hhu]"), (uint8)OldDeathState, (uint8)NewDeathState);
 		}
 	}
 }

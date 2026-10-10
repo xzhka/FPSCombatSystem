@@ -18,6 +18,7 @@ class FPSCOMBATSYSTEM_API UFPSCombatWeaponInstance : public UFPSCombatEquipmentI
 
 	
 public:
+	/* Equipment override functions */
 	virtual void OnEquipped() override;
 	virtual void OnUnequipped() override;
 
@@ -35,6 +36,7 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = Animations)
 	TSubclassOf<UAnimInstance> PickAnimLayer(bool bIsEquipped) const;
 
+	/* Animation variables */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animations)
 	FFPSCombatLayerSelectionSet EquippedAnimSet;
 
@@ -43,7 +45,7 @@ protected:
 	
 private:
 
+	/* Time info */
 	float TimeEquipped = 0.f;
 	float TimeFired = 0.f;
-	
 };

@@ -1,6 +1,6 @@
 // FPS Combat project
 #include "FPSCombatSystem/Public/Characters/FPSCombatCharacter.h"
-#include "Characters/FPSCombatMovementComp.h"
+#include "Characters/FPSCombatMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -36,14 +36,14 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
 	/* Default components initialize*/
-	PawnComponent = CreateDefaultSubobject<UFPSCombatCharacterPawnComp>(TEXT("PawnComponent"));
+	PawnComponent = CreateDefaultSubobject<UFPSCombatCharacterPawnComponent>(TEXT("PawnComponent"));
 	HealthComponent = CreateDefaultSubobject<UFPSCombatHealthComponent>(TEXT("HealthComponent"));
 
 	HealthComponent->OnDeathStarted.AddDynamic(this, &AFPSCombatCharacter::OnDeathStarted);
 	HealthComponent->OnDeathEnded.AddDynamic(this, &AFPSCombatCharacter::OnDeathEnded);
 	
 	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComponent"));	
-	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComp>(TEXT("MovementComponent"));
+	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComponent>(TEXT("MovementComponent"));
 	EquipmentComponent = CreateDefaultSubobject<UFPSCombatEquipmentManager>(TEXT("EquipmentManager")); 
 	RigIKComponent = CreateDefaultSubobject<UFPSCombatRigIKComponent>(TEXT("RigIK"));
 }
@@ -217,7 +217,7 @@ void AFPSCombatCharacter::GrantDefaultEquipment()
 	{
 		return;
 	}
-
+	
 	AFPSCombatPlayerState* PS = GetPlayerState<AFPSCombatPlayerState>();
 	if (!PS) return;
 	

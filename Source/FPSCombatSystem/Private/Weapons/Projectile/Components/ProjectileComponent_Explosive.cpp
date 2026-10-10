@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Weapons/Projectile/Components/ProjectileComponent_Explosive.h"
@@ -27,6 +27,8 @@ void UProjectileComponent_Explosive::Detonate()
 
 	const FVector Loc = OwnerProjectile->GetActorLocation();
 
+	// A fuse detonation has no real hit, so build one at the projectile's
+	// location for the cue.
 	FHitResult ImpactHit;
 	ImpactHit.Location = Loc;
 	ImpactHit.ImpactPoint = Loc;
@@ -38,6 +40,7 @@ void UProjectileComponent_Explosive::Detonate()
 
 void UProjectileComponent_Explosive::DetonateInternal(const FHitResult& Hit)
 {
+	// Server only and one-shot: impact, bounce count and fuse can all race to detonate.
 	if (bAlreadyDetonated || !GetOwner()->HasAuthority() || !OwnerProjectile) return;
 	bAlreadyDetonated = true;
 
@@ -58,6 +61,8 @@ void UProjectileComponent_Explosive::DetonateInternal(const FHitResult& Hit)
 		Params.AddIgnoredActor(OwnerProjectile);
 	
 		TArray<FOverlapResult> Overlaps;
+
+		// Gather pawns inside the blast radius.
 		GetWorld()->OverlapMultiByChannel(Overlaps, PosLocation, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(ThrowableDef->ExplosionRadius), Params);
 		
 		TSet<AActor*> ProcessedTargets;

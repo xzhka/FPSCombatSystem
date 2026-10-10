@@ -58,6 +58,8 @@ void AFPSCombatProjectileBase::Tick(float DeltaSeconds)
 
 	if (HasAuthority() && StaticMeshComp && SpinRateDegPerSec > 0.f)
 	{
+		// Cosmetic tumble around the random axis chosen in
+		// InitializeVelocity().
 		const FQuat DeltaSpin(SpinAxis, FMath::DegreesToRadians(SpinRateDegPerSec*DeltaSeconds));
 		StaticMeshComp->AddLocalRotation(DeltaSpin);
 	}
@@ -70,6 +72,7 @@ void AFPSCombatProjectileBase::PostInitializeComponents()
 	
 	if (AActor* InstigatorActor = GetInstigator())
 	{
+		// Don`t collide with the thrower.
 		CollisionComp->IgnoreActorWhenMoving(InstigatorActor, true);
 	}
 }
@@ -121,6 +124,7 @@ void AFPSCombatProjectileBase::OnOverlap(UPrimitiveComponent* OnComponentBeginOv
 
 void AFPSCombatProjectileBase::OnProjectileBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
+	// Each bounce halves the spin until it stops.
 	SpinRateDegPerSec*=0.5f;
 	if (SpinRateDegPerSec < 10)
 	{
@@ -130,6 +134,7 @@ void AFPSCombatProjectileBase::OnProjectileBounce(const FHitResult& ImpactResult
 
 void AFPSCombatProjectileBase::OnProjectileImpact(AActor* ImpactActor, const FHitResult& ImpactResult)
 {
+	// Only the first impact counts (hit and overlap can both fire).
 	if (bHasImpacted) return;
 	bHasImpacted = true;
 	
@@ -181,7 +186,9 @@ void AFPSCombatProjectileBase::ApplyImpactCue(const FHitResult& ImpactResult)
 	CueParams.Normal = ImpactResult.ImpactNormal;
 	CueParams.SourceObject = this;
 	CueParams.Instigator = GetInstigator();
-	
+
+	// By default, execute cue on ASC. Otherwise, run
+	// it directly on the projectile.
 	if (UAbilitySystemComponent* ASC = GetSourceASC())
 	{
 		ASC->ExecuteGameplayCue(GameplayCueExplosionTag, CueParams);

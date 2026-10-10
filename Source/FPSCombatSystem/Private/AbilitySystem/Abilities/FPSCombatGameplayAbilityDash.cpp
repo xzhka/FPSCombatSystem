@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "AbilitySystem/Abilities/FPSCombatGameplayAbilityDash.h"
 
-#include "Characters/FPSCombatMovementComp.h"
+#include "Characters/FPSCombatMovementComponent.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
 UFPSCombatGameplayAbilityDash::UFPSCombatGameplayAbilityDash()
@@ -59,7 +59,7 @@ void UFPSCombatGameplayAbilityDash::Dash()
 {
 	UAbilitySystemComponent* AbilityASC = GetAbilitySystemComponentFromActorInfo();
 	
-	if (UFPSCombatMovementComp* MovementComp = UFPSCombatMovementComp::GetMovementComp(GetAvatarActorFromActorInfo()))
+	if (UFPSCombatMovementComponent* MovementComp = UFPSCombatMovementComponent::GetMovementComp(GetAvatarActorFromActorInfo()))
 	{
 		MovementComp->Dash(Strength, Duration);
 	}

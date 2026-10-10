@@ -13,6 +13,8 @@ UFPSCombatGameplayAbilityDeath::UFPSCombatGameplayAbilityDeath()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 
 
+	// Register the trigger on the CDO only. Ability triggers
+	// only from event and applies the state tag.
 	if (HasAnyFlags(RF_ClassDefaultObject))
 	{
 		FAbilityTriggerData TriggerData;
@@ -54,6 +56,8 @@ void UFPSCombatGameplayAbilityDeath::EndAbility(const FGameplayAbilitySpecHandle
 
 void UFPSCombatGameplayAbilityDeath::StartDeath()
 {
+	// Death states advances only on authoritative.
+	// Client follow through replication.
 	if (CurrentActorInfo->IsNetAuthority())
 	{
 		if (UFPSCombatHealthComponent* HC = UFPSCombatHealthComponent::GetHealthComp(GetAvatarActorFromActorInfo()))

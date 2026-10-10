@@ -21,6 +21,7 @@ void UFPSCombatRigIKComponent::BeginPlay()
 
 	if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
 	{
+		// Tick after the mesh so the hand goal uses this frame's pose.
 		AddTickPrerequisiteComponent(Character->GetMesh());	
 	}
 }
@@ -34,7 +35,8 @@ void UFPSCombatRigIKComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character || !Character->GetMesh()) return;
-	
+
+	// Convert the weapon's grip socket into the character mesh's component space.
 	const FTransform SocketWorld = CachedWeaponActor->GetSocketTransform(CachedSocketName);
 	const FTransform GoalComponentSpace = SocketWorld.GetRelativeTransform(Character->GetMesh()->GetComponentTransform());
 	SetIKRigGoalPositionAndRotation(LeftHandGoalName, GoalComponentSpace.GetLocation(), GoalComponentSpace.GetRotation(), 1.f, 1.f);
@@ -48,7 +50,7 @@ void UFPSCombatRigIKComponent::OnEquipmentChange(FGameplayTag Channel, const FFP
 	}
 
 	UFPSCombatWeaponDefinition* WeaponDef = Message.bIsEquipped ? Cast<UFPSCombatWeaponDefinition>(Message.NewObjectInstance->GetDefinition()) : nullptr;
-
+	
 	if (!WeaponDef || WeaponDef->LeftHandGripSocket.IsNone())
 	{
 		CachedWeaponActor = nullptr;

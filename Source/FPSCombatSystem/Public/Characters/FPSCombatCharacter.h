@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "FPSCombatCharacterPawnComp.h"
+#include "FPSCombatCharacterPawnComponent.h"
 #include "Animation/FPSCombatRigIKComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/FPSCombatHealthComponent.h"
@@ -15,7 +15,7 @@
 #include "Weapons/FPSCombatThrowableDefinition.h"
 #include "FPSCombatCharacter.generated.h"
 
-class UFPSCombatMovementComp;
+class UFPSCombatMovementComponent;
 
 
 /*	AFPSCombatCharacter
@@ -43,7 +43,7 @@ public:
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FPSFollowCamera; }
 
 	UFUNCTION(BlueprintPure, Category = "Movement" , meta = (BlueprintThreadSafe))
-	FORCEINLINE UFPSCombatMovementComp* GetCombatMovementComponent() const { return MovementComponent; }
+	FORCEINLINE UFPSCombatMovementComponent* GetCombatMovementComponent() const { return MovementComponent; }
 
 	/* ACharacter override functions*/
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -80,13 +80,13 @@ protected:
 	TObjectPtr<UFPSCombatHealthComponent> HealthComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PawnComponent")
-	TObjectPtr<UFPSCombatCharacterPawnComp> PawnComponent;
+	TObjectPtr<UFPSCombatCharacterPawnComponent> PawnComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stamina")
 	TObjectPtr<UFPSCombatStaminaComponent> StaminaComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
-	TObjectPtr<UFPSCombatMovementComp> MovementComponent;
+	TObjectPtr<UFPSCombatMovementComponent> MovementComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
 	TObjectPtr<UFPSCombatEquipmentManager> EquipmentComponent;

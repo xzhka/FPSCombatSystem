@@ -30,6 +30,8 @@ void AFPSCombatPlayerState::GrantDefaultAbilities()
 {
 	if (HasAuthority())
 	{
+		// Revoke earlier grants first so re-granting never duplicates
+		// abilities.
 		GrantedHandles.ClearAbilitySystem(ASC);
 		AbilitySet->GiveAbility(ASC, &GrantedHandles);
 	}

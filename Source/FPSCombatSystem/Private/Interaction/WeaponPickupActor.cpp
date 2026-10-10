@@ -32,12 +32,16 @@ bool AWeaponPickupActor::TryGivePickup(APawn* PickupPawn)
 			
 				const int32 FreeSlot = QuickBar->GetNextFreeItemSlot();
 				if (FreeSlot == INDEX_NONE) return false;
+				
+				UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PickupPawn);
+				if (!ASC || ASC->HasMatchingGameplayTag(FPSCombatGameplayTags::Weapon_Reload)) return false;
+				
 				if (UFPSCombatItemInstance* ItemInstance = ItemManager->AddStack(ItemDefinition, FPSCombatGameplayTags::Item_Stat_Quantity, 1))
 				{
+					// Send gameplay event for every case when we already
+					// in ability state and want to pick up a weapon.
 					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 						PickupPawn, FPSCombatGameplayTags::Ability_ExternalResolveRequested, FGameplayEventData());
-					UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PickupPawn);
-					if (!ASC || ASC->HasMatchingGameplayTag(FPSCombatGameplayTags::Weapon_Reload)) return false;
 					QuickBar->AddItemToSlot(ItemInstance, FreeSlot);
 					
 					QuickBar->SetActiveSlot(FreeSlot);

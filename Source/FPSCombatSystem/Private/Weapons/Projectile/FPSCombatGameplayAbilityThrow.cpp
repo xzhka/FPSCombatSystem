@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Weapons/Projectile/FPSCombatGameplayAbilityThrow.h"
@@ -54,7 +54,9 @@ void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecH
 		return;
 	}
 	K2_OnThrowSetupComplete();
-	
+
+	// A throw ends in one of three ways: input released, an external resolve
+	// event (authority only) or the max-hold timer.
 	WaitInputRelease  = UAbilityTask_WaitInputRelease::WaitInputRelease(this, false);
 	WaitInputRelease->OnRelease.AddDynamic(this, &ThisClass::HandleInputReleased);
 	WaitInputRelease->ReadyForActivation();
@@ -62,7 +64,8 @@ void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecH
 	UAbilityTask_WaitGameplayEvent* WaitGameplayEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FPSCombatGameplayTags::Ability_ExternalResolveRequested, nullptr, false, true);
 	WaitGameplayEvent->EventReceived.AddDynamic(this, &ThisClass::HandleExternalResolveEvent);
 	WaitGameplayEvent->ReadyForActivation();
-	
+
+	// Auto-release after MaxHoldTime. A value of 0 disables the limit.
 	GetWorld()->GetTimerManager().SetTimer(MaxHoldHandle, this, &UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout, MaxHoldTime, false);	
 
 }
@@ -122,6 +125,7 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 		ExplosiveComp->InitializeExplosion(ThrowableDefinition);
 	}
 
+	// Spend a charge only after the projectile has actually spawned.
 	ThrowInstance->ConsumeProjectile(FPSCombatGameplayTags::Data_Projectile_Quantity);
 }
 
@@ -156,6 +160,8 @@ void UFPSCombatGameplayAbilityThrow::HandleExternalResolveEvent(FGameplayEventDa
 
 void UFPSCombatGameplayAbilityThrow::SetThrowableVisualsActive(bool bActive)
 {
+	// Hide the quick bar's active item while a throwable is shown, and the
+	// other way round.
 	if (AController* Controller = GetController())
 	{
 		if (UFPSCombatQuickBarComponent* QuickBar = Controller->FindComponentByClass<UFPSCombatQuickBarComponent>())
@@ -213,6 +219,9 @@ void UFPSCombatGameplayAbilityThrow::EndAbility(const FGameplayAbilitySpecHandle
                                                 bool bReplicateEndAbility, bool bWasCancelled)
 {
 	GetWorld()->GetTimerManager().ClearTimer(MaxHoldHandle);
+	
+	// Whatever ended the throw (release, resolve, cancel): restore the visuals
+	// and drop the in-hand actors.
 	SetThrowableVisualsActive(false);
 	
 	if (ThrowInstance)

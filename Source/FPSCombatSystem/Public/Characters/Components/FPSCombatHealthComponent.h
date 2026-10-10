@@ -56,7 +56,6 @@ class FPSCOMBATSYSTEM_API UFPSCombatHealthComponent : public UFPSCombatBaseCompo
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UFPSCombatHealthComponent();
 
 

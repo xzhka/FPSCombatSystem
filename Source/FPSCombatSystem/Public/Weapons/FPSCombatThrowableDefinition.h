@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Equipment/FPSCombatEquipmentDefinition.h"
 #include "Projectile/FPSCombatProjectileBase.h"
-#include "Projectile/FPSCombatProjectileDefinition.h"
 #include "FPSCombatThrowableDefinition.generated.h"
 
 UENUM(BlueprintType)
@@ -32,6 +31,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
 	TObjectPtr<UCurveFloat> FalloffCurve;
 
+	/* Trigger info */
 	UPROPERTY(EditDefaultsOnly, Category = "Parameters")
 	float FuseDuration = 3.f;
 
@@ -50,6 +50,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Classes")
 	TSoftClassPtr<AFPSCombatProjectileBase> ProjectileClass;
 
+	/* Throw attributes */
 	UPROPERTY(EditDefaultsOnly, Category = "Duration")
 	float ThrowsCooldown = 0.5f;
 	
@@ -67,7 +68,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Throw")
 	float SpawnHeightOffset = 10.f;
-	
+
+	/* Animation */
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TSoftObjectPtr<UAnimMontage> ThrowMontage;
 	

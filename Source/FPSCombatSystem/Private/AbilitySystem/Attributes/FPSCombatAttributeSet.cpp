@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
@@ -199,7 +199,7 @@ void UFPSCombatAttributeSet::PreAttributeChange(const FGameplayAttribute& Attrib
 	}
 	else if (Attribute == GetMaxHealthAttribute())
 	{
-		// We do not allow to MaxHealth value drop under 1
+		// We do not allow to MaxHealth value drop below max health
 		NewValue = GetClampToMax(NewValue, GetMaxHealth());
 	}
 

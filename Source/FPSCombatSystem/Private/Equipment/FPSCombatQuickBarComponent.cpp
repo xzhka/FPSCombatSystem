@@ -19,6 +19,7 @@ UFPSCombatQuickBarComponent::UFPSCombatQuickBarComponent(const FObjectInitialize
 
 void UFPSCombatQuickBarComponent::BeginPlay()
 {
+	// Pre-size the slot array so slots exist before any item is added.
 	if (ItemSlots.Num() < SlotsAmount)
 	{
 		ItemSlots.AddDefaulted(SlotsAmount - ItemSlots.Num());
@@ -35,6 +36,8 @@ void UFPSCombatQuickBarComponent::CycleSlotForward()
 		return;
 	}
 
+	// Walk the slots, skipping empty ones, until an item is found or the walk
+	// returns to the start.
 	const int32 OldIndex = ActiveSlot < 0 ? ItemSlots.Num()-1 : ActiveSlot;
 	int32 NewIndex = ActiveSlot;
 	do
@@ -105,12 +108,16 @@ void UFPSCombatQuickBarComponent::SetActiveSlot_Implementation(int32 NewIndex)
 {
 	if ((ItemSlots.IsValidIndex(NewIndex)) && (ActiveSlot != NewIndex))
 	{
+		// Swap the equipment: unequip the old slot, switch it, change
+		// the active index and then apply a new one.
 		UnequipItemInSlot();
 
 		ActiveSlot = NewIndex;
 		
 		EquipItemInSlot();
 
+		// The server never receives the RepNotify, so call it manually to
+		// broadcast the change.
 		OnRep_ActiveSlot();
 	}
 }
@@ -129,6 +136,9 @@ void UFPSCombatQuickBarComponent::AddItemToSlot(UFPSCombatItemInstance* Item, in
 			ItemSlots[ItemSlot] = Item;
 			OnRep_ItemSlots();
 
+			// In case when our active slot index is
+			// new slot for equipment, we want to
+			// equip`s it in there externally.
 			if (ItemSlot == ActiveSlot && EquippedItem == nullptr)
 			{
 				EquipItemInSlot();
@@ -141,6 +151,7 @@ UFPSCombatItemInstance* UFPSCombatQuickBarComponent::RemoveItemFromSlot(int32 It
 {
 	UFPSCombatItemInstance* Result = nullptr;
 
+	// Removing the active item leaves no active slot.
 	if (ActiveSlot == ItemSlot)
 	{
 		UnequipItemInSlot();

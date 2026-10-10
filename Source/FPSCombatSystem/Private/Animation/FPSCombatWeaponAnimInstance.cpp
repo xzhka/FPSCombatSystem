@@ -20,7 +20,7 @@ void UFPSCombatWeaponAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	const USkeletalMeshComponent* CharacterMesh = Character->GetMesh();
 	const USkeletalMeshComponent* WeaponMesh = WeaponActor->GetWeaponMesh();
-	if (!CharacterMesh && !WeaponMesh) return;
+	if (!CharacterMesh || !WeaponMesh) return;
 
 	FTransform SocketOffset = FTransform::Identity;
 	if (const USkeletalMeshSocket* Socket = WeaponMesh->GetSocketByName(WeaponMagSocketName))

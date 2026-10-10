@@ -38,11 +38,6 @@ void UFPSCombatAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTa
 			{
 				ReleasedAbilitySpecHandles.AddUnique(Spec.Handle);
 				HeldAbilitySpecHandles.Remove(Spec.Handle);
-
-				// if (UFPSCombatBaseGameplayAbility* CombatAbility = Cast<UFPSCombatBaseGameplayAbility>(Spec.Ability))
-				// {
-				// 	CombatAbility->NotifyInputReleased(Spec);
-				// }
 			}
 		}
 	}
