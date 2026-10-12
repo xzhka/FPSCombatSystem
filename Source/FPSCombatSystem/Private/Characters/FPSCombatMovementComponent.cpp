@@ -34,6 +34,7 @@ const FPSCombatGroundInfo& UFPSCombatMovementComponent::GetGroundInfo()
 	}
 	else
 	{
+		TRACE_CPUPROFILER_EVENT_SCOPE(FPSCombat_GroundTrace);
 		const UCapsuleComponent* Capsule = OwnerCharacter->GetCapsuleComponent();
 		check(Capsule);
 

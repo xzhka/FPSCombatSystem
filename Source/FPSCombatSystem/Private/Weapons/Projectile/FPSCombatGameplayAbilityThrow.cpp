@@ -72,6 +72,8 @@ void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecH
 
 void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 {
+	TRACE_BOOKMARK(TEXT("Grenade released"));
+	TRACE_CPUPROFILER_EVENT_SCOPE(FPSCombat_GrenadeSpawn);
 	if (!HasAuthority(&CurrentActivationInfo)) return;
 
 	APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
@@ -88,7 +90,7 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 	
 	
 	UFPSCombatThrowableDefinition* ThrowableDefinition = ThrowInstance ? ThrowInstance->GetThrowableDefinition() : nullptr;
-	TSubclassOf<AFPSCombatProjectileBase> ProjectileClass = ThrowableDefinition ? ThrowableDefinition->ProjectileClass.LoadSynchronous() : nullptr;
+	TSubclassOf<AFPSCombatProjectileBase> ProjectileClass = ThrowInstance->GetProjectileClass();
 	if (!ProjectileClass) return;
 
 	FVector AimDir = LocRot.Vector();
@@ -187,16 +189,6 @@ void UFPSCombatGameplayAbilityThrow::SetThrowableVisualsActive(bool bActive)
 	{
 		ThrowInstance->SetEquipmentActorsHidden(true);
 	}
-}
-
-UAnimMontage* UFPSCombatGameplayAbilityThrow::BP_GetHoldMontage() const
-{
-	return GetThrowableDefinition() ? GetThrowableDefinition()->HoldMontage.LoadSynchronous() : nullptr;
-}
-
-UAnimMontage* UFPSCombatGameplayAbilityThrow::BP_GetThrowMontage() const
-{
-	return GetThrowableDefinition() ? GetThrowableDefinition()->ThrowMontage.LoadSynchronous() : nullptr;
 }
 
 void UFPSCombatGameplayAbilityThrow::FinalizeThrowReleased(float TimeHeld)

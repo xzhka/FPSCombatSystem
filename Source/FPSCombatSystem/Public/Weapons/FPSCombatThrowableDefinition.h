@@ -71,8 +71,5 @@ public:
 
 	/* Animation */
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TSoftObjectPtr<UAnimMontage> ThrowMontage;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TSoftObjectPtr<UAnimMontage> HoldMontage;
+	TMap<FGameplayTag, TSoftObjectPtr<UAnimMontage>> ActionAnimations;
 };

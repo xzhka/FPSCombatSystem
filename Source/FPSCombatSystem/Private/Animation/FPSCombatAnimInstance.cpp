@@ -35,6 +35,7 @@ void UFPSCombatAnimInstance::NativeInitializeAnimation()
 
 void UFPSCombatAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(FPSCombat_AnimUpdate);
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
 	const AFPSCombatCharacter* Character = Cast<AFPSCombatCharacter>(GetOwningActor());

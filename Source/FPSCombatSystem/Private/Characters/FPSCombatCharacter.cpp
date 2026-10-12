@@ -14,6 +14,8 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 {
 	bReplicates = true;
 	GetCapsuleComponent()->SetCapsuleSize(42.0f, 96.0f);
+
+	GetMesh()->bEnableUpdateRateOptimizations = true;
 	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);

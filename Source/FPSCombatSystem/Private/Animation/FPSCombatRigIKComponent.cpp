@@ -29,6 +29,7 @@ void UFPSCombatRigIKComponent::BeginPlay()
 void UFPSCombatRigIKComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(FPSCombat_LeftHandIK);
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (!CachedWeaponActor) return;

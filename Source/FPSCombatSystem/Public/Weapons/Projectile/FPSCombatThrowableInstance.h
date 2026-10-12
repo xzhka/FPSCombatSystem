@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/StreamableManager.h"
 #include "Equipment/FPSCombatEquipmentInstance.h"
 #include "Weapons/FPSCombatThrowableDefinition.h"
 #include "FPSCombatThrowableInstance.generated.h"
@@ -25,4 +26,25 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ConsumeProjectile(FGameplayTag ProjectileTag) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	TSubclassOf<AFPSCombatProjectileBase> GetProjectileClass() const { return CachedProjectileClass; }
+		
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	UAnimMontage* GetAnimDefinitionMontage(FGameplayTag ActionTag) const;
+	
+	virtual void OnEquipped() override;
+	virtual void OnUnequipped() override;
+
+private:
+	void OnThrowAssetsLoaded();
+
+	TSharedPtr<FStreamableHandle> ProjectileHandle; 
+	
+	UPROPERTY()
+	TMap<FGameplayTag, TObjectPtr<UAnimMontage>> CachedActionMontages;
+
+	UPROPERTY()
+	TSubclassOf<AFPSCombatProjectileBase> CachedProjectileClass;
+	
 };

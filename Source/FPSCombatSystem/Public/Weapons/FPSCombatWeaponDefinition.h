@@ -66,7 +66,6 @@ public:
 	float ReloadDuration = 2.f;
 
 	/** Animation */
-
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	FName LeftHandGripSocket;
 	

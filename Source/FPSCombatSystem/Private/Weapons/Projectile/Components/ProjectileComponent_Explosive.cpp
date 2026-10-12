@@ -40,6 +40,7 @@ void UProjectileComponent_Explosive::Detonate()
 
 void UProjectileComponent_Explosive::DetonateInternal(const FHitResult& Hit)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(FPSCombat_Explosion);
 	// Server only and one-shot: impact, bounce count and fuse can all race to detonate.
 	if (bAlreadyDetonated || !GetOwner()->HasAuthority() || !OwnerProjectile) return;
 	bAlreadyDetonated = true;

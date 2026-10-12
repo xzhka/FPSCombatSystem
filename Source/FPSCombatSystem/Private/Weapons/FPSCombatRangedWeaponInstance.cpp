@@ -408,6 +408,7 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 
 void UFPSCombatRangedWeaponInstance::OnUnequipped()
 {
+	CachedActionMontages.Empty();
 	AbortFireSequence();
 	Super::OnUnequipped();
 }
