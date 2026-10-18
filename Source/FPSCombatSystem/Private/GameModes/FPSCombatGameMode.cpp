@@ -3,15 +3,40 @@
 
 #include "GameModes/FPSCombatGameMode.h"
 
+#include "AI/FPSCombatEnemyController.h"
 #include "Characters/FPSCombatCharacter.h"
+#include "Characters/FPSCombatPawnData.h"
+#include "GameModes/FPSCombatGameState.h"
 #include "GameModes/FPSCombatPlayerState.h"
 #include "Input/FPSCombatPlayerController.h"
+#include "Spawning/FPSCombatSpawningManagerComponent.h"
 
 AFPSCombatGameMode::AFPSCombatGameMode()
 {
 	DefaultPawnClass = AFPSCombatCharacter::StaticClass();
 	PlayerControllerClass = AFPSCombatPlayerController::StaticClass();
 	PlayerStateClass = AFPSCombatPlayerState::StaticClass();
+	GameStateClass = AFPSCombatGameState::StaticClass();
+}
+
+const UFPSCombatPawnData* AFPSCombatGameMode::GetPlayerPawnData(const AController* InController) const
+{
+	if (InController != nullptr)
+	{
+		if (AFPSCombatPlayerState* PlayerState = InController->GetPlayerState<AFPSCombatPlayerState>())
+		{
+			if (const UFPSCombatPawnData* PawnData = PlayerState->GetPawnData<UFPSCombatPawnData>())
+			{
+				return PawnData;
+			}
+		}
+
+		if (DefaultEnemyData && InController->IsA<AFPSCombatEnemyController>())
+		{
+			return DefaultEnemyData;
+		}
+	}
+	return DefaultPawnData;
 }
 
 void AFPSCombatGameMode::HandlePawnDeath(AController* Controller)
@@ -25,6 +50,26 @@ void AFPSCombatGameMode::HandlePawnDeath(AController* Controller)
 
 	FTimerDelegate Delegate = FTimerDelegate::CreateUObject(this, &AFPSCombatGameMode::RespawnPlayer, Controller);
 	GetWorldTimerManager().SetTimer(Handle, Delegate, RespawnDelay, false);
+}
+
+AActor* AFPSCombatGameMode::ChoosePlayerStart_Implementation(AController* Player)
+{
+	if (const UFPSCombatSpawningManagerComponent* SpawningComponent = GameState->FindComponentByClass<UFPSCombatSpawningManagerComponent>())
+	{
+		return SpawningComponent->ChoosePlayerStart(Player);
+	}
+	
+	return Super::ChoosePlayerStart_Implementation(Player);
+}
+
+UClass* AFPSCombatGameMode::GetDefaultPawnClassForController_Implementation(AController* InController)
+{
+	if (const UFPSCombatPawnData* PawnData = GetPlayerPawnData(InController))
+	{
+		return PawnData->PawnClass;	
+	}
+	
+	return Super::GetDefaultPawnClassForController_Implementation(InController);
 }
 
 void AFPSCombatGameMode::RespawnPlayer(AController* Controller)

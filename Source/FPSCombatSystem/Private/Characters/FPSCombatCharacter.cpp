@@ -3,6 +3,7 @@
 #include "Characters/FPSCombatMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "FPSCombatSystem/FPSCombatSystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameModes/FPSCombatGameMode.h"
 #include "GameModes/FPSCombatPlayerState.h"
@@ -101,9 +102,9 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 
 			if (HasAuthority())
 			{
+				AbilitySystem->CancelAllAbilities();
+				
 				AbilitySystem->InitializeDefaultAttributes();
-
-				APlayerState->GrantDefaultAbilities();
 			}
 		}
 	}

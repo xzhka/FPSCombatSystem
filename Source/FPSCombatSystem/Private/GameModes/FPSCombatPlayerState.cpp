@@ -3,6 +3,10 @@
 
 #include "FPSCombatSystem/Public/GameModes/FPSCombatPlayerState.h"
 
+#include "FPSCombatSystem/FPSCombatSystem.h"
+#include "GameModes/FPSCombatGameMode.h"
+#include "Net/UnrealNetwork.h"
+
 AFPSCombatPlayerState::AFPSCombatPlayerState()
 {
 	ASC = CreateDefaultSubobject<UFPSCombatAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
@@ -16,6 +20,37 @@ AFPSCombatPlayerState::AFPSCombatPlayerState()
 	ItemComponent = CreateDefaultSubobject<UFPSCombatItemManagerComponent>(TEXT("ItemManager"));
 }
 
+void AFPSCombatPlayerState::SetPawnData(const UFPSCombatPawnData* InPawnData)
+{
+	if (GetLocalRole() != ROLE_Authority || PawnData)
+	{
+		return;
+	}
+	PawnData = InPawnData;
+	
+	for (UFPSCombatAbilitySet* AbilitySet : PawnData->AbilitySets)
+	{
+		if (AbilitySet)
+		{
+			AbilitySet->GiveAbility(ASC, nullptr);
+		}
+	}
+	ForceNetUpdate();
+}
+
+void AFPSCombatPlayerState::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (HasAuthority())
+	{
+		if (AFPSCombatGameMode* GameMode = GetWorld()->GetAuthGameMode<AFPSCombatGameMode>())
+		{
+			SetPawnData(GameMode->GetPlayerPawnData(GetOwningController()));
+		}
+	}
+}
+
 UAbilitySystemComponent* AFPSCombatPlayerState::GetAbilitySystemComponent() const
 {
 	return ASC;
@@ -26,13 +61,14 @@ UAttributeSet* AFPSCombatPlayerState::GetAttributeSet() const
 	return AttributeSet;
 }
 
-void AFPSCombatPlayerState::GrantDefaultAbilities()
+void AFPSCombatPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	if (HasAuthority())
-	{
-		// Revoke earlier grants first so re-granting never duplicates
-		// abilities.
-		GrantedHandles.ClearAbilitySystem(ASC);
-		AbilitySet->GiveAbility(ASC, &GrantedHandles);
-	}
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AFPSCombatPlayerState, PawnData);
+	
+}
+
+void AFPSCombatPlayerState::OnRep_PawnData()
+{
 }

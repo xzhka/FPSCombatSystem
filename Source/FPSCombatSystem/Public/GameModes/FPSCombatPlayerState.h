@@ -8,6 +8,7 @@
 #include "AbilitySystem/FPSCombatAbilitySet.h"
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
+#include "Characters/FPSCombatPawnData.h"
 #include "Items/FPSCombatItemManagerComponent.h"
 #include "FPSCombatPlayerState.generated.h"
 
@@ -24,12 +25,19 @@ class FPSCOMBATSYSTEM_API AFPSCombatPlayerState : public APlayerState, public IA
 	AFPSCombatPlayerState();
 	
 public:
+
+	template<typename T>
+	const T* GetPawnData() const { return Cast<T>(PawnData); }
+
+	void SetPawnData(const UFPSCombatPawnData* InPawnData);
+	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	UAttributeSet* GetAttributeSet() const;
 
-	void GrantDefaultAbilities();
-	
+	virtual void PostInitializeComponents() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UFPSCombatAbilitySystemComponent> ASC;
@@ -40,9 +48,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UFPSCombatItemManagerComponent> ItemComponent;
 
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UFPSCombatAbilitySet> AbilitySet;
+	UFUNCTION()
+	void OnRep_PawnData();
 	
-	FCombatAbilitySet_GrantedHandles GrantedHandles;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_PawnData)
+	TObjectPtr<const UFPSCombatPawnData> PawnData;
 	
 };
