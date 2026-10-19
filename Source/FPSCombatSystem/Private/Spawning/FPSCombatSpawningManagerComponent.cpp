@@ -12,7 +12,10 @@ AActor* UFPSCombatSpawningManagerComponent::ChoosePlayerStart(AController* InCon
 {
 	if (!InController) return nullptr;
 
-	const EFPSCombatSpawnFaction SpawnFaction = InController->IsA<AFPSCombatEnemyController>() ? EFPSCombatSpawnFaction::Enemy : EFPSCombatSpawnFaction::Player;
+	const IGenericTeamAgentInterface* TeamAgent = Cast<IGenericTeamAgentInterface>(InController);
+	if (!TeamAgent) return nullptr;
+
+	const FGenericTeamId ControllerTeam = TeamAgent->GetGenericTeamId();
 
 	const APawn* FitPawn = GetPawnToFit(InController);
 	
@@ -21,7 +24,7 @@ AActor* UFPSCombatSpawningManagerComponent::ChoosePlayerStart(AController* InCon
 
 	for (TActorIterator<AFPSCombatPlayerStart> It(GetWorld()); It; ++It)
 	{
-		if (It->Faction != SpawnFaction) continue;
+		if (It->GetTeamId() != ControllerTeam) continue;
 
 		AllStarts.Add(*It);
 		if (!IsBlockedStart(FitPawn,*It))

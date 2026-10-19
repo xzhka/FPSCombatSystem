@@ -3,16 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericTeamAgentInterface.h"
+#include "FPSCombatSystem/FPSCombatTeamTypes.h"
 #include "GameFramework/PlayerStart.h"
 #include "FPSCombatPlayerStart.generated.h"
 
-UENUM(BlueprintType)
-enum class EFPSCombatSpawnFaction : uint8
-{
-	Player,
-	Enemy
-};
-
+enum class EFPSCombatTeam : uint8;
 /**
  * 
  */
@@ -22,5 +18,7 @@ class FPSCOMBATSYSTEM_API AFPSCombatPlayerStart : public APlayerStart
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spawning")
-	EFPSCombatSpawnFaction Faction = EFPSCombatSpawnFaction::Player;
+	EFPSCombatTeam TeamType = EFPSCombatTeam::Player;
+
+	FGenericTeamId GetTeamId() const { return FGenericTeamId(static_cast<uint8>(TeamType)); }
 };

@@ -4,6 +4,7 @@
 #include "Input/FPSCombatPlayerController.h"
 
 #include "Camera/FPSCombatPlayerCameraManager.h"
+#include "FPSCombatSystem/FPSCombatSystem.h"
 #include "GameModes/FPSCombatPlayerState.h"
 
 AFPSCombatPlayerController::AFPSCombatPlayerController(const FObjectInitializer& ObjectInitializer)
@@ -42,4 +43,18 @@ void AFPSCombatPlayerController::PostProcessInput(const float DeltaTime, const b
 	}
 	
 	Super::PostProcessInput(DeltaTime, bGamePaused);
+}
+
+void AFPSCombatPlayerController::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	UE_LOG(LogFPSCombat, Error, TEXT("Cant set the generic team id on controller. Only from player state."));
+}
+
+FGenericTeamId AFPSCombatPlayerController::GetGenericTeamId() const
+{
+	if (AFPSCombatPlayerState* PS = GetPlayerState<AFPSCombatPlayerState>())
+	{
+		return PS->GetGenericTeamId();
+	}
+	return FGenericTeamId::NoTeam;
 }

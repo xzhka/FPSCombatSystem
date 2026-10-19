@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "FPSCombatCharacterPawnComponent.h"
+#include "GenericTeamAgentInterface.h"
 #include "Animation/FPSCombatRigIKComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/FPSCombatHealthComponent.h"
@@ -23,7 +24,7 @@ class UFPSCombatMovementComponent;
  *	Main base character pawn class
  */
 UCLASS()
-class FPSCOMBATSYSTEM_API AFPSCombatCharacter : public ACharacter, public IAbilitySystemInterface
+class FPSCOMBATSYSTEM_API AFPSCombatCharacter : public ACharacter, public IAbilitySystemInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 	
@@ -45,13 +46,17 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Movement" , meta = (BlueprintThreadSafe))
 	FORCEINLINE UFPSCombatMovementComponent* GetCombatMovementComponent() const { return MovementComponent; }
 
-	/* ACharacter override functions*/
+	/* ACharacter override functions */
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
 	virtual void UnPossessed() override;
 	virtual void OnConstruction(const FTransform& Transform) override;
 
+	/* IGenericTeamAgentInterface override functions */
+		virtual void SetGenericTeamId(const FGenericTeamId& TeamID) override;
+		virtual FGenericTeamId GetGenericTeamId() const override;
+	
 	/* Ability system functions */
 	void InitializeAbilitySystem();
 	void UninitializeAbilitySystem();

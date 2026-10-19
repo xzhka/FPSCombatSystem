@@ -152,6 +152,20 @@ void AFPSCombatCharacter::OnConstruction(const FTransform& Transform)
 	}
 }
 
+void AFPSCombatCharacter::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	UE_LOG(LogFPSCombat, Error, TEXT("Cant set the generic team id on character. Only from player state."));
+}
+
+FGenericTeamId AFPSCombatCharacter::GetGenericTeamId() const
+{
+	if (AFPSCombatPlayerState* PS = GetPlayerState<AFPSCombatPlayerState>())
+	{
+		return PS->GetGenericTeamId();
+	}
+	return FGenericTeamId::NoTeam;
+}
+
 void AFPSCombatCharacter::OnDeathStarted(AActor* OwningActor)
 {
 	if (HasAuthority())

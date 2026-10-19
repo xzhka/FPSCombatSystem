@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "FPSCombatSystem/FPSCombatTeamTypes.h"
 #include "FPSCombatPawnData.generated.h"
 
 class UFPSCombatAbilitySet;
@@ -22,5 +23,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Sets")
 	TArray<TObjectPtr<UFPSCombatAbilitySet>> AbilitySets;
-	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Team")
+	EFPSCombatTeam Team;
 };

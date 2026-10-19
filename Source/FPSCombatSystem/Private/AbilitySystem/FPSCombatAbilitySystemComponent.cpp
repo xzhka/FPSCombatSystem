@@ -149,6 +149,24 @@ void UFPSCombatAbilitySystemComponent::ApplyAbilityBlockAndCancelTags(const FGam
 	                                      bExecuteCancelTags, MergedCancel);
 }
 
+bool UFPSCombatAbilitySystemComponent::TryActivateAbilityByInputTag(const FGameplayTag& InputTag)
+{
+	if (InputTag.IsValid())
+	{
+		FGameplayAbilitySpecHandle Handle;
+		for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+		{
+			if (Spec.Ability && (Spec.GetDynamicSpecSourceTags().HasTagExact(InputTag)))
+			{
+				Handle = Spec.Handle;
+				break;
+			}
+		}
+		return Handle.IsValid() && TryActivateAbility(Handle);
+	}
+	return false;
+}
+
 void UFPSCombatAbilitySystemComponent::TryActivateAbilityOnSpawn()
 {
 	for (const FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)

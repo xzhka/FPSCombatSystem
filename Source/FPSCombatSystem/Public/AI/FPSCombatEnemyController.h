@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "FPSCombatEnemyController.generated.h"
 
 /**
@@ -17,5 +19,20 @@ class FPSCOMBATSYSTEM_API AFPSCombatEnemyController : public AAIController
 public:
 
 	AFPSCombatEnemyController();
+	
+	virtual FGenericTeamId GetGenericTeamId() const override;
+	
+protected:
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
+
+	UFUNCTION()
+	void OnDeathStarted(AActor* OwningActor);
+	
+	UFPSCombatAbilitySystemComponent* GetCombatASC() const;
+	
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Behavior Tree")
+	UBehaviorTree* BehaviorTree;
 	
 };

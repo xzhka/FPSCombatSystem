@@ -27,6 +27,8 @@ void AFPSCombatPlayerState::SetPawnData(const UFPSCombatPawnData* InPawnData)
 		return;
 	}
 	PawnData = InPawnData;
+
+	SetGenericTeamId(FGenericTeamId(static_cast<uint8>(PawnData->Team)));
 	
 	for (UFPSCombatAbilitySet* AbilitySet : PawnData->AbilitySets)
 	{
@@ -66,9 +68,32 @@ void AFPSCombatPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AFPSCombatPlayerState, PawnData);
-	
+	DOREPLIFETIME(AFPSCombatPlayerState, MyTeamID);
+}
+
+FGenericTeamId AFPSCombatPlayerState::GetGenericTeamId() const
+{
+	return MyTeamID;
+}
+
+void AFPSCombatPlayerState::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	if (HasAuthority())
+	{
+		MyTeamID = TeamID;
+
+		ForceNetUpdate();
+	}
+	else
+	{
+		UE_LOG(LogFPSCombat, Warning, TEXT("Cannot set generic team on non-authority"));
+	}
 }
 
 void AFPSCombatPlayerState::OnRep_PawnData()
+{
+}
+
+void AFPSCombatPlayerState::OnRep_TeamID()
 {
 }
