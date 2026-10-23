@@ -4,12 +4,19 @@
 #include "Weapons/Fire/FPSCombatGameplayAbilityReload.h"
 
 #include "Abilities/Tasks/AbilityTask_WaitDelay.h"
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 #include "Weapons/FPSCombatRangedWeaponInstance.h"
 
 UFPSCombatGameplayAbilityReload::UFPSCombatGameplayAbilityReload()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	FAbilityTriggerData TriggerData;
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	TriggerData.TriggerTag = FPSCombatGameplayTags::GameplayEvent_Weapon_Reload;
+	
+	AbilityTriggers.Add(TriggerData);
 }
 
 bool UFPSCombatGameplayAbilityReload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,

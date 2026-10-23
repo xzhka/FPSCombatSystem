@@ -57,9 +57,7 @@ public:
 		
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UFPSCombatWeaponDefinition* GetWeaponDefinition() const;
-
-	UFUNCTION(BlueprintCallable)
-	void SetForcedTriggerHeld(bool bIsHeld) { bForcedTriggerHeld = bIsHeld; }
+	
 	
 	bool HasAmmoInMag() const;
 	bool CanReload() const;
@@ -102,8 +100,6 @@ private:
 	TMap<FGameplayTag, TObjectPtr<UAnimMontage>> CachedActionMontages;
 	
 	int32 CurrentRecoilShotIndex = 0;
-
-	bool bForcedTriggerHeld = false;
 	
 	bool bIsContinuation = false;
 

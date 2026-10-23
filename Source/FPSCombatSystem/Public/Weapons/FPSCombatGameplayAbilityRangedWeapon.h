@@ -75,7 +75,6 @@ private:
 	};
 
 	/* Functions */
-	
     void FireShot();
 
     void ProcessHitResult(const FGameplayAbilityTargetDataHandle& DataHandle);

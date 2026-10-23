@@ -10,6 +10,12 @@ UFPSCombatGameplayAbilityRangedWeapon::UFPSCombatGameplayAbilityRangedWeapon()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	FAbilityTriggerData TriggerData;
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	TriggerData.TriggerTag = FPSCombatGameplayTags::GameplayEvent_Weapon_Fire;
+	
+	AbilityTriggers.Add(TriggerData);
 	
 	ActivationPolicy = EFPSCombatAbilityActivationPolicy::OnInputTriggered;
 }
@@ -167,7 +173,16 @@ void UFPSCombatGameplayAbilityRangedWeapon::PerformLocalTargeting(const FFPSComb
 	FVector ViewLocation;
 	FRotator ViewRotation;
 
-	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	if (PlayerController != nullptr)
+	{
+		Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	}
+	else
+	{
+		ViewLocation = Pawn->GetPawnViewLocation();
+		ViewRotation = Controller->GetControlRotation();
+	}
 
 	FVector AimDir = ViewRotation.Vector();
 	const FVector ShotDir = WeaponInstance->CalculateFireDirection(Context, AimDir);
@@ -283,7 +298,16 @@ bool UFPSCombatGameplayAbilityRangedWeapon::IsHitResultValid(const FHitResult& H
 	FVector ViewLoc;
 	FRotator ViewRot;
 
-	Controller->GetPlayerViewPoint(ViewLoc, ViewRot);
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	if (PlayerController != nullptr)
+	{
+		Controller->GetPlayerViewPoint(ViewLoc, ViewRot);
+	}
+	else
+	{
+		ViewLoc = Pawn->GetPawnViewLocation();
+		ViewRot = Controller->GetControlRotation();
+	}
 
 	const float MaxRange = FMath::Square(WeaponInstance->GetWeaponDefinition()->TraceRange + HitValidationRangeSlack);
 	if (FVector::DistSquared(ViewLoc, HitResult.Location) > MaxRange)
@@ -310,7 +334,6 @@ bool UFPSCombatGameplayAbilityRangedWeapon::IsHitResultValid(const FHitResult& H
 		}
 	}
 	return true;
-	
 }
 
 void UFPSCombatGameplayAbilityRangedWeapon::FireShot()

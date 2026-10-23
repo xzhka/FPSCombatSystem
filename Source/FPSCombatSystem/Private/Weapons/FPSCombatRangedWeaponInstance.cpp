@@ -142,7 +142,7 @@ void UFPSCombatRangedWeaponInstance::ScheduleNextShotActivation(const FGameplayA
 		if (!StrongASC || !StrongInstance) return;
 
 		const FGameplayAbilitySpec* Spec = StrongASC->FindAbilitySpecFromHandle(SpecHandle);
-		const bool bStillWantsToFire = bBurstWantsNextShot || StrongInstance->bForcedTriggerHeld || (Spec && Spec->InputPressed);
+		const bool bStillWantsToFire = bBurstWantsNextShot || (Spec && Spec->InputPressed);
 			
 		if (!bStillWantsToFire)
 		{
@@ -408,7 +408,6 @@ void UFPSCombatRangedWeaponInstance::OnEquipped()
 
 void UFPSCombatRangedWeaponInstance::OnUnequipped()
 {
-	bForcedTriggerHeld = false;
 	CachedActionMontages.Empty();
 	AbortFireSequence();
 	Super::OnUnequipped();
