@@ -33,6 +33,7 @@ namespace FPSCombatGameplayTags
 
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Weapon_Fire, "GameplayEvent.Weapon.Fire");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_Weapon_Reload, "GameplayEvent.Weapon.Reload");
+	UE_DEFINE_GAMEPLAY_TAG(GameplayEvent_AI_Reload, "GameplayEvent.AI.Reload");
 	UE_DEFINE_GAMEPLAY_TAG(GameplayCue_Ability_Updraft, "GameplayCue.Ability.Updraft");
 	
 	UE_DEFINE_GAMEPLAY_TAG(Data_Tags_OutOfAmmo, "Data.Tags.OutOfAmmo");

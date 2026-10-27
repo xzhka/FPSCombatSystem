@@ -13,6 +13,7 @@
 bool AWeaponPickupActor::TryGivePickup(APawn* PickupPawn)
 {
 	check(PickupPawn != nullptr);
+
 	
 	if (AController* Controller = PickupPawn->GetController())
 	{
@@ -34,7 +35,7 @@ bool AWeaponPickupActor::TryGivePickup(APawn* PickupPawn)
 				if (FreeSlot == INDEX_NONE) return false;
 				
 				UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PickupPawn);
-				if (!ASC || ASC->HasMatchingGameplayTag(FPSCombatGameplayTags::Weapon_Reload)) return false;
+				if (ASC->HasMatchingGameplayTag(FPSCombatGameplayTags::Weapon_Reload)) return true;
 				
 				if (UFPSCombatItemInstance* ItemInstance = ItemManager->AddStack(ItemDefinition, FPSCombatGameplayTags::Item_Stat_Quantity, 1))
 				{

@@ -3,8 +3,6 @@
 #include "Interaction/WorldPickupActor.h"
 
 #include "Equipment/FPSCombatEquipmentManager.h"
-#include "Equipment/FPSCombatQuickBarComponent.h"
-#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
 AWorldPickupActor::AWorldPickupActor()
 {

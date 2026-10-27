@@ -22,6 +22,9 @@ class FPSCOMBATSYSTEM_API AWorldPickupActor : public AActor
 public:	
 	AWorldPickupActor();
 
+	UFUNCTION(BlueprintPure, Category = "Pickup")
+	TSubclassOf<UFPSCombatItemDefinition> GetItemDefinition() const { return ItemDefinition; }
+	
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup")

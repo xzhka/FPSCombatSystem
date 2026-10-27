@@ -6,7 +6,6 @@
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
 #include "GenericTeamAgentInterface.h"
-#include "AbilitySystem/FPSCombatAbilitySet.h"
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
 #include "Characters/FPSCombatPawnData.h"

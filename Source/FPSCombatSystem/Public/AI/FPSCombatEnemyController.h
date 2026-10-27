@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "Equipment/FPSCombatQuickBarComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "FPSCombatEnemyController.generated.h"
 
@@ -22,20 +23,18 @@ public:
 	AFPSCombatEnemyController();
 	
 	virtual FGenericTeamId GetGenericTeamId() const override;
-	virtual void PostInitializeComponents() override;
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnUnPossess() override;
 
 	UFUNCTION()
 	void OnDeathStarted(AActor* OwningActor);
-
-	UFUNCTION()
-	void OnTargetPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus);
 	
 	UFPSCombatAbilitySystemComponent* GetCombatASC() const;
-	
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "QuickBar")
+	TObjectPtr<UFPSCombatQuickBarComponent> QuickBarComponent;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = AI)
 	UAISenseConfig_Sight* Sight;
 	

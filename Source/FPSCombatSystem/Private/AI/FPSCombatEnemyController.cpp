@@ -28,7 +28,9 @@ AFPSCombatEnemyController::AFPSCombatEnemyController()
 
 	Perception->ConfigureSense(*Sight);
 	Perception->SetDominantSense(Sight->GetSenseImplementation());
-}
+
+	QuickBarComponent = CreateDefaultSubobject<UFPSCombatQuickBarComponent>(TEXT("QuickBarComponent"));
+} 
 
 FGenericTeamId AFPSCombatEnemyController::GetGenericTeamId() const
 {
@@ -37,16 +39,6 @@ FGenericTeamId AFPSCombatEnemyController::GetGenericTeamId() const
 		return PS->GetGenericTeamId();
 	}
 	return FGenericTeamId::NoTeam;
-}
-
-void AFPSCombatEnemyController::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	if (UAIPerceptionComponent* Perception = GetPerceptionComponent())
-	{
-		Perception->OnTargetPerceptionUpdated.AddUniqueDynamic(this, &AFPSCombatEnemyController::OnTargetPerceptionUpdate);
-	}
 }
 
 void AFPSCombatEnemyController::OnPossess(APawn* InPawn)
@@ -86,35 +78,6 @@ void AFPSCombatEnemyController::OnDeathStarted(AActor* OwningActor)
 	if (BrainComponent)
 	{
 		BrainComponent->StopLogic(TEXT("Pawn Dead"));
-	}
-}
-
-void AFPSCombatEnemyController::OnTargetPerceptionUpdate(AActor* Actor, FAIStimulus Stimulus)
-{
-	if (!Actor) return;
-	
-	if (Stimulus.WasSuccessfullySensed())
-	{
-		if (GetTeamAttitudeTowards(*Actor) == ETeamAttitude::Hostile)
-		{
-			UFPSCombatHealthComponent* Health = UFPSCombatHealthComponent::GetHealthComp(Actor);
-			if (!Health || Health->IsDeadOrDying()) return;
-
-			if (UBlackboardComponent* BB = GetBlackboardComponent())
-			{
-				BB->SetValueAsObject(TEXT("TargetActor"), Actor);
-			}
-		}
-	}
-	else
-	{
-		if (UBlackboardComponent* BB = GetBlackboardComponent())
-		{
-			if (BB->GetValueAsObject(TEXT("TargetActor")) == Actor)
-			{
-				BB->ClearValue(TEXT("TargetActor"));
-			}
-		}
 	}
 }
 
