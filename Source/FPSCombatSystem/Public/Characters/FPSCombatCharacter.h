@@ -74,6 +74,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void K2_OnDeathEnds();
 
+	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="Handle Items On Unpossessed"))
+	void HandleItemsOnUnpossessed();
+	
 	UFUNCTION(BlueprintImplementableEvent, meta=(DisplayName="On Death Started"))
 	void K2_OnDeathStarts(const FFPSCombatDeathInfo& DeathInfo);
 	

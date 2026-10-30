@@ -89,7 +89,6 @@ void FFPSCombatItemList::RemoveEntry(UFPSCombatItemInstance* ItemInstance)
 	check(OwnerComponent);
 	AActor* Actor = OwnerComponent->GetOwner();
 	check(Actor);
-	check(Actor->HasAuthority());
 	
 	for (auto It = EntryList.CreateIterator(); It; ++It)
 	{

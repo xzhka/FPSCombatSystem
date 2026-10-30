@@ -25,6 +25,13 @@ void UFPSCombatQuickBarComponent::BeginPlay()
 		ItemSlots.AddDefaulted(SlotsAmount - ItemSlots.Num());
 	}
 	
+	if (HasAuthority())
+	{
+		if (AController* ACont = Cast<AController>(GetOwner()))
+		{
+			ACont->OnPossessedPawnChanged.AddDynamic(this, &UFPSCombatQuickBarComponent::HandlePossessedPawnChanged);
+		}
+	}
 	
 	Super::BeginPlay();
 }
@@ -106,7 +113,7 @@ void UFPSCombatQuickBarComponent::GetLifetimeReplicatedProps(TArray<FLifetimePro
 
 void UFPSCombatQuickBarComponent::SetActiveSlot_Implementation(int32 NewIndex)
 {
-	if ((ItemSlots.IsValidIndex(NewIndex)) && (ActiveSlot != NewIndex))
+	if ((ItemSlots.IsValidIndex(NewIndex)) && (ActiveSlot != NewIndex || EquippedItem == nullptr))
 	{
 		// Swap the equipment: unequip the old slot, switch it, change
 		// the active index and then apply a new one.
@@ -194,6 +201,18 @@ void UFPSCombatQuickBarComponent::UnequipItemInSlot()
 			Manager->OnUnequipItem(EquippedItem);
 			EquippedItem = nullptr;
 		}
+	}
+}
+
+// Provide the quick bar items save
+// after pawn changed on respawn.
+void UFPSCombatQuickBarComponent::HandlePossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
+{
+	EquippedItem = nullptr;
+	
+	if (NewPawn)
+	{
+		EquipItemInSlot();
 	}
 }
 

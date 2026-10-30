@@ -60,12 +60,13 @@ public:
 	
 protected:
 	void EquipItemInSlot();
-	
 	void UnequipItemInSlot();
+
+	UFUNCTION()
+	void HandlePossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
 	
 	UFUNCTION()
 	void OnRep_ItemSlots();
-
 	UFUNCTION()
 	void OnRep_ActiveSlot();
 

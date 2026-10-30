@@ -84,6 +84,11 @@ void AFPSCombatCharacter::OnRep_PlayerState()
 
 void AFPSCombatCharacter::UnPossessed()
 {
+	if (HasAuthority())
+	{
+		HandleItemsOnUnpossessed();
+	}
+	
 	UninitializeAbilitySystem();
 	Super::UnPossessed();
 }
