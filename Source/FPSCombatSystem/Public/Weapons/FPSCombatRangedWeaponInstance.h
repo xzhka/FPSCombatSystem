@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -26,6 +26,10 @@ struct FFPSCombatShotContext
 	bool bIsFreshSequence = false;
 };
 
+/*	UFPSCombatRangedWeaponInstance
+ *	
+ *	A part of equipment instance which represents the ranged weapon spawned
+ */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatRangedWeaponInstance : public UFPSCombatWeaponInstance
 {
@@ -34,16 +38,16 @@ class FPSCOMBATSYSTEM_API UFPSCombatRangedWeaponInstance : public UFPSCombatWeap
 public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE int32 GetCurrentAmmo() const;
+	int32 GetCurrentAmmo() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE int32 GetReserveAmmo() const;
+	int32 GetReserveAmmo() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE int32 GetMaxAmmoInMag() const;
+	int32 GetMaxAmmoInMag() const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE int32 GetMaxReserveAmmo() const;
+	int32 GetMaxReserveAmmo() const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
 	UAnimMontage* GetAnimDefinitionMontage(FGameplayTag ActionTag) const;
@@ -53,6 +57,7 @@ public:
 		
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UFPSCombatWeaponDefinition* GetWeaponDefinition() const;
+	
 	
 	bool HasAmmoInMag() const;
 	bool CanReload() const;
@@ -95,7 +100,7 @@ private:
 	TMap<FGameplayTag, TObjectPtr<UAnimMontage>> CachedActionMontages;
 	
 	int32 CurrentRecoilShotIndex = 0;
-
+	
 	bool bIsContinuation = false;
 
 	bool bReactivationPending = false;

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -11,8 +11,11 @@
 
 
 
-/**
- * 
+/** UFPSCombatQuickBarComponent
+ *
+ *	Controller component representing
+ *	the quick bar, working with items
+ *	adding and removing
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatQuickBarComponent : public UControllerComponent
@@ -57,12 +60,13 @@ public:
 	
 protected:
 	void EquipItemInSlot();
-	
 	void UnequipItemInSlot();
+
+	UFUNCTION()
+	void HandlePossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
 	
 	UFUNCTION()
 	void OnRep_ItemSlots();
-
 	UFUNCTION()
 	void OnRep_ActiveSlot();
 

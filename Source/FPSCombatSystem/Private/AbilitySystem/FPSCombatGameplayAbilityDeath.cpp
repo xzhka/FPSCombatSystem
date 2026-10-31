@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "AbilitySystem/FPSCombatGameplayAbilityDeath.h"
@@ -13,6 +13,8 @@ UFPSCombatGameplayAbilityDeath::UFPSCombatGameplayAbilityDeath()
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
 
 
+	// Register the trigger on the CDO only. Ability triggers
+	// only from event and applies the state tag.
 	if (HasAnyFlags(RF_ClassDefaultObject))
 	{
 		FAbilityTriggerData TriggerData;
@@ -32,7 +34,7 @@ void UFPSCombatGameplayAbilityDeath::ActivateAbility(const FGameplayAbilitySpecH
 
 	UFPSCombatAbilitySystemComponent* ASC = CastChecked<UFPSCombatAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
 
-	ASC->CancelAbilities();
+	ASC->CancelAbilities(nullptr, nullptr,this);
 
 	SetCanBeCanceled(false);
 	
@@ -54,22 +56,30 @@ void UFPSCombatGameplayAbilityDeath::EndAbility(const FGameplayAbilitySpecHandle
 
 void UFPSCombatGameplayAbilityDeath::StartDeath()
 {
-	if (UFPSCombatHealthComponent* HC = UFPSCombatHealthComponent::GetHealthComp(GetAvatarActorFromActorInfo()))
+	// Death states advances only on authoritative.
+	// Client follow through replication.
+	if (CurrentActorInfo->IsNetAuthority())
 	{
-		if (HC->GetDeathState() == EDeathState::NotDead)
+		if (UFPSCombatHealthComponent* HC = UFPSCombatHealthComponent::GetHealthComp(GetAvatarActorFromActorInfo()))
 		{
-			HC->DeathStarted();
+			if (HC->GetDeathState() == EDeathState::NotDead)
+			{
+				HC->DeathStarted();
+			}
 		}
 	}
 }
 
 void UFPSCombatGameplayAbilityDeath::FinishDeath()
 {
-	if (UFPSCombatHealthComponent* HC = UFPSCombatHealthComponent::GetHealthComp(GetAvatarActorFromActorInfo()))
+	if (CurrentActorInfo->IsNetAuthority())
 	{
-		if (HC->GetDeathState() == EDeathState::DeathStarted)
+		if (UFPSCombatHealthComponent* HC = UFPSCombatHealthComponent::GetHealthComp(GetAvatarActorFromActorInfo()))
 		{
-			HC->DeathEnded();
+			if (HC->GetDeathState() == EDeathState::DeathStarted)
+			{
+				HC->DeathEnded();
+			}
 		}
 	}
 }

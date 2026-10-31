@@ -1,3 +1,5 @@
+// FPS Combat project
+
 #pragma once
 #include "NativeGameplayTags.h"
 
@@ -17,8 +19,6 @@ namespace FPSCombatGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_Sprinting);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_Dash);
 	
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_QuickBar_ChangeSlot);
-	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_AirborneSource);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Moving_AirborneSource_Updraft);
 
@@ -33,15 +33,17 @@ namespace FPSCombatGameplayTags
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_Aiming);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Weapon_Reload);
 
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_Weapon_Fire);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_Weapon_Reload);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayEvent_AI_Reload);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(GameplayCue_Ability_Updraft);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Tags_OutOfAmmo);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_SpareAmmo);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_Ammo_Mag);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_Ammo_Mag);
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Projectile_Quantity);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_AmmountToAdd);
-	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Grenade_AmmountToAdd);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Weapon_AmountToAdd);
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Data_Grenade_AmountToAdd);
 	
 	UE_DECLARE_GAMEPLAY_TAG_EXTERN(Item_Stat_Quantity);
 	

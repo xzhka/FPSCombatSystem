@@ -1,13 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// FPS Combat project
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameplayEffectExecutionCalculation.h"
 #include "FPSCombatHealExecCalc.generated.h"
 
-/**
+/** UFPSCombatHealExecCalc
  * 
+ *  Execution used for effects to deal heal to health attribute
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatHealExecCalc : public UGameplayEffectExecutionCalculation
@@ -16,6 +16,8 @@ class FPSCOMBATSYSTEM_API UFPSCombatHealExecCalc : public UGameplayEffectExecuti
 
 public:
 	UFPSCombatHealExecCalc();
+
+protected:
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 		FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 };

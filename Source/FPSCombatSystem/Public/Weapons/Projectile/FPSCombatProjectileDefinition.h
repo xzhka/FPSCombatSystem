@@ -1,12 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "FPSCombatProjectileDefinition.generated.h"
 
-/**
+/** UFPSCombatProjectileDefinition
  * 
+ * Asset for projectile instances
  */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatProjectileDefinition : public UPrimaryDataAsset

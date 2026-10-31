@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "AbilitySystem/Abilities/FPSCombatGameplayAbilityUpdraft.h"
 
-#include "Characters/FPSCombatMovementComp.h"
+#include "Characters/FPSCombatMovementComponent.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
 UFPSCombatGameplayAbilityUpdraft::UFPSCombatGameplayAbilityUpdraft()
@@ -33,6 +33,7 @@ void UFPSCombatGameplayAbilityUpdraft::ActivateAbility(const FGameplayAbilitySpe
 		return;
 	}
 
+	// Manually execute cue on player ability location
 	if (UAbilitySystemComponent* ASC= GetAbilitySystemComponentFromActorInfo())
 	{
 		FGameplayCueParameters CueParams;
@@ -54,7 +55,7 @@ void UFPSCombatGameplayAbilityUpdraft::EndAbility(const FGameplayAbilitySpecHand
 
 void UFPSCombatGameplayAbilityUpdraft::Updraft()
 {
-	if (UFPSCombatMovementComp* MovementComp = UFPSCombatMovementComp::GetMovementComp(GetAvatarActorFromActorInfo()))
+	if (UFPSCombatMovementComponent* MovementComp = UFPSCombatMovementComponent::GetMovementComp(GetAvatarActorFromActorInfo()))
 	{
 		MovementComp->Updraft(Distance);
 	}
@@ -68,6 +69,7 @@ void UFPSCombatGameplayAbilityUpdraft::Updraft()
 		{
 			AirborneEffectHandle = ApplyGameplayEffectSpecToOwner(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, SpecHandle);
 
+			// Register for gameplay effect removed events
 			ASC->OnGameplayEffectRemoved_InfoDelegate(AirborneEffectHandle)->AddUObject(this, &UFPSCombatGameplayAbilityUpdraft::HandleUpdraftSourceChanged);
 			
 		}

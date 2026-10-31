@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -6,8 +6,9 @@
 #include "AbilitySystem/Abilities/FPSCombatBaseGameplayAbility.h"
 #include "FPSCombatGameplayAbilityAim.generated.h"
 
-/**
- * 
+/** UFPSCombatGameplayAbilityAim
+ *
+ *	Ability associated with the aim 
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatGameplayAbilityAim : public UFPSCombatBaseGameplayAbility

@@ -1,19 +1,19 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "FPSCombatInfoWidget.h"
-#include "Blueprint/UserWidget.h"
+#include "FPSCombatHUDInfoWidget.h"
 #include "FPSCombatSystem/FPSCombatMessageTypes.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "FPSCombatHUDEquipmentWidget.generated.h"
 
-/**
- * 
+/** UFPSCombatHUDEquipmentWidget
+ *
+ *	Base class associated with equipment instance
  */
 UCLASS()
-class FPSCOMBATSYSTEM_API UFPSCombatHUDEquipmentWidget : public UFPSCombatInfoWidget
+class FPSCOMBATSYSTEM_API UFPSCombatHUDEquipmentWidget : public UFPSCombatHUDInfoWidget
 {
 	GENERATED_BODY()
 protected:

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Animation/FPSCombatRigIKComponent.h"
@@ -21,6 +21,7 @@ void UFPSCombatRigIKComponent::BeginPlay()
 
 	if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
 	{
+		// Tick after the mesh so the hand goal uses this frame's pose.
 		AddTickPrerequisiteComponent(Character->GetMesh());	
 	}
 }
@@ -28,13 +29,15 @@ void UFPSCombatRigIKComponent::BeginPlay()
 void UFPSCombatRigIKComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(FPSCombat_LeftHandIK);
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (!CachedWeaponActor) return;
 
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
 	if (!Character || !Character->GetMesh()) return;
-	
+
+	// Convert the weapon's grip socket into the character mesh's component space.
 	const FTransform SocketWorld = CachedWeaponActor->GetSocketTransform(CachedSocketName);
 	const FTransform GoalComponentSpace = SocketWorld.GetRelativeTransform(Character->GetMesh()->GetComponentTransform());
 	SetIKRigGoalPositionAndRotation(LeftHandGoalName, GoalComponentSpace.GetLocation(), GoalComponentSpace.GetRotation(), 1.f, 1.f);
@@ -48,7 +51,7 @@ void UFPSCombatRigIKComponent::OnEquipmentChange(FGameplayTag Channel, const FFP
 	}
 
 	UFPSCombatWeaponDefinition* WeaponDef = Message.bIsEquipped ? Cast<UFPSCombatWeaponDefinition>(Message.NewObjectInstance->GetDefinition()) : nullptr;
-
+	
 	if (!WeaponDef || WeaponDef->LeftHandGripSocket.IsNone())
 	{
 		CachedWeaponActor = nullptr;

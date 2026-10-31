@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,8 +7,11 @@
 #include "FPSCombatTagsRelationshipMapping.h"
 #include "FPSCombatAbilitySystemComponent.generated.h"
 
-/**
- * 
+/** UFPSCombatAbilitySystemComponent
+ *
+ * Base ability system component
+ * of that project for treat the
+ * abilities behaviour
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatAbilitySystemComponent : public UAbilitySystemComponent
@@ -38,6 +41,9 @@ public:
 		bool bExecuteCancelTags, const FGameplayTagContainer& CancelTags) override;
 
 
+	UFUNCTION(BlueprintCallable)
+	bool TryActivateAbilityByInputTag(const FGameplayTag& InputTag);
+	
 	void TryActivateAbilityOnSpawn();
 	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
 	virtual void AbilitySpecInputPressed(FGameplayAbilitySpec& Spec) override;

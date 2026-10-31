@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Equipment/FPSCombatEquipmentManager.h"
@@ -11,7 +11,7 @@
 
 FString FFPSCombatAppliedEquipmentEntry::GetDebugString() const
 {
-	return FString::Printf(TEXT("Insance: %s. Definition: %s"), *GetNameSafe(Instance), *GetNameSafe(Definition.Get()));
+	return FString::Printf(TEXT("Instance: %s. Definition: %s"), *GetNameSafe(Instance), *GetNameSafe(Definition.Get()));
 }
 
 void FFPSCombatEquipmentList::PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize)
@@ -37,6 +37,8 @@ void FFPSCombatEquipmentList::PostReplicatedAdd(const TArrayView<int32> AddedInd
 		FFPSCombatAppliedEquipmentEntry& Entry = EntryList[Index];
 		if (Entry.Instance != nullptr)
 		{
+			// On client, we receive the entry by replication. Set the
+			// instance as server did it.
 			Entry.Instance->SetDefinition(GetMutableDefault<UFPSCombatEquipmentDefinition>(Entry.Definition));
 			Entry.Instance->OnEquipped();
 			if (UFPSCombatEquipmentManager* Manager = GetEquipmentManager())
@@ -83,6 +85,7 @@ UFPSCombatEquipmentInstance* FFPSCombatEquipmentList::AddEntry(TSubclassOf<UFPSC
 	{
 		for (const TObjectPtr<const UFPSCombatAbilitySet>& AbilitySet : DefinitionCDO->AbilitySet)
 		{
+			// Grant the definition abilities.
 			AbilitySet->GiveAbility(ASC, &NewEntry.GrantedHandles, ResultInstance);
 		}
 	}
@@ -174,6 +177,22 @@ void UFPSCombatEquipmentManager::OnUnequipItem(UFPSCombatEquipmentInstance* Item
 	}
 }
 
+void UFPSCombatEquipmentManager::UnequipAll()
+{
+	TArray<UFPSCombatEquipmentInstance*> AllInstances;
+
+	// Remove entries from the list which otherwise would be iterated.
+	for (const FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
+	{
+		AllInstances.Add(Entry.Instance);
+	}
+
+	for (UFPSCombatEquipmentInstance* UnequipInstance : AllInstances)
+	{
+		OnUnequipItem(UnequipInstance);
+	}
+}
+
 void UFPSCombatEquipmentManager::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -206,20 +225,9 @@ void UFPSCombatEquipmentManager::ReadyForReplication()
 
 void UFPSCombatEquipmentManager::UninitializeComponent()
 {
-	Super::UninitializeComponent();
-
-	TArray<UFPSCombatEquipmentInstance*> AllInstances;
-
-	for (const FFPSCombatAppliedEquipmentEntry& Entry : EquipmentList.EntryList)
-	{
-		AllInstances.Add(Entry.Instance);
-	}
-
-	for (UFPSCombatEquipmentInstance* UnequipInstance : AllInstances)
-	{
-		OnUnequipItem(UnequipInstance);
-	}
+	UnequipAll();
 	
+	Super::UninitializeComponent();
 }
 
 UFPSCombatEquipmentInstance* UFPSCombatEquipmentManager::GetFirstInstanceOfType(

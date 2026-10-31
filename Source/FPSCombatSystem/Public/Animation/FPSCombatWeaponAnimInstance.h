@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -6,8 +6,10 @@
 #include "Animation/AnimInstance.h"
 #include "FPSCombatWeaponAnimInstance.generated.h"
 
-/**
- * 
+/** UFPSCombatWeaponAnimInstance
+ *
+ * Animation instance represented
+ * weapon animation class
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatWeaponAnimInstance : public UAnimInstance

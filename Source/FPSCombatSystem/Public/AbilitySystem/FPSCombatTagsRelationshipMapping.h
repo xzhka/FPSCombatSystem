@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,7 +7,7 @@
 #include "Engine/DataAsset.h"
 #include "FPSCombatTagsRelationshipMapping.generated.h"
 
-
+/* Struct which describe the connection between different tags*/
 USTRUCT()
 struct FFPSCombatTagRelationship
 {
@@ -31,7 +31,10 @@ struct FFPSCombatTagRelationship
 
 
 
-
+/*	UFPSCombatTagsRelationshipMapping
+ *	
+ *	Data asset which holds tags relations 
+ */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatTagsRelationshipMapping : public UDataAsset
 {

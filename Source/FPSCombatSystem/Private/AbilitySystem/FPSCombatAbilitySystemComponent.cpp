@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "AbilitySystem/FPSCombatAbilitySystemComponent.h"
@@ -38,11 +38,6 @@ void UFPSCombatAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTa
 			{
 				ReleasedAbilitySpecHandles.AddUnique(Spec.Handle);
 				HeldAbilitySpecHandles.Remove(Spec.Handle);
-
-				// if (UFPSCombatBaseGameplayAbility* CombatAbility = Cast<UFPSCombatBaseGameplayAbility>(Spec.Ability))
-				// {
-				// 	CombatAbility->NotifyInputReleased(Spec);
-				// }
 			}
 		}
 	}
@@ -152,6 +147,24 @@ void UFPSCombatAbilitySystemComponent::ApplyAbilityBlockAndCancelTags(const FGam
 	
 	Super::ApplyAbilityBlockAndCancelTags(AbilityTags, RequestingAbility, bEnableBlockTags, MergedBlock,
 	                                      bExecuteCancelTags, MergedCancel);
+}
+
+bool UFPSCombatAbilitySystemComponent::TryActivateAbilityByInputTag(const FGameplayTag& InputTag)
+{
+	if (InputTag.IsValid())
+	{
+		FGameplayAbilitySpecHandle Handle;
+		for (FGameplayAbilitySpec& Spec : ActivatableAbilities.Items)
+		{
+			if (Spec.Ability && (Spec.GetDynamicSpecSourceTags().HasTagExact(InputTag)))
+			{
+				Handle = Spec.Handle;
+				break;
+			}
+		}
+		return Handle.IsValid() && TryActivateAbility(Handle);
+	}
+	return false;
 }
 
 void UFPSCombatAbilitySystemComponent::TryActivateAbilityOnSpawn()

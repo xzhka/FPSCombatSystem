@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -8,8 +8,9 @@
 #include "Abilities/Tasks/AbilityTask_WaitInputRelease.h"
 #include "FPSCombatGameplayAbilityThrow.generated.h"
 
-/**
- * 
+/** UFPSCombatGameplayAbilityThrow
+ *
+ *  Ability associated with throwable instance
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatGameplayAbilityThrow : public UFPSCombatBaseGameplayAbility
@@ -56,12 +57,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Throw")
 	UFPSCombatThrowableDefinition* GetThrowableDefinition() const { return ThrowInstance ? ThrowInstance->GetThrowableDefinition() : nullptr; }
 
-	UFUNCTION(BlueprintCallable, Category = "Throw", DisplayName = "Get Hold Montage")
-	UAnimMontage* BP_GetHoldMontage() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Throw", DisplayName = "Get Throw Montage")
-	UAnimMontage* BP_GetThrowMontage() const;
-
+	UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "Throw")
+	FORCEINLINE UFPSCombatThrowableInstance* GetThrowableInstance() { return ThrowInstance; }
+	
 	void FinalizeThrowReleased(float TimeHeld);
 
 	UFUNCTION()

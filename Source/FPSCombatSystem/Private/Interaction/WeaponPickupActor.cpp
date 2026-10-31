@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Interaction/WeaponPickupActor.h"
@@ -13,6 +13,7 @@
 bool AWeaponPickupActor::TryGivePickup(APawn* PickupPawn)
 {
 	check(PickupPawn != nullptr);
+
 	
 	if (AController* Controller = PickupPawn->GetController())
 	{
@@ -32,12 +33,16 @@ bool AWeaponPickupActor::TryGivePickup(APawn* PickupPawn)
 			
 				const int32 FreeSlot = QuickBar->GetNextFreeItemSlot();
 				if (FreeSlot == INDEX_NONE) return false;
+				
+				UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PickupPawn);
+				if (ASC->HasMatchingGameplayTag(FPSCombatGameplayTags::Weapon_Reload)) return true;
+				
 				if (UFPSCombatItemInstance* ItemInstance = ItemManager->AddStack(ItemDefinition, FPSCombatGameplayTags::Item_Stat_Quantity, 1))
 				{
+					// Send gameplay event for every case when we already
+					// in ability state and want to pick up a weapon.
 					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 						PickupPawn, FPSCombatGameplayTags::Ability_ExternalResolveRequested, FGameplayEventData());
-					UAbilitySystemComponent* ASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(PickupPawn);
-					if (!ASC || ASC->HasMatchingGameplayTag(FPSCombatGameplayTags::Weapon_Reload)) return false;
 					QuickBar->AddItemToSlot(ItemInstance, FreeSlot);
 					
 					QuickBar->SetActiveSlot(FreeSlot);

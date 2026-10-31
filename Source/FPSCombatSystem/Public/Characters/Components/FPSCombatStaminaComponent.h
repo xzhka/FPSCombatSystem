@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -13,7 +13,10 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFPSCombatStaminaRestoredEvent, AAct
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FFPSCombatStaminaChangedEvent, UFPSCombatStaminaComponent*, StaminaComponent, float, OldValue, float, NewValue);
 
-
+/** UFPSCombatStaminaComponent
+ *
+ *	Derived class which represents stamina stat
+ */
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSCOMBATSYSTEM_API UFPSCombatStaminaComponent : public UFPSCombatBaseComponent
 {

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -11,7 +11,10 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPercentChanged, float, Percent);
 
-
+/** UFPSCombatBaseComponent
+ *
+ *	Parent class for stat components
+ */
 UCLASS( Abstract )
 class FPSCOMBATSYSTEM_API UFPSCombatBaseComponent : public UActorComponent
 {

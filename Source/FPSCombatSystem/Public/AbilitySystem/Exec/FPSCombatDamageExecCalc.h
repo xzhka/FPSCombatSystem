@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -6,8 +6,9 @@
 #include "GameplayEffectExecutionCalculation.h"
 #include "FPSCombatDamageExecCalc.generated.h"
 
-/**
+/** UFPSCombatDamageExecCalc
  * 
+ *  Execution used for effects to deal damage to health attribute
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatDamageExecCalc : public UGameplayEffectExecutionCalculation
@@ -16,6 +17,8 @@ class FPSCOMBATSYSTEM_API UFPSCombatDamageExecCalc : public UGameplayEffectExecu
 
 public:
 	UFPSCombatDamageExecCalc();
+
+protected:
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 		FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 };

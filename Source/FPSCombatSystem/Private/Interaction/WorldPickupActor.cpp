@@ -1,10 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #include "Interaction/WorldPickupActor.h"
 
 #include "Equipment/FPSCombatEquipmentManager.h"
-#include "Equipment/FPSCombatQuickBarComponent.h"
-#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
 AWorldPickupActor::AWorldPickupActor()
 {
@@ -27,7 +25,10 @@ bool AWorldPickupActor::TryTopUpStat(UFPSCombatItemInstance* ItemInstance) const
 {
 	if (!ItemInstance) return false;
 	
+	// Room left until the stat reaches its default maximum.
 	const int32 RemainingStat = ItemInstance->GetDefaultStatsByValue(StatTagToAdd) - ItemInstance->GetStack(StatTagToAdd);
+	// Add the smaller of the room left and MaxAmountToAdd. Fails when the stat
+	// is already full.
 	if (RemainingStat > 0 && RemainingStat < ItemInstance->GetDefaultStatsByValue(MaxAmountToAdd))
 	{
 		ItemInstance->AddStackCount(StatTagToAdd, RemainingStat);

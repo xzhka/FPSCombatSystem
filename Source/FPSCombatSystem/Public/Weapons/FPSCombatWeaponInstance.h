@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,8 +7,9 @@
 #include "Equipment/FPSCombatEquipmentInstance.h"
 #include "FPSCombatWeaponInstance.generated.h"
 
-/**
- * 
+/** UFPSCombatWeaponInstance
+ *
+ *  A part of equipment instance which represents the weapon spawned
  */
 UCLASS(Abstract)
 class FPSCOMBATSYSTEM_API UFPSCombatWeaponInstance : public UFPSCombatEquipmentInstance
@@ -17,6 +18,7 @@ class FPSCOMBATSYSTEM_API UFPSCombatWeaponInstance : public UFPSCombatEquipmentI
 
 	
 public:
+	/* Equipment override functions */
 	virtual void OnEquipped() override;
 	virtual void OnUnequipped() override;
 
@@ -34,16 +36,7 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = Animations)
 	TSubclassOf<UAnimInstance> PickAnimLayer(bool bIsEquipped) const;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animations)
-	FFPSCombatLayerSelectionSet EquippedAnimSet;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animations)
-	FFPSCombatLayerSelectionSet UnequippedAnimSet;
-	
-protected:
-	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category = Animations)
-	TSubclassOf<UAnimInstance> PickAnimLayer(bool bIsEquipped, const FGameplayTagContainer& CosmeticTag) const;
-
+	/* Animation variables */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Animations)
 	FFPSCombatLayerSelectionSet EquippedAnimSet;
 
@@ -52,7 +45,7 @@ protected:
 	
 private:
 
+	/* Time info */
 	float TimeEquipped = 0.f;
 	float TimeFired = 0.f;
-	
 };

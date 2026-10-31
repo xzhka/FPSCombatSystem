@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Weapons/Projectile/FPSCombatGameplayAbilityThrow.h"
@@ -54,7 +54,9 @@ void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecH
 		return;
 	}
 	K2_OnThrowSetupComplete();
-	
+
+	// A throw ends in one of three ways: input released, an external resolve
+	// event (authority only) or the max-hold timer.
 	WaitInputRelease  = UAbilityTask_WaitInputRelease::WaitInputRelease(this, false);
 	WaitInputRelease->OnRelease.AddDynamic(this, &ThisClass::HandleInputReleased);
 	WaitInputRelease->ReadyForActivation();
@@ -62,13 +64,16 @@ void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecH
 	UAbilityTask_WaitGameplayEvent* WaitGameplayEvent = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FPSCombatGameplayTags::Ability_ExternalResolveRequested, nullptr, false, true);
 	WaitGameplayEvent->EventReceived.AddDynamic(this, &ThisClass::HandleExternalResolveEvent);
 	WaitGameplayEvent->ReadyForActivation();
-	
+
+	// Auto-release after MaxHoldTime. A value of 0 disables the limit.
 	GetWorld()->GetTimerManager().SetTimer(MaxHoldHandle, this, &UFPSCombatGameplayAbilityThrow::OnReleaseNotifyTimeout, MaxHoldTime, false);	
 
 }
 
 void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 {
+	TRACE_BOOKMARK(TEXT("Grenade released"));
+	TRACE_CPUPROFILER_EVENT_SCOPE(FPSCombat_GrenadeSpawn);
 	if (!HasAuthority(&CurrentActivationInfo)) return;
 
 	APawn* Pawn = Cast<APawn>(GetAvatarActorFromActorInfo());
@@ -85,7 +90,7 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 	
 	
 	UFPSCombatThrowableDefinition* ThrowableDefinition = ThrowInstance ? ThrowInstance->GetThrowableDefinition() : nullptr;
-	TSubclassOf<AFPSCombatProjectileBase> ProjectileClass = ThrowableDefinition ? ThrowableDefinition->ProjectileClass.LoadSynchronous() : nullptr;
+	TSubclassOf<AFPSCombatProjectileBase> ProjectileClass = ThrowInstance->GetProjectileClass();
 	if (!ProjectileClass) return;
 
 	FVector AimDir = LocRot.Vector();
@@ -122,6 +127,7 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 		ExplosiveComp->InitializeExplosion(ThrowableDefinition);
 	}
 
+	// Spend a charge only after the projectile has actually spawned.
 	ThrowInstance->ConsumeProjectile(FPSCombatGameplayTags::Data_Projectile_Quantity);
 }
 
@@ -137,7 +143,7 @@ void UFPSCombatGameplayAbilityThrow::HandleInputReleased(float TimeHeld)
 
 void UFPSCombatGameplayAbilityThrow::HandleExternalResolveEvent(FGameplayEventData Payload)
 {
-	if (!CurrentActorInfo && !CurrentActorInfo->IsNetAuthority())
+	if (!CurrentActorInfo || !CurrentActorInfo->IsNetAuthority())
 	{
 		return;
 	}
@@ -156,6 +162,8 @@ void UFPSCombatGameplayAbilityThrow::HandleExternalResolveEvent(FGameplayEventDa
 
 void UFPSCombatGameplayAbilityThrow::SetThrowableVisualsActive(bool bActive)
 {
+	// Hide the quick bar's active item while a throwable is shown, and the
+	// other way round.
 	if (AController* Controller = GetController())
 	{
 		if (UFPSCombatQuickBarComponent* QuickBar = Controller->FindComponentByClass<UFPSCombatQuickBarComponent>())
@@ -183,16 +191,6 @@ void UFPSCombatGameplayAbilityThrow::SetThrowableVisualsActive(bool bActive)
 	}
 }
 
-UAnimMontage* UFPSCombatGameplayAbilityThrow::BP_GetHoldMontage() const
-{
-	return GetThrowableDefinition() ? GetThrowableDefinition()->HoldMontage.LoadSynchronous() : nullptr;
-}
-
-UAnimMontage* UFPSCombatGameplayAbilityThrow::BP_GetThrowMontage() const
-{
-	return GetThrowableDefinition() ? GetThrowableDefinition()->ThrowMontage.LoadSynchronous() : nullptr;
-}
-
 void UFPSCombatGameplayAbilityThrow::FinalizeThrowReleased(float TimeHeld)
 {
 	if (CurrentActorInfo && CurrentActorInfo->IsNetAuthority())
@@ -213,6 +211,9 @@ void UFPSCombatGameplayAbilityThrow::EndAbility(const FGameplayAbilitySpecHandle
                                                 bool bReplicateEndAbility, bool bWasCancelled)
 {
 	GetWorld()->GetTimerManager().ClearTimer(MaxHoldHandle);
+	
+	// Whatever ended the throw (release, resolve, cancel): restore the visuals
+	// and drop the in-hand actors.
 	SetThrowableVisualsActive(false);
 	
 	if (ThrowInstance)

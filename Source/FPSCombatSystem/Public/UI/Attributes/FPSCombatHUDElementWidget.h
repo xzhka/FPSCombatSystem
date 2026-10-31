@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -7,8 +7,9 @@
 #include "Characters/Components/FPSCombatBaseComponent.h"
 #include "FPSCombatHUDElementWidget.generated.h"
 
-/**
- * 
+/** UFPSCombatHUDElementWidget
+ *
+ *	Parent class for element widgets
  */
 UCLASS(Abstract)
 class FPSCOMBATSYSTEM_API UFPSCombatHUDElementWidget : public UUserWidget

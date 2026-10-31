@@ -1,3 +1,4 @@
+// FPS Combat project
 
 #include <FPSCombatSystem/Public/Animation/FPSCombatAnimationTypes.h>
 

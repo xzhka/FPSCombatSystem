@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -6,8 +6,9 @@
 #include "UI/Attributes/FPSCombatHUDElementWidget.h"
 #include "FPSCombatStaminaWidget.generated.h"
 
-/**
- * 
+/** UFPSCombatStaminaWidget
+ *
+ *	Widget class connected with stamina component
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatStaminaWidget : public UFPSCombatHUDElementWidget

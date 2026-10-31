@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -6,8 +6,9 @@
 #include "Interaction/WorldPickupActor.h"
 #include "StatsPickupActor.generated.h"
 
-/**
- * 
+/*	AWeaponPickupActor
+ *	
+ *	Derived representation of stat actors
  */
 UCLASS()
 class FPSCOMBATSYSTEM_API AStatsPickupActor : public AWorldPickupActor

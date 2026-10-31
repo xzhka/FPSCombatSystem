@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "Items/FPSCombatItemManagerComponent.h"
@@ -45,6 +45,8 @@ UFPSCombatItemInstance* FFPSCombatItemList::AddEntry(TSubclassOf<UFPSCombatItemD
 	check(Actor);
 	check(Actor->HasAuthority());
 
+	// One instance per definition: adding to an existing item just raises its
+	// stack.
 	if (UFPSCombatItemInstance* Exist = FindInstanceForDefinition(Definition))
 	{
 		Exist->AddStackCount(Tag, StackCount);
@@ -70,6 +72,7 @@ UFPSCombatItemInstance* FFPSCombatItemList::AddPreservedEntry(UFPSCombatItemInst
 
 	if (!InInstance) return nullptr; 
 
+	// Re-outer the existing instance to the new owner so it keeps its stacks.
 	InInstance->Rename(nullptr, OwnerComponent->GetOwner());
 
 	FFPSCombatItemEntry& NewEntry = EntryList.AddDefaulted_GetRef();
@@ -86,7 +89,6 @@ void FFPSCombatItemList::RemoveEntry(UFPSCombatItemInstance* ItemInstance)
 	check(OwnerComponent);
 	AActor* Actor = OwnerComponent->GetOwner();
 	check(Actor);
-	check(Actor->HasAuthority());
 	
 	for (auto It = EntryList.CreateIterator(); It; ++It)
 	{

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "AbilitySystem/Exec/FPSCombatDamageExecCalc.h"
@@ -42,7 +42,8 @@ void UFPSCombatDamageExecCalc::Execute_Implementation(const FGameplayEffectCusto
 	
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BaseDamageStaticsDef, EvaluateParams, BaseDamage);
 
-	BaseDamage += FMath::Max(Spec.GetSetByCallerMagnitude(FName("SetByCaller.Data.Damage"), false, 0.f), 0.f);
+	// Get damage magnitude from gameplay tag
+	BaseDamage += FMath::Max(Spec.GetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Damage, false, 0.f), 0.f);
 	
 	const float DamageDone = FMath::Max(BaseDamage, 0.f);
 

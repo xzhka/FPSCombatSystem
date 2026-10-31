@@ -1,23 +1,27 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 #include "FPSCombatSystem/Public/Characters/FPSCombatCharacter.h"
-#include "Characters/FPSCombatMovementComp.h"
+#include "Characters/FPSCombatMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "FPSCombatSystem/FPSCombatSystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameModes/FPSCombatGameMode.h"
 #include "GameModes/FPSCombatPlayerState.h"
 #include "Weapons/Projectile/FPSCombatThrowableInstance.h"
 
 
-// Sets default values
+// Sets default character parameters
 AFPSCombatCharacter::AFPSCombatCharacter()
 {
 	bReplicates = true;
 	GetCapsuleComponent()->SetCapsuleSize(42.0f, 96.0f);
+
+	GetMesh()->bEnableUpdateRateOptimizations = true;
 	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	
-	// Don`t rotate with controller
+	/* Setup controller rotation */
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
@@ -35,10 +39,14 @@ AFPSCombatCharacter::AFPSCombatCharacter()
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
 	/* Default components initialize*/
-	PawnComponent = CreateDefaultSubobject<UFPSCombatCharacterPawnComp>(TEXT("PawnComponent"));
+	PawnComponent = CreateDefaultSubobject<UFPSCombatCharacterPawnComponent>(TEXT("PawnComponent"));
 	HealthComponent = CreateDefaultSubobject<UFPSCombatHealthComponent>(TEXT("HealthComponent"));
+
+	HealthComponent->OnDeathStarted.AddDynamic(this, &AFPSCombatCharacter::OnDeathStarted);
+	HealthComponent->OnDeathEnded.AddDynamic(this, &AFPSCombatCharacter::OnDeathEnded);
+	
 	StaminaComponent = CreateDefaultSubobject<UFPSCombatStaminaComponent>(TEXT("StaminaComponent"));	
-	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComp>(TEXT("MovementComponent"));
+	MovementComponent = CreateDefaultSubobject<UFPSCombatMovementComponent>(TEXT("MovementComponent"));
 	EquipmentComponent = CreateDefaultSubobject<UFPSCombatEquipmentManager>(TEXT("EquipmentManager")); 
 	RigIKComponent = CreateDefaultSubobject<UFPSCombatRigIKComponent>(TEXT("RigIK"));
 }
@@ -58,6 +66,8 @@ void AFPSCombatCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AFPSCombatCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+	// Reset input flags to default for every created pawn instance
+	NewController->ResetIgnoreInputFlags();
 	
 	SetOwner(NewController);
 	
@@ -74,6 +84,11 @@ void AFPSCombatCharacter::OnRep_PlayerState()
 
 void AFPSCombatCharacter::UnPossessed()
 {
+	if (HasAuthority())
+	{
+		HandleItemsOnUnpossessed();
+	}
+	
 	UninitializeAbilitySystem();
 	Super::UnPossessed();
 }
@@ -85,16 +100,16 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 		if (UFPSCombatAbilitySystemComponent* AbilitySystem = Cast<UFPSCombatAbilitySystemComponent>(APlayerState->GetAbilitySystemComponent()))
 		{
 			AbilitySystem->InitAbilityActorInfo(APlayerState, this);
-		
+			CachedASC = AbilitySystem;
 			HealthComponent->InitializeWithAbilitySystem(AbilitySystem);
 			StaminaComponent->InitializeWithAbilitySystem(AbilitySystem);
 			MovementComponent->InitializeWithAbilitySystem(AbilitySystem);
 
 			if (HasAuthority())
 			{
+				AbilitySystem->CancelAllAbilities();
+				
 				AbilitySystem->InitializeDefaultAttributes();
-
-				APlayerState->GrantDefaultAbilities();
 			}
 		}
 	}
@@ -102,8 +117,27 @@ void AFPSCombatCharacter::InitializeAbilitySystem()
 
 void AFPSCombatCharacter::UninitializeAbilitySystem()
 {
-	HealthComponent->UninitializeFromAbilitySystem();
-	StaminaComponent->UninitializeFromAbilitySystem();
+	UFPSCombatAbilitySystemComponent* ASC = CachedASC.Get();
+	CachedASC = nullptr;
+	if (!ASC) return;
+	
+	if (ASC->GetAvatarActor() == this)
+	{
+		if (HasAuthority()) EquipmentComponent->UnequipAll();
+		ASC->ClearAbilityInput();
+		ASC->RemoveAllGameplayCues();
+		MovementComponent->UninitializeFromAbilitySystem();
+		HealthComponent->UninitializeFromAbilitySystem();
+		StaminaComponent->UninitializeFromAbilitySystem();
+		if (ASC->GetOwnerActor() != nullptr)
+		{
+			ASC->SetAvatarActor(nullptr);
+		}
+		else
+		{
+			ASC->ClearActorInfo();
+		}
+	}
 }
 
 UAbilitySystemComponent* AFPSCombatCharacter::GetAbilitySystemComponent() const
@@ -123,13 +157,89 @@ void AFPSCombatCharacter::OnConstruction(const FTransform& Transform)
 	}
 }
 
+void AFPSCombatCharacter::SetGenericTeamId(const FGenericTeamId& TeamID)
+{
+	UE_LOG(LogFPSCombat, Error, TEXT("Cant set the generic team id on character. Only from player state."));
+}
+
+FGenericTeamId AFPSCombatCharacter::GetGenericTeamId() const
+{
+	if (AFPSCombatPlayerState* PS = GetPlayerState<AFPSCombatPlayerState>())
+	{
+		return PS->GetGenericTeamId();
+	}
+	return FGenericTeamId::NoTeam;
+}
+
+void AFPSCombatCharacter::OnDeathStarted(AActor* OwningActor)
+{
+	if (HasAuthority())
+	{
+		// Store replicated DeathInfo which would be
+		// the same on every client
+		FFPSCombatDeathInfo Info;
+		Info.MontageIndex = FMath::RandRange(0, MAX_int32-1);
+		Info.Alpha = FMath::FRand();
+		Info.Velocity = GetCharacterMovement()->GetLastUpdateVelocity();
+		HealthComponent->SetDeathInfo(Info);
+	}
+
+	// Set death state setup
+	if (GetController())
+	{
+		GetController()->SetIgnoreMoveInput(true);
+		GetController()->SetIgnoreLookInput(true);
+	}
+	bUseControllerRotationYaw = false;
+
+	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
+	{
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CapsuleComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+	}
+
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->StopMovementImmediately();
+		GetCharacterMovement()->DisableMovement();
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
+
+	K2_OnDeathStarts(HealthComponent->GetDeathInfo());
+}
+
+void AFPSCombatCharacter::OnDeathEnded(AActor* OwningActor)
+{
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AFPSCombatCharacter::ClearActorDueDeath);
+}
+
+void AFPSCombatCharacter::ClearActorDueDeath()
+{
+	K2_OnDeathEnds();
+	
+	
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		AController* DeadController = GetController();
+		DetachFromControllerPendingDestroy();
+		SetLifeSpan(0.1f);
+
+		if (AFPSCombatGameMode* GM = GetWorld()->GetAuthGameMode<AFPSCombatGameMode>())
+		{
+			GM->HandlePawnDeath(DeadController);
+		}
+	}
+}
+
+// Grant default instance which related to item system 
 void AFPSCombatCharacter::GrantDefaultEquipment()
 {
 	if (ThrowableDefinition == nullptr)
 	{
 		return;
 	}
-
+	
 	AFPSCombatPlayerState* PS = GetPlayerState<AFPSCombatPlayerState>();
 	if (!PS) return;
 	

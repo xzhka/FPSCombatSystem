@@ -15,7 +15,8 @@
 				"ModularGameplay",
 				"EnhancedInput",
 				"CoreUObject",
-				"IKRig"
+				"IKRig",
+				"AIModule"
 			]
 		}
 	],

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -12,6 +12,7 @@
 struct FFPSCombatItemList;
 class UFPSCombatItemManagerComponent;
 
+/* Single piece of item */
 USTRUCT(BlueprintType)
 struct FFPSCombatItemEntry : public FFastArraySerializerItem
 {
@@ -31,6 +32,7 @@ private:
 		
 };
 
+/* List of owned instances */
 USTRUCT(BlueprintType)
 struct FFPSCombatItemList : public FFastArraySerializer
 {
@@ -81,8 +83,10 @@ struct TStructOpsTypeTraits<FFPSCombatItemList> : public TStructOpsTypeTraitsBas
 };
 
 
-
-
+/*	UFPSCombatItemManagerComponent
+ *	
+ *	Manages items owned by character
+ */
 UCLASS()
 class FPSCOMBATSYSTEM_API UFPSCombatItemManagerComponent : public UActorComponent
 {
@@ -100,7 +104,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category= "Entry")
 	void RemoveInstance(UFPSCombatItemInstance* ItemInstance);
 
-	UFUNCTION(BlueprintCallable, Category= "Entry")
+	UFUNCTION(BlueprintCallable, BlueprintPure = false, Category= "Entry")
 	TArray<UFPSCombatItemInstance*> GetAllItemInstances() const;
 	
 	UFUNCTION(BlueprintCallable, Category= "Entry")

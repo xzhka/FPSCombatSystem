@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 #pragma once
 
@@ -9,7 +9,7 @@
 #include "FPSCombatImpactDefinition.generated.h"
 
 
-
+/* Info set for impact effects */
 USTRUCT(BlueprintType)
 struct FImpactEffectSet
 {
@@ -34,6 +34,11 @@ GENERATED_BODY()
 	float DecalFadeOutTime = 0.f;
 };
 
+
+/*	UFPSCombatImpactDefinition
+ *	
+ *	Asset for impact effects
+ */
 UCLASS(Blueprintable, BlueprintType)
 class FPSCOMBATSYSTEM_API UFPSCombatImpactDefinition : public UDataAsset
 {

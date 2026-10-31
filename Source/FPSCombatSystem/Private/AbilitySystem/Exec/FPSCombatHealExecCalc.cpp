@@ -1,9 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// FPS Combat project
 
 
 #include "AbilitySystem/Exec/FPSCombatHealExecCalc.h"
 
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
+#include "FPSCombatSystem/FPSCombatGameplayTags.h"
 
 struct FFPSCombatHealStatics
 {
@@ -45,7 +46,8 @@ void UFPSCombatHealExecCalc::Execute_Implementation(const FGameplayEffectCustomE
 	
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude( HealStatics().BaseHealStaticsDef, EvaluateParams, BaseHeal);
 
-	BaseHeal += FMath::Max(Spec.GetSetByCallerMagnitude(FName("SetByCaller.Data.Heal"), false, 0.f), 0.f);
+	// Get heal magnitude from gameplay tag
+	BaseHeal += FMath::Max(Spec.GetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Heal, false, 0.f), 0.f);
 	
 	const float HealDone = FMath::Max(BaseHeal, 0.f);
 
