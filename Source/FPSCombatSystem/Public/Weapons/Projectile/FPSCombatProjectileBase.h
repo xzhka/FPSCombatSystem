@@ -48,6 +48,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UProjectileMovementComponent* GetProjectileMovementComponent() { return MovementComp; } 
+
+	FORCEINLINE float GetGravityScale() const { return ProjectileDefinition ? ProjectileDefinition->ProjectileGravityScale : 1.f; }
 	
 	UAbilitySystemComponent* GetSourceASC() const;
 	

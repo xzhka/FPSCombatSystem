@@ -5,6 +5,34 @@
 
 #include "AbilitySystem/Attributes/FPSCombatAttributeSet.h"
 #include "FPSCombatSystem/FPSCombatGameplayTags.h"
+#include "Physics/PhysicMaterialWithTag.h"
+#include "Weapons/FPSCombatRangedWeaponInstance.h"
+
+namespace 
+{
+	float GetZoneMultiplier(FGameplayEffectContextHandle Context)
+	{
+		if (const FHitResult* HitResult = Context.GetHitResult())
+		{
+			if (const UPhysicMaterialWithTag* PM = Cast<UPhysicMaterialWithTag>(HitResult->PhysMaterial.Get()))
+			{
+				if (const UFPSCombatRangedWeaponInstance* WeaponInstance = Cast<const UFPSCombatRangedWeaponInstance>(Context.GetSourceObject()))
+				{
+					float CombinedMultiplier = 1.f;
+					for (const FGameplayTag MaterialTag : PM->Tags)
+					{
+						if (const float* TagMultiplier = WeaponInstance->GetWeaponDefinition()->ZoneMultipliers.Find(MaterialTag))
+						{
+							CombinedMultiplier *= *TagMultiplier;
+						}
+					}
+					return CombinedMultiplier;
+				}
+			}
+		}
+		return 1.f;
+	}
+}
 
 struct FFPSCombatDamageStatics
 {
@@ -33,7 +61,8 @@ void UFPSCombatDamageExecCalc::Execute_Implementation(const FGameplayEffectCusto
 {
 #if WITH_SERVER_CODE
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
-	
+	FGameplayEffectContextHandle ContextHandle = Spec.GetContext();
+		
 	FAggregatorEvaluateParameters EvaluateParams;
 	EvaluateParams.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	EvaluateParams.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
@@ -44,6 +73,8 @@ void UFPSCombatDamageExecCalc::Execute_Implementation(const FGameplayEffectCusto
 
 	// Get damage magnitude from gameplay tag
 	BaseDamage += FMath::Max(Spec.GetSetByCallerMagnitude(FPSCombatGameplayTags::SetByCaller_Data_Damage, false, 0.f), 0.f);
+
+	BaseDamage *= GetZoneMultiplier(ContextHandle);
 	
 	const float DamageDone = FMath::Max(BaseDamage, 0.f);
 

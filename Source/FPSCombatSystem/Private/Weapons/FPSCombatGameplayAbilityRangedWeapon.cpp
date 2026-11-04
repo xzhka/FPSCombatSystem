@@ -370,7 +370,7 @@ void UFPSCombatGameplayAbilityRangedWeapon::ProcessHitResult(const FGameplayAbil
 
 			FGameplayEffectContextHandle CueContext = ASC->MakeEffectContext();
 			CueContext.AddHitResult(*HitResult, true);
-			
+			CueContext.AddSourceObject(WeaponInstance);
 			if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitResult->GetActor()))
 			{
 				FGameplayEffectSpecHandle SpecHandle = ASC->MakeOutgoingSpec(WeaponDefinition->DamageEffectClass, GetAbilityLevel(), CueContext);

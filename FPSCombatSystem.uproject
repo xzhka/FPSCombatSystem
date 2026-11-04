@@ -16,7 +16,8 @@
 				"EnhancedInput",
 				"CoreUObject",
 				"IKRig",
-				"AIModule"
+				"AIModule",
+				"PhysicsCore"
 			]
 		}
 	],

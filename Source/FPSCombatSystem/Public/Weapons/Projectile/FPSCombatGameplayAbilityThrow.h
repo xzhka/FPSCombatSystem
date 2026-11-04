@@ -30,6 +30,10 @@ protected:
 	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr,
 		FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+
+
+	UFUNCTION(BlueprintNativeEvent, Category= "Throw")
+	bool ComputeLaunch(const FVector& LocDir, const FRotator& LocRot, FVector& OutSpawnLocation, FVector& OutLaunchVelocity);
 	
 	UFUNCTION(BlueprintCallable)
 	void SpawnAndLaunchProjectile();
@@ -64,6 +68,9 @@ protected:
 
 	UFUNCTION()
 	void HandleExternalResolveEvent(FGameplayEventData Payload);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	float GetProjectileGravityZ() const;
 	
 	/* Variables */
 	UPROPERTY()

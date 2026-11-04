@@ -65,6 +65,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Reload")
 	float ReloadDuration = 2.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Multiplier")
+	TMap<FGameplayTag, float> ZoneMultipliers;
+	
 	/** Animation */
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	FName LeftHandGripSocket;

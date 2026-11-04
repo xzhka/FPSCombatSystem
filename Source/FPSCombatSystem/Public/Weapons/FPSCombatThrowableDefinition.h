@@ -58,12 +58,6 @@ public:
 	float ThrowImpulse = 1500.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Throw")
-	float LobImpulse = 500.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Throw")
-	float LobArcAngle = 35.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Throw")
 	float SpawnOffset = 80.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Throw")

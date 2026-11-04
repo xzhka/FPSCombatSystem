@@ -6,12 +6,20 @@
 #include "Equipment/FPSCombatEquipmentManager.h"
 #include "Equipment/FPSCombatQuickBarComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "FPSCombatSystem/FPSCombatSystem.h"
 #include "Weapons/Projectile/Components/ProjectileComponent_Explosive.h"
 
 UFPSCombatGameplayAbilityThrow::UFPSCombatGameplayAbilityThrow()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 	NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::LocalPredicted;
+
+	FAbilityTriggerData TriggerData;
+	TriggerData.TriggerSource = EGameplayAbilityTriggerSource::GameplayEvent;
+	TriggerData.TriggerTag = FPSCombatGameplayTags::GameplayEvent_Projectile_Throw;
+	
+	AbilityTriggers.Add(TriggerData);
+	
 }
 
 bool UFPSCombatGameplayAbilityThrow::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -28,6 +36,19 @@ bool UFPSCombatGameplayAbilityThrow::CanActivateAbility(const FGameplayAbilitySp
 	const UFPSCombatThrowableInstance* Instance = Spec ? Cast<UFPSCombatThrowableInstance>(Spec->SourceObject.Get()) : nullptr;
 
 	return Instance && Instance->HasChargesRemaining();
+}
+
+bool UFPSCombatGameplayAbilityThrow::ComputeLaunch_Implementation(const FVector& LocDir, const FRotator& LocRot,
+	FVector& OutSpawnLocation, FVector& OutLaunchVelocity)
+{
+	UFPSCombatThrowableDefinition* ThrowableDefinition = ThrowInstance ? ThrowInstance->GetThrowableDefinition() : nullptr;
+	if (!ThrowableDefinition) return false;
+
+	const FVector AimDir = LocRot.Vector();
+	OutSpawnLocation = LocDir + AimDir * ThrowableDefinition->SpawnOffset + FVector(0.f, 0.f, ThrowableDefinition->SpawnHeightOffset);
+	OutLaunchVelocity = AimDir * ThrowableDefinition->ThrowImpulse;
+	
+	return true;
 }
 
 void UFPSCombatGameplayAbilityThrow::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -93,13 +114,13 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 	TSubclassOf<AFPSCombatProjectileBase> ProjectileClass = ThrowInstance->GetProjectileClass();
 	if (!ProjectileClass) return;
 
-	FVector AimDir = LocRot.Vector();
-	FVector LaunchDir = AimDir;
-	float LaunchSpeed = ThrowableDefinition->ThrowImpulse;
-
-	FVector SpawnLoc = LocDir + AimDir * ThrowableDefinition->SpawnOffset + FVector(0.f, 0.f, ThrowableDefinition->SpawnHeightOffset);
-	FTransform ShotTransform(LaunchDir.Rotation(), SpawnLoc);
-
+	FVector SpawnLoc, LaunchVelocity;
+	if (!ComputeLaunch(LocDir, LocRot,SpawnLoc, LaunchVelocity))
+	{
+		UE_LOG(LogFPSCombat, Warning, TEXT("Throw failed: no valid launch"));
+	}
+	
+	FTransform ShotTransform(LaunchVelocity.Rotation(), SpawnLoc);
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Instigator = Pawn;
@@ -118,7 +139,7 @@ void UFPSCombatGameplayAbilityThrow::SpawnAndLaunchProjectile()
 		Projectile->InitializeProjectile(DamageSpec, Pawn, ASC);
 	}
 	
-	Projectile->InitializeVelocity(LaunchDir*LaunchSpeed);
+	Projectile->InitializeVelocity(LaunchVelocity);
 	
 	Projectile->FinishSpawning(ShotTransform);
 
@@ -158,6 +179,24 @@ void UFPSCombatGameplayAbilityThrow::HandleExternalResolveEvent(FGameplayEventDa
 	SpawnAndLaunchProjectile();
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+}
+
+float UFPSCombatGameplayAbilityThrow::GetProjectileGravityZ() const
+{
+	float Scale = 1.f;
+
+	if (ThrowInstance)
+	{
+		if (const TSubclassOf<AFPSCombatProjectileBase> ProjectileBase = ThrowInstance->GetProjectileClass())
+		{
+			if (const AFPSCombatProjectileBase* CDO = ProjectileBase.GetDefaultObject())
+			{
+				Scale = CDO->GetGravityScale();
+			}
+		}
+	}
+
+	return GetWorld() ? GetWorld()->GetGravityZ() * Scale : 0.f;
 }
 
 void UFPSCombatGameplayAbilityThrow::SetThrowableVisualsActive(bool bActive)
