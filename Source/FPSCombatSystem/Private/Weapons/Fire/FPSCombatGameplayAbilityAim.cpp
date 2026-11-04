@@ -1,7 +1,7 @@
 // FPS Combat project
 
 
-#include "Weapons/FIre/FPSCombatGameplayAbilityAim.h"
+#include "Weapons/Fire/FPSCombatGameplayAbilityAim.h"	
 
 void UFPSCombatGameplayAbilityAim::InputPressed(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
